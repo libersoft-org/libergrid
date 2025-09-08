@@ -29,6 +29,11 @@
 	let showAddDialog = false;
 	let selectedGridPosition = { row: 0, col: 0 };
 
+	// Mouse activity tracking for Field visibility
+	let showFields = false;
+	let mouseTimeout: number;
+	const MOUSE_TIMEOUT_DELAY = 2000; // 2 seconds
+
 	// Reactive map of occupied cells for better performance and reactivity
 	$: occupiedCells = new Set(
 		dashboardItems.flatMap(item => {
@@ -203,10 +208,35 @@
 
 	$: currentBackground = backgroundImages[currentBackgroundIndex];
 
+	// Mouse activity handlers for Field visibility
+	function handleMouseMove() {
+		showFields = true;
+		clearTimeout(mouseTimeout);
+		mouseTimeout = setTimeout(() => {
+			showFields = false;
+		}, MOUSE_TIMEOUT_DELAY);
+	}
+
+	function handleMouseLeave() {
+		showFields = false;
+		clearTimeout(mouseTimeout);
+	}
+
 	// Load data from localStorage on startup
 	onMount(() => {
 		loadDashboardFromStorage();
 		dataLoaded = true; // Activate automatic saving
+
+		// Add mouse event listeners for Field visibility
+		document.addEventListener('mousemove', handleMouseMove);
+		document.addEventListener('mouseleave', handleMouseLeave);
+
+		// Cleanup on component destroy
+		return () => {
+			clearTimeout(mouseTimeout);
+			document.removeEventListener('mousemove', handleMouseMove);
+			document.removeEventListener('mouseleave', handleMouseLeave);
+		};
 	});
 </script>
 
@@ -355,11 +385,13 @@
 
 <div class="dashboard" style="background-image: url('{currentBackground}')" on:click={toggleBackground} on:keydown={toggleBackground} role="button" tabindex="0">
 	<!-- Generate grid cells - only for empty fields -->
-	{#each Array(gridRows) as _, row}
-		{#each Array(gridCols) as _, col}
-			<Field {row} {col} isOccupied={gridOccupancy[row][col]} onAddClick={showAddComponentDialog} />
+	{#if showFields}
+		{#each Array(gridRows) as _, row}
+			{#each Array(gridCols) as _, col}
+				<Field {row} {col} isOccupied={gridOccupancy[row][col]} onAddClick={showAddComponentDialog} />
+			{/each}
 		{/each}
-	{/each}
+	{/if}
 
 	<!-- Render dashboard components -->
 	{#each dashboardItems as item (item.id)}

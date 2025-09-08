@@ -19,8 +19,13 @@
 	let startY = 0;
 	let startColSpan = colSpan;
 	let startRowSpan = rowSpan;
-	let startGridRow = 0;
 	let startGridCol = 0;
+	let startGridRow = 0;
+
+	// Mouse activity tracking for resize handles visibility
+	let showResizeHandles = false;
+	let mouseTimeout: number;
+	const MOUSE_TIMEOUT_DELAY = 2000; // 2 seconds
 
 	function handleResizeStart(event: MouseEvent, direction: string) {
 		if (!resizable) return;
@@ -184,6 +189,27 @@
 		}
 		document.removeEventListener('mousemove', handleDragMove);
 		document.removeEventListener('mouseup', handleDragEnd);
+	}
+
+	// Mouse activity handlers for resize handles visibility
+	function handleMouseEnter() {
+		showResizeHandles = true;
+		clearTimeout(mouseTimeout);
+	}
+
+	function handleMouseMove() {
+		showResizeHandles = true;
+		clearTimeout(mouseTimeout);
+		mouseTimeout = setTimeout(() => {
+			showResizeHandles = false;
+		}, MOUSE_TIMEOUT_DELAY);
+	}
+
+	function handleMouseLeave() {
+		clearTimeout(mouseTimeout);
+		mouseTimeout = setTimeout(() => {
+			showResizeHandles = false;
+		}, 300); // Short delay when leaving to avoid flickering
 	}
 </script>
 
@@ -360,7 +386,7 @@
 	}
 </style>
 
-<div class="section" class:with-border={border} class:dragging={isDragging} on:mousedown={handleDragStart}>
+<div class="section" class:with-border={border} class:dragging={isDragging} on:mousedown={handleDragStart} on:mouseenter={handleMouseEnter} on:mousemove={handleMouseMove} on:mouseleave={handleMouseLeave}>
 	<slot />
 
 	<!-- Border toggle button -->
@@ -368,7 +394,7 @@
 		{border ? '🔲' : '⬜'}
 	</button>
 
-	{#if resizable}
+	{#if resizable && showResizeHandles}
 		<!-- Sides -->
 		<div class="resize-handle resize-top" on:mousedown={e => handleResizeStart(e, 'top')} role="button" tabindex="0"></div>
 		<div class="resize-handle resize-right" on:mousedown={e => handleResizeStart(e, 'right')} role="button" tabindex="0"></div>
