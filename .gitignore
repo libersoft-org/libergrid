@@ -1,0 +1,10 @@
+.svelte-kit/
+node_modules/
+build/
+*.crt
+*.key
+.secret_git
+bun.lockb
+bun.lockb.txt
+package-lock.json
+vite.config.js.timestamp-*
