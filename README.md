@@ -1,4 +1,4 @@
-# LiberGridOD
+# LiberGrid
 
 [![Created Badge](https://badges.pufler.dev/created/libersoft-org/libergrid)](https://badges.pufler.dev) [![Updated Badge](https://badges.pufler.dev/updated/libersoft-org/libergrid)](https://badges.pufler.dev) [![Visits Badge](https://badges.pufler.dev/visits/libersoft-org/libergrid)](https://badges.pufler.dev)
 
