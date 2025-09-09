@@ -1,8 +1,19 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { autoFont } from '../../scripts/font';
 
 	export let weatherForecast: Array<{ day: string; temp: string; icon: string }> = [];
 	export let weatherError: boolean = false;
+
+	// Elements for font management
+	let titleElement: HTMLElement;
+	let errorElement: HTMLElement;
+	let dayNameElements: HTMLElement[] = [];
+	let iconElements: HTMLElement[] = [];
+	let tempElements: HTMLElement[] = [];
+
+	// Cleanup functions
+	let cleanupFunctions: (() => void)[] = [];
 
 	// Load weather forecast from Open-Meteo API
 	async function loadWeatherForecast() {
@@ -24,11 +35,15 @@
 					};
 				});
 				weatherError = false;
+				// Setup font managers after data load
+				setTimeout(setupFontManagers, 0);
 			}
 		} catch (error) {
 			console.error('Error loading weather:', error);
 			weatherError = true;
 			weatherForecast = [];
+			// Setup font managers after error state
+			setTimeout(setupFontManagers, 0);
 		}
 	}
 
@@ -46,11 +61,45 @@
 		return '☀️'; // Default
 	}
 
+	function setupFontManagers() {
+		// Clear existing cleanups
+		cleanupFunctions.forEach(cleanup => cleanup());
+		cleanupFunctions = [];
+
+		// Setup font managers for different elements
+		if (titleElement) {
+			cleanupFunctions.push(autoFont(titleElement, 90, 10));
+		}
+
+		if (errorElement) {
+			cleanupFunctions.push(autoFont(errorElement, 90, 10));
+		}
+
+		// Setup font managers for day elements - individual span elements
+		dayNameElements.forEach(element => {
+			if (element) cleanupFunctions.push(autoFont(element, 90, 90));
+		});
+
+		iconElements.forEach(element => {
+			if (element) cleanupFunctions.push(autoFont(element, 90, 90));
+		});
+
+		tempElements.forEach(element => {
+			if (element) {
+				cleanupFunctions.push(autoFont(element, 90, 90));
+			}
+		});
+	}
+
 	onMount(() => {
 		loadWeatherForecast();
 		// Automatic refresh every 30 minutes
 		const interval = setInterval(() => loadWeatherForecast(), 1800000);
-		return () => clearInterval(interval);
+
+		return () => {
+			clearInterval(interval);
+			cleanupFunctions.forEach(cleanup => cleanup());
+		};
 	});
 </script>
 
@@ -70,13 +119,16 @@
 
 	.days .day {
 		display: flex;
-		justify-content: space-between;
 		align-items: center;
-		padding: 2px 0;
 		border-bottom: 1cqh solid rgba(255, 255, 255, 0.2);
 		font-weight: bold;
 		height: calc(100% / 7);
 		box-sizing: border-box;
+	}
+
+	.days .day > div {
+		flex: 1;
+		text-align: center;
 	}
 
 	.days .day:last-child {
@@ -95,16 +147,16 @@
 </style>
 
 {#if !weatherError}
-	<div class="title">Praha</div>
+	<div class="title" bind:this={titleElement}>Praha</div>
 	<div class="days">
-		{#each weatherForecast as forecast}
+		{#each weatherForecast as forecast, i}
 			<div class="day">
-				<span>{forecast.day}</span>
-				<span class="icon">{forecast.icon}</span>
-				<span class="temp">{forecast.temp}</span>
+				<div bind:this={dayNameElements[i]}>{forecast.day}</div>
+				<div bind:this={iconElements[i]}>{forecast.icon}</div>
+				<div bind:this={tempElements[i]}>{forecast.temp}</div>
 			</div>
 		{/each}
 	</div>
 {:else}
-	<div class="error">Data cannot be loaded from internet</div>
+	<div class="error" bind:this={errorElement}>Data cannot be loaded from internet</div>
 {/if}
