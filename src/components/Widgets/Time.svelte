@@ -1,63 +1,64 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	let currentTime = new Date();
-	let canvas: HTMLCanvasElement;
-	let ctx: CanvasRenderingContext2D;
+	let timeElement: HTMLDivElement;
 
 	// Update time every second
 	onMount(() => {
-		ctx = canvas.getContext('2d')!;
-		drawTime();
 		const interval = setInterval(() => {
 			currentTime = new Date();
-			drawTime();
+			setTimeout(adjustFontToFit, 0); // Adjust after DOM update
 		}, 1000);
-		// Redraw on resize
-		const resizeObserver = new ResizeObserver(drawTime);
-		resizeObserver.observe(canvas);
+
+		// Initial adjustment
+		setTimeout(adjustFontToFit, 100);
+
+		// Adjust on resize
+		const resizeObserver = new ResizeObserver(adjustFontToFit);
+		if (timeElement?.parentElement) {
+			resizeObserver.observe(timeElement.parentElement);
+		}
+
 		return () => {
 			clearInterval(interval);
 			resizeObserver.disconnect();
 		};
 	});
 
-	function drawTime() {
-		if (!ctx || !canvas) return;
-		const timeString = formatTime(currentTime);
-		const containerWidth = canvas.clientWidth;
-		const containerHeight = canvas.clientHeight;
-		// Set canvas size to match container
-		canvas.width = containerWidth;
-		canvas.height = containerHeight;
-		// Clear canvas
-		ctx.clearRect(0, 0, containerWidth, containerHeight);
-		// Find optimal font size
+	function adjustFontToFit() {
+		if (!timeElement?.parentElement) return;
+
+		const container = timeElement.parentElement;
+		const maxWidth = container.clientWidth * 1.0; // 100% šířky
+		const maxHeight = container.clientHeight * 0.3; // 100% výšky
+
+		console.log('Container size:', container.clientWidth, 'x', container.clientHeight);
+		console.log('Max allowed:', maxWidth, 'x', maxHeight);
+
+		// Začneme s malou velikostí a zvyšujeme
 		let fontSize = 10;
-		ctx.font = `bold ${fontSize}px 'Ubuntu Mono', monospace`;
-		// Increase font size until text doesn't fit
+		let lastValidSize = 10;
+
 		while (fontSize < 1000) {
-			ctx.font = `bold ${fontSize}px 'Ubuntu Mono', monospace`;
-			const metrics = ctx.measureText(timeString);
-			const textWidth = metrics.width;
-			const textHeight = fontSize; // approximation
-			if (textWidth > containerWidth * 0.95 || textHeight > containerHeight * 0.95) {
-				fontSize -= 1;
+			timeElement.style.fontSize = `${fontSize}px`;
+
+			// Force reflow
+			timeElement.offsetHeight;
+
+			const rect = timeElement.getBoundingClientRect();
+			console.log(`Font ${fontSize}px: ${rect.width}x${rect.height} (max: ${maxWidth}x${maxHeight})`);
+
+			if (rect.width <= maxWidth && rect.height <= maxHeight) {
+				lastValidSize = fontSize;
+				fontSize += 5; // Zvyšujeme po 5px
+			} else {
+				// Přesáhli jsme - použijeme poslední platnou velikost
 				break;
 			}
-			fontSize += 1;
 		}
-		// Set final font and draw
-		ctx.font = `bold ${fontSize}px 'Ubuntu Mono', monospace`;
-		ctx.fillStyle = 'white';
-		ctx.textAlign = 'center';
-		ctx.textBaseline = 'middle';
-		// Add text stroke
-		ctx.strokeStyle = 'black';
-		ctx.lineWidth = Math.max(1, fontSize / 50);
-		const x = containerWidth / 2;
-		const y = containerHeight / 2;
-		ctx.strokeText(timeString, x, y);
-		ctx.fillText(timeString, x, y);
+
+		timeElement.style.fontSize = `${lastValidSize}px`;
+		console.log('Final font size:', lastValidSize);
 	}
 
 	// Time formatting
@@ -71,10 +72,14 @@
 </script>
 
 <style>
-	canvas {
-		width: 100%;
-		height: 100%;
+	.time {
+		font-weight: bold;
+		text-align: center;
+		font-family: 'Monospace', monospace;
+		white-space: nowrap;
+		line-height: 1;
+		/* font-size bude nastaveno JavaScriptem */
 	}
 </style>
 
-<canvas bind:this={canvas}></canvas>
+<div class="time" bind:this={timeElement}>{formatTime(currentTime)}</div>
