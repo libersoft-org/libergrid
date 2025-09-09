@@ -1,31 +1,28 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { adjustFontToFit, createFontResizeObserver } from '../../scripts/font.ts';
-	let currentTime = new Date();
-	let timeElement: HTMLDivElement;
+	let timeElement: HTMLElement;
 
-	function adjustElementsFontSize() {
-		adjustFontToFit(timeElement, 90, 80); // Apply 90% width and 80% height to time element
-	}
-
-	// Update time every second
 	onMount(() => {
-		const interval = setInterval(() => {
-			currentTime = new Date();
-			setTimeout(adjustElementsFontSize, 0); // Adjust after DOM update
-		}, 1000);
-		// Initial adjustment
-		setTimeout(adjustElementsFontSize, 100);
-		// Create resize observer using utility function
+		updateTime();
+		const interval = setInterval(updateTime, 1000);
 		const resizeObserver = createFontResizeObserver(timeElement, 90, 80);
-
 		return () => {
 			clearInterval(interval);
 			resizeObserver.disconnect();
 		};
 	});
 
-	// Time formatting
+	function updateTime() {
+		updateText(timeElement, formatTime(new Date()));
+	}
+
+	async function updateText(element: HTMLElement, newText: string) {
+		element.innerHTML = newText;
+		await tick();
+		adjustFontToFit(element, 90, 90);
+	}
+
 	function formatTime(date: Date): string {
 		return date.toLocaleTimeString(undefined, {
 			hour: '2-digit',
@@ -39,11 +36,10 @@
 	.time {
 		font-weight: bold;
 		text-align: center;
-		font-family: 'Monospace', monospace;
+		font-family: 'Ubuntu Mono', monospace;
 		white-space: nowrap;
 		line-height: 1;
-		/* font-size will be set by JavaScript */
 	}
 </style>
 
-<div class="time" bind:this={timeElement}>{formatTime(currentTime)}</div>
+<div class="time" bind:this={timeElement}></div>
