@@ -1,11 +1,30 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
- let currentTime = new Date();
+	import { onMount, tick } from 'svelte';
+	import { adjustFontToFit, createFontResizeObserver } from '../../scripts/font.ts';
+	let currentTime = new Date();
+	let dayElement: HTMLElement;
+	let dateElement: HTMLElement;
 
 	onMount(() => {
-		const interval = setInterval(() => currentTime = new Date(), 1000);
-		return () => clearInterval(interval);
+		const interval = setInterval(() => {
+			currentTime = new Date();
+			updateFontSizes();
+		}, 1000);
+		const dayResizeObserver = createFontResizeObserver(dayElement, 80, 30);
+		const dateResizeObserver = createFontResizeObserver(dateElement, 80, 30);
+		updateFontSizes();
+		return () => {
+			clearInterval(interval);
+			dayResizeObserver.disconnect();
+			dateResizeObserver.disconnect();
+		};
 	});
+
+	async function updateFontSizes() {
+		await tick();
+		adjustFontToFit(dayElement, 80, 30);
+		adjustFontToFit(dateElement, 80, 30);
+	}
 
 	// Day name according to locale
 	function getDayName(date: Date): string {
@@ -24,22 +43,10 @@
 </script>
 
 <style>
-	.day-name {
-		font-size: 28cqmin;
+	.name {
 		font-weight: bold;
-		margin-bottom: 0.5rem;
-		line-height: 1;
-	}
-
-	.date {
-		font-size: 16cqmin;
-		line-height: 1;
 	}
 </style>
 
-<div class="day-name">
-	{getDayName(currentTime)}
-</div>
-<div class="date">
-	{formatDate(currentTime)}
-</div>
+<div class="name" bind:this={dayElement}>{getDayName(currentTime)}</div>
+<div class="date" bind:this={dateElement}>{formatDate(currentTime)}</div>
