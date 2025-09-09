@@ -1,12 +1,13 @@
 <script lang="ts">
-	import Section from '../components/Widget.svelte';
-	import Field from '../components/Field.svelte';
-	import SectionTime from '../components/Widgets/Time.svelte';
-	import SectionTemp from '../components/Widgets/Temp.svelte';
-	import SectionDate from '../components/Widgets/Date.svelte';
-	import SectionWeather from '../components/Widgets/Weather.svelte';
-	import SectionNameday from '../components/Widgets/Nameday.svelte';
 	import { onMount } from 'svelte';
+	import Field from '../components/Field.svelte';
+	import Widget from '../components/Widget.svelte';
+	import WidgetTime from '../components/Widgets/Time.svelte';
+	import WidgetTemp from '../components/Widgets/Temp.svelte';
+	import WidgetDate from '../components/Widgets/Date.svelte';
+	import WidgetWeather from '../components/Widgets/Weather.svelte';
+	import WidgetNameday from '../components/Widgets/Nameday.svelte';
+
 	// LocalStorage key for storing dashboard
 	const DASHBOARD_STORAGE_KEY = 'dashboard-items';
 	const backgroundImages = ['https://images.pexels.com/photos/440731/pexels-photo-440731.jpeg', 'https://images.pexels.com/photos/433155/pexels-photo-433155.jpeg', 'https://images.pexels.com/photos/250716/pexels-photo-250716.jpeg', 'https://images.pexels.com/photos/169647/pexels-photo-169647.jpeg', 'https://images.pexels.com/photos/2098428/pexels-photo-2098428.jpeg'];
@@ -192,15 +193,15 @@
 	function getComponentByType(type: string) {
 		switch (type) {
 			case 'time':
-				return SectionTime;
+				return WidgetTime;
 			case 'date':
-				return SectionDate;
+				return WidgetDate;
 			case 'temp':
-				return SectionTemp;
+				return WidgetTemp;
 			case 'weather':
-				return SectionWeather;
+				return WidgetWeather;
 			case 'nameday':
-				return SectionNameday;
+				return WidgetNameday;
 			default:
 				return null;
 		}
@@ -404,16 +405,16 @@
 				grid-row: {item.gridRow + 1} / span {item.rowSpan};
 			"
 			on:click|stopPropagation
-			on:keydown={(e) => e.key === 'Enter' || e.key === ' ' ? e.stopPropagation() : null}
+			on:keydown={e => (e.key === 'Enter' || e.key === ' ' ? e.stopPropagation() : null)}
 			role="button"
 			tabindex="0"
 			aria-label="Dashboard item"
 		>
 			<div class="component-wrapper">
 				<button class="remove-button" on:click|stopPropagation={() => removeComponent(item.id)}>×</button>
-				<Section border={item.border} colSpan={item.colSpan} rowSpan={item.rowSpan} draggable={true} onResize={(newColSpan, newRowSpan, newGridRow, newGridCol) => updateComponentSize(item.id, newColSpan, newRowSpan, newGridRow, newGridCol)} onMove={(newGridRow, newGridCol) => updateComponentPosition(item.id, newGridRow, newGridCol)} onToggleBorder={() => toggleComponentBorder(item.id)}>
+				<Widget border={item.border} colSpan={item.colSpan} rowSpan={item.rowSpan} draggable={true} onResize={(newColSpan, newRowSpan, newGridRow, newGridCol) => updateComponentSize(item.id, newColSpan, newRowSpan, newGridRow, newGridCol)} onMove={(newGridRow, newGridCol) => updateComponentPosition(item.id, newGridRow, newGridCol)} onToggleBorder={() => toggleComponentBorder(item.id)}>
 					<svelte:component this={getComponentByType(item.type)} />
-				</Section>
+				</Widget>
 			</div>
 		</div>
 	{/each}

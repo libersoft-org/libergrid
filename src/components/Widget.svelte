@@ -1,7 +1,7 @@
 <script lang="ts">
 	export let border: boolean = true;
-	export let colSpan: number = 1; // Number of columns the section occupies (out of 10)
-	export let rowSpan: number = 1; // Number of rows the section occupies
+	export let colSpan: number = 1; // Number of columns the widget occupies (out of 10)
+	export let rowSpan: number = 1; // Number of rows the widget occupies
 	export let resizable: boolean = true; // Allows resizing
 	export let draggable: boolean = true; // Allows moving
 	export let onResize: (newColSpan: number, newRowSpan: number, newGridRow?: number, newGridCol?: number) => void = () => {};
@@ -227,7 +227,7 @@
 </script>
 
 <style>
-	.section {
+	.widget {
 		border-radius: 1vw;
 		padding: 10px;
 		container-type: size;
@@ -249,12 +249,12 @@
 		/* Odstraníme grid positioning - to řeší parent */
 	}
 
-	.section.dragging {
+	.widget.dragging {
 		opacity: 0.7;
 		z-index: 1000;
 	}
 
-	.section.with-border {
+	.widget.with-border {
 		background: rgba(0, 0, 0, 0.7);
 		border: 0.2vw solid rgba(0, 0, 0, 0.5);
 		backdrop-filter: blur(5px);
@@ -357,7 +357,7 @@
 		background: rgba(255, 255, 255, 0.9);
 	}
 
-	.section:hover .resize-handle {
+	.widget:hover .resize-handle {
 		opacity: 1;
 	}
 
@@ -394,12 +394,12 @@
 		border-color: rgba(255, 255, 255, 0.8);
 	}
 
-	.section:hover .border-toggle {
+	.widget:hover .border-toggle {
 		opacity: 1;
 	}
 </style>
 
-<div class="section" class:with-border={border} class:dragging={isDragging} on:mousedown={handleDragStart} on:mouseenter={handleMouseEnter} on:mousemove={handleMouseMove} on:mouseleave={handleMouseLeave} role="button" tabindex="0" aria-label="Draggable widget">
+<div class="widget" class:with-border={border} class:dragging={isDragging} on:mousedown={handleDragStart} on:mouseenter={handleMouseEnter} on:mousemove={handleMouseMove} on:mouseleave={handleMouseLeave} role="button" tabindex="0" aria-label="Draggable widget">
 	<slot />
 
 	<!-- Border toggle button -->
