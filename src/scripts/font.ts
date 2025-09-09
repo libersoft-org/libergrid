@@ -70,19 +70,52 @@ export function createFontResizeObserver(element: HTMLElement, widthPercent: num
 
 /**
  * Creates a font manager that handles both initial adjustment and resize observing
- * @param element - The element to manage
+ * @param element - The element to manage OR array of elements
  * @param widthPercent - Maximum width percentage
  * @param heightPercent - Maximum height percentage
  * @param options - Optional parameters for font adjustment
  * @returns Object with adjust function and ResizeObserver
  */
-export function createFontManager(element: HTMLElement, widthPercent: number, heightPercent: number, options?: { minFontSize?: number; step?: number }) {
-	const adjust = () => adjustFontToFit(element, widthPercent, heightPercent, options?.minFontSize, options?.step);
-	const observer = createFontResizeObserver(element, widthPercent, heightPercent, options);
+export function createFontManager(element: HTMLElement | HTMLElement[], widthPercent: number, heightPercent: number, options?: { minFontSize?: number; step?: number }) {
+	const elements = Array.isArray(element) ? element : [element];
+
+	const adjust = () => {
+		elements.forEach(el => {
+			if (el) adjustFontToFit(el, widthPercent, heightPercent, options?.minFontSize, options?.step);
+		});
+	};
+
+	// Create observer for the first element's parent (assuming all elements share same parent)
+	const firstElement = elements[0];
+	const observer = firstElement ? createFontResizeObserver(firstElement, widthPercent, heightPercent, options) : null;
 
 	return {
 		adjust,
 		observer,
-		disconnect: () => observer.disconnect(),
+		disconnect: () => observer?.disconnect(),
+	};
+}
+
+/**
+ * Simple auto font setup - just call this in onMount and it handles everything
+ * @param elements - Single element or array of elements to manage
+ * @param widthPercent - Maximum width percentage
+ * @param heightPercent - Maximum height percentage
+ * @param options - Optional parameters
+ * @returns Cleanup function to call in onDestroy
+ */
+export function autoFont(elements: HTMLElement | HTMLElement[], widthPercent: number = 90, heightPercent: number = 90, options?: { minFontSize?: number; step?: number }): () => void {
+	const elementsArray = Array.isArray(elements) ? elements : [elements];
+	const managers: ReturnType<typeof createFontManager>[] = [];
+
+	// Filter out null/undefined elements and create managers
+	elementsArray.filter(Boolean).forEach(element => {
+		const manager = createFontManager(element, widthPercent, heightPercent, options);
+		managers.push(manager);
+	});
+
+	// Return cleanup function
+	return () => {
+		managers.forEach(manager => manager.disconnect());
 	};
 }

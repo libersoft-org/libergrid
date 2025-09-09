@@ -1,34 +1,20 @@
 <script lang="ts">
-	import { onMount, tick } from 'svelte';
-	import { createFontManager } from '../../scripts/font';
+	import { onMount } from 'svelte';
+	import { autoFont } from '../../scripts/font';
 	let currentTime = new Date();
 	let dayElement: HTMLElement;
 	let dateElement: HTMLElement;
-	let dayManager: ReturnType<typeof createFontManager>;
-	let dateManager: ReturnType<typeof createFontManager>;
 
 	onMount(() => {
 		const interval = setInterval(() => {
 			currentTime = new Date();
-			updateFontSizes();
 		}, 1000);
-		dayManager = createFontManager(dayElement, 90, 30);
-		dateManager = createFontManager(dateElement, 90, 30);
-		updateFontSizes();
+		const cleanup = autoFont([dayElement, dateElement], 90, 30);
 		return () => {
 			clearInterval(interval);
-			dayManager.disconnect();
-			dateManager.disconnect();
+			cleanup();
 		};
 	});
-
-	async function updateFontSizes() {
-		await tick();
-		if (dayManager && dateManager) {
-			dayManager.adjust();
-			dateManager.adjust();
-		}
-	}
 
 	// Day name according to locale
 	function getDayName(date: Date): string {

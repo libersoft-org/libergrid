@@ -1,15 +1,17 @@
 <script lang="ts">
-	import { onMount, tick } from 'svelte';
-	import { createFontManager } from '../../scripts/font';
+	import { onMount } from 'svelte';
+	import { autoFont } from '../../scripts/font';
+
 	interface NameDay {
 		date: string;
 		names: string[];
 	}
+
 	let yesterday: NameDay | null = null;
 	let today: NameDay | null = null;
 	let tomorrow: NameDay | null = null;
 
-	// Font manager elements
+	// Elements for font management
 	let yesterdayDayElement: HTMLElement;
 	let yesterdayNameElement: HTMLElement;
 	let todayDayElement: HTMLElement;
@@ -17,14 +19,9 @@
 	let tomorrowDayElement: HTMLElement;
 	let tomorrowNameElement: HTMLElement;
 
-	// Font managers
-	let yesterdayDayManager: ReturnType<typeof createFontManager>;
-	let yesterdayNameManager: ReturnType<typeof createFontManager>;
-	let todayDayManager: ReturnType<typeof createFontManager>;
-	let todayNameManager: ReturnType<typeof createFontManager>;
-	let tomorrowDayManager: ReturnType<typeof createFontManager>;
-	let tomorrowNameManager: ReturnType<typeof createFontManager>;
-	// Czech namedays - TODO: it doesn't contain all namedays!
+	// Cleanup functions
+	let cleanupFunctions: (() => void)[] = [];
+	// Czech namedays
 	const nameDays: Record<string, string[]> = {
 		'01-01': ['Nový rok'],
 		'01-02': ['Karina'],
@@ -403,10 +400,7 @@
 	function getNameDay(date: Date): NameDay {
 		const dateKey = formatDate(date);
 		const names = nameDays[dateKey] || ['No nameday'];
-		return {
-			date: dateKey,
-			names,
-		};
+		return { date: dateKey, names };
 	}
 
 	function updateNameDays() {
@@ -415,44 +409,35 @@
 		yesterdayDate.setDate(now.getDate() - 1);
 		const tomorrowDate = new Date(now);
 		tomorrowDate.setDate(now.getDate() + 1);
+
 		yesterday = getNameDay(yesterdayDate);
 		today = getNameDay(now);
 		tomorrow = getNameDay(tomorrowDate);
-		updateFontSizes();
+
+		// Setup font managers after DOM update
+		setTimeout(setupFontManagers, 0);
 	}
 
-	async function updateFontSizes() {
-		await tick();
+	function setupFontManagers() {
+		// Clear existing cleanups
+		cleanupFunctions.forEach(cleanup => cleanup());
+		cleanupFunctions = [];
 
-		// Initialize font managers if not already done and elements are available
-		if (!yesterdayDayManager && yesterdayDayElement) {
-			yesterdayDayManager = createFontManager(yesterdayDayElement, 90, 30);
-		}
-		if (!yesterdayNameManager && yesterdayNameElement) {
-			yesterdayNameManager = createFontManager(yesterdayNameElement, 90, 40);
-		}
-		if (!todayDayManager && todayDayElement) {
-			todayDayManager = createFontManager(todayDayElement, 90, 30);
-		}
-		if (!todayNameManager && todayNameElement) {
-			todayNameManager = createFontManager(todayNameElement, 90, 40);
-		}
-		if (!tomorrowDayManager && tomorrowDayElement) {
-			tomorrowDayManager = createFontManager(tomorrowDayElement, 90, 30);
-		}
-		if (!tomorrowNameManager && tomorrowNameElement) {
-			tomorrowNameManager = createFontManager(tomorrowNameElement, 90, 40);
-		}
+		// Setup font managers with individual settings
+		const elements = [
+			{ element: yesterdayDayElement, width: 80, height: 20 },
+			{ element: yesterdayNameElement, width: 80, height: 35 },
+			{ element: todayDayElement, width: 80, height: 20 },
+			{ element: todayNameElement, width: 80, height: 40 },
+			{ element: tomorrowDayElement, width: 80, height: 20 },
+			{ element: tomorrowNameElement, width: 80, height: 35 },
+		];
 
-		// Adjust font sizes
-		if (yesterdayDayManager && yesterdayNameManager && todayDayManager && todayNameManager && tomorrowDayManager && tomorrowNameManager) {
-			yesterdayDayManager.adjust();
-			yesterdayNameManager.adjust();
-			todayDayManager.adjust();
-			todayNameManager.adjust();
-			tomorrowDayManager.adjust();
-			tomorrowNameManager.adjust();
-		}
+		elements.forEach(({ element, width, height }) => {
+			if (element) {
+				cleanupFunctions.push(autoFont(element, width, height));
+			}
+		});
 	}
 
 	onMount(() => {
@@ -461,12 +446,7 @@
 
 		return () => {
 			clearInterval(interval);
-			if (yesterdayDayManager) yesterdayDayManager.disconnect();
-			if (yesterdayNameManager) yesterdayNameManager.disconnect();
-			if (todayDayManager) todayDayManager.disconnect();
-			if (todayNameManager) todayNameManager.disconnect();
-			if (tomorrowDayManager) tomorrowDayManager.disconnect();
-			if (tomorrowNameManager) tomorrowNameManager.disconnect();
+			cleanupFunctions.forEach(cleanup => cleanup());
 		};
 	});
 </script>
@@ -479,7 +459,6 @@
 		align-items: center;
 		width: 100%;
 		height: 33.33%;
-		border: 1px solid red;
 	}
 
 	.nameday-item .day {

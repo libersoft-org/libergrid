@@ -1,29 +1,20 @@
 <script lang="ts">
-	import { onMount, tick } from 'svelte';
-	import { createFontManager } from '../../scripts/font';
+	import { onMount } from 'svelte';
+	import { autoFont } from '../../scripts/font';
 	let timeElement: HTMLElement;
-	let timeManager: ReturnType<typeof createFontManager>;
 
 	onMount(() => {
 		updateTime();
 		const interval = setInterval(updateTime, 1000);
-		timeManager = createFontManager(timeElement, 90, 90);
+		const cleanup = autoFont(timeElement, 90, 90);
 		return () => {
 			clearInterval(interval);
-			timeManager.disconnect();
+			cleanup();
 		};
 	});
 
 	function updateTime() {
-		updateText(timeElement, formatTime(new Date()));
-	}
-
-	async function updateText(element: HTMLElement, newText: string) {
-		element.innerHTML = newText;
-		await tick();
-		if (timeManager) {
-			timeManager.adjust();
-		}
+		if (timeElement) timeElement.innerHTML = formatTime(new Date());
 	}
 
 	function formatTime(date: Date): string {
