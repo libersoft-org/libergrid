@@ -383,7 +383,6 @@
 
 <svelte:head>
 	<title>LiberGrid</title>
-	<meta name="description" content="Dashboard pro nástěnné hodiny" />
 </svelte:head>
 
 <div class="dashboard" style="background-image: url('{currentBackground}')" on:click={toggleBackground} on:keydown={e => (e.key === 'Enter' || e.key === ' ' ? toggleBackground() : null)} role="button" tabindex="0" aria-label="Toggle background image">
