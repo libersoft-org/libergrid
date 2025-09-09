@@ -412,11 +412,13 @@
 
 <style>
 	.nameday-item {
-		flex: 1;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
-		padding: 1cqmin 0;
+		align-items: center;
+		width: 100%;
+		height: 33.33%;
+		border: 1px solid red;
 	}
 
 	.nameday-item .day {
