@@ -382,7 +382,7 @@
 </style>
 
 <svelte:head>
-	<title>Dashboard - Nástěnné hodiny</title>
+	<title>LiberGrid</title>
 	<meta name="description" content="Dashboard pro nástěnné hodiny" />
 </svelte:head>
 
