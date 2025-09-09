@@ -1,16 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-
 	interface NameDay {
 		date: string;
 		names: string[];
 	}
-
 	let yesterday: NameDay | null = null;
 	let today: NameDay | null = null;
 	let tomorrow: NameDay | null = null;
-
-	// Simple nameday data - you can extend or load from API
+	// Czech namedays - TODO: it doesn't contain all namedays!
 	const nameDays: Record<string, string[]> = {
 		'01-01': ['Nový rok'],
 		'01-02': ['Karina'],
@@ -414,65 +411,55 @@
 </script>
 
 <style>
-	.nameday-container {
-		display: flex;
-		flex-direction: column;
-		height: 100%;
-		justify-content: space-between;
-		text-align: center;
-	}
-
 	.nameday-item {
 		flex: 1;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
-		padding: 0.5rem 0;
+		padding: 1cqmin 0;
 	}
 
-	.nameday-day {
-		font-size: 12cqw;
-		font-weight: 300;
-		opacity: 0.7;
-		margin-bottom: 0.2rem;
+	.nameday-item .day {
+		font-size: 8cqmin;
+		color: #888;
 	}
 
-	.nameday-names {
-		font-size: 14cqw;
-		font-weight: 500;
+	.nameday-item .name {
+		font-size: 10cqmin;
+		font-weight: bold;
 		line-height: 1.2;
 	}
 
-	.today .nameday-day {
-		opacity: 1;
-		font-weight: 500;
+	.nameday-item .day.today {
+		font-size: 10cqmin;
 	}
 
-	.today .nameday-names {
-		font-size: 18cqw;
-		font-weight: 600;
+	.nameday-item .name.today {
+		font-size: 12cqmin;
+	}
+
+	.divider {
+		width: 90%;
+		height: 1cqmin;
+		background-color: #888;
+		min-height: 1px;
+		border-radius: 0.5cqmin;
 	}
 </style>
 
-<div class="nameday-container">
-	{#if yesterday}
-		<div class="nameday-item">
-			<div class="nameday-day">Yesterday</div>
-			<div class="nameday-names">{yesterday.names.join(', ')}</div>
-		</div>
-	{/if}
-
-	{#if today}
-		<div class="nameday-item today">
-			<div class="nameday-day">Today</div>
-			<div class="nameday-names">{today.names.join(', ')}</div>
-		</div>
-	{/if}
-
-	{#if tomorrow}
-		<div class="nameday-item">
-			<div class="nameday-day">Tomorrow</div>
-			<div class="nameday-names">{tomorrow.names.join(', ')}</div>
-		</div>
-	{/if}
-</div>
+{#if yesterday && today && tomorrow}
+	<div class="nameday-item">
+		<div class="day">Yesterday</div>
+		<div class="name">{yesterday.names.join(', ')}</div>
+	</div>
+	<div class="divider"></div>
+	<div class="nameday-item">
+		<div class="day today">Today</div>
+		<div class="name today">{today.names.join(', ')}</div>
+	</div>
+	<div class="divider"></div>
+	<div class="nameday-item">
+		<div class="day">Tomorrow</div>
+		<div class="name">{tomorrow.names.join(', ')}</div>
+	</div>
+{/if}

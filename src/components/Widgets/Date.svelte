@@ -1,14 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+ let currentTime = new Date();
 
-	let currentTime = new Date();
-
-	// Update time every second
 	onMount(() => {
-		const interval = setInterval(() => {
-			currentTime = new Date();
-		}, 1000);
-
+		const interval = setInterval(() => currentTime = new Date(), 1000);
 		return () => clearInterval(interval);
 	});
 
@@ -29,33 +24,22 @@
 </script>
 
 <style>
-	.container {
-		height: 100%;
-		width: 100%;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-	}
-
 	.day-name {
-		font-size: 24cqw;
+		font-size: 28cqmin;
 		font-weight: bold;
 		margin-bottom: 0.5rem;
 		line-height: 1;
 	}
 
 	.date {
-		font-size: 16cqw;
+		font-size: 16cqmin;
 		line-height: 1;
 	}
 </style>
 
-<div class="container">
-	<div class="day-name">
-		{getDayName(currentTime)}
-	</div>
-	<div class="date">
-		{formatDate(currentTime)}
-	</div>
+<div class="day-name">
+	{getDayName(currentTime)}
+</div>
+<div class="date">
+	{formatDate(currentTime)}
 </div>

@@ -217,7 +217,7 @@
 	.section {
 		border-radius: 1vw;
 		padding: 10px;
-		container-type: inline-size;
+		container-type: size;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
