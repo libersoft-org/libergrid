@@ -118,7 +118,8 @@
 	}
 
 	.days .day {
-		display: flex;
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
 		align-items: center;
 		border-bottom: 1cqh solid rgba(255, 255, 255, 0.2);
 		font-weight: bold;
