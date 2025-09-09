@@ -67,3 +67,22 @@ export function createFontResizeObserver(element: HTMLElement, widthPercent: num
 
 	return observer;
 }
+
+/**
+ * Creates a font manager that handles both initial adjustment and resize observing
+ * @param element - The element to manage
+ * @param widthPercent - Maximum width percentage
+ * @param heightPercent - Maximum height percentage
+ * @param options - Optional parameters for font adjustment
+ * @returns Object with adjust function and ResizeObserver
+ */
+export function createFontManager(element: HTMLElement, widthPercent: number, heightPercent: number, options?: { minFontSize?: number; step?: number }) {
+	const adjust = () => adjustFontToFit(element, widthPercent, heightPercent, options?.minFontSize, options?.step);
+	const observer = createFontResizeObserver(element, widthPercent, heightPercent, options);
+
+	return {
+		adjust,
+		observer,
+		disconnect: () => observer.disconnect(),
+	};
+}
