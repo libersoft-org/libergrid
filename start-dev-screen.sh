@@ -1,3 +1,3 @@
 #!/bin/sh
 
-screen -dmS test bash -c ". ./colors.sh; trap bash SIGINT; (./start-dev.sh ; bash);"
+screen -dmS libergrid bash -c ". ./colors.sh; trap bash SIGINT; (./start-dev.sh ; bash);"
