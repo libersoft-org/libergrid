@@ -10,8 +10,8 @@
 			currentTime = new Date();
 			updateFontSizes();
 		}, 1000);
-		const dayResizeObserver = createFontResizeObserver(dayElement, 80, 30);
-		const dateResizeObserver = createFontResizeObserver(dateElement, 80, 30);
+		const dayResizeObserver = createFontResizeObserver(dayElement, 90, 30);
+		const dateResizeObserver = createFontResizeObserver(dateElement, 90, 30);
 		updateFontSizes();
 		return () => {
 			clearInterval(interval);
@@ -22,8 +22,8 @@
 
 	async function updateFontSizes() {
 		await tick();
-		adjustFontToFit(dayElement, 80, 30);
-		adjustFontToFit(dateElement, 80, 30);
+		adjustFontToFit(dayElement, 90, 30);
+		adjustFontToFit(dateElement, 90, 30);
 	}
 
 	// Day name according to locale
