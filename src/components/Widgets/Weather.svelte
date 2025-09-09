@@ -47,70 +47,64 @@
 	}
 
 	onMount(() => {
-		// Load weather forecast on startup
 		loadWeatherForecast();
-		// Automatic refresh every 30 minutes (1,800,000 ms)
-		const interval = setInterval(() => {
-			loadWeatherForecast();
-		}, 1800000);
+		// Automatic refresh every 30 minutes
+		const interval = setInterval(() => loadWeatherForecast(), 1800000);
 		return () => clearInterval(interval);
 	});
 </script>
 
 <style>
-	.weather-forecast {
-		width: 100%;
-	}
-
-	.weather-title {
+	.title {
 		margin-bottom: 10px;
-		font-size: 12cqw;
 		font-weight: bold;
 		text-align: center;
 	}
 
-	.forecast-day {
+	.days {
+		display: flex;
+		flex-direction: column;
+		flex: 1;
+		width: 100%;
+	}
+
+	.days .day {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
 		padding: 2px 0;
-		border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-		font-size: 10cqw;
+		border-bottom: 1cqh solid rgba(255, 255, 255, 0.2);
 		font-weight: bold;
+		height: calc(100% / 7);
+		box-sizing: border-box;
 	}
 
-	.forecast-day:last-child {
+	.days .day:last-child {
 		border-bottom: none;
 	}
 
-	.forecast-icon {
-		font-size: 10cqw;
-	}
-
-	.forecast-temp {
+	.temp {
 		font-weight: bold;
 	}
 
-	.weather-error {
+	.error {
 		text-align: center;
-		font-size: 10cqw;
-		color: rgba(255, 255, 255, 0.7);
 		font-style: italic;
 		padding: 20px 0;
 	}
 </style>
 
-<div class="weather-title">Praha</div>
-<div class="weather-forecast">
-	{#if weatherError}
-		<div class="weather-error">Data cannot be loaded from internet</div>
-	{:else}
+{#if !weatherError}
+	<div class="title">Praha</div>
+	<div class="days">
 		{#each weatherForecast as forecast}
-			<div class="forecast-day">
+			<div class="day">
 				<span>{forecast.day}</span>
-				<span class="forecast-icon">{forecast.icon}</span>
-				<span class="forecast-temp">{forecast.temp}</span>
+				<span class="icon">{forecast.icon}</span>
+				<span class="temp">{forecast.temp}</span>
 			</div>
 		{/each}
-	{/if}
-</div>
+	</div>
+{:else}
+	<div class="error">Data cannot be loaded from internet</div>
+{/if}
