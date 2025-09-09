@@ -8,45 +8,43 @@
  */
 export function adjustFontToFit(element: HTMLElement, widthPercent: number, heightPercent: number, minFontSize: number = 1, step: number = 1): void {
 	if (!element?.parentElement) return;
-
 	// Handle empty text - if element is empty, set minimum font and return
 	const textContent = element.textContent?.trim();
 	if (!textContent) {
 		element.style.fontSize = `${minFontSize}px`;
 		return;
 	}
-
 	const container = element.parentElement;
 	const maxWidth = container.clientWidth * (widthPercent / 100);
 	const maxHeight = container.clientHeight * (heightPercent / 100);
 
-	console.log(`Adjusting ${element.className}: Container ${container.clientWidth}x${container.clientHeight}, Max ${maxWidth}x${maxHeight}`);
-
-	let fontSize = minFontSize;
-	let lastValidSize = minFontSize;
+	// Use binary search for efficient font size finding
+	let minSize = minFontSize;
+	let maxSize = Math.min(maxWidth, maxHeight); // Start with reasonable upper bound
+	let bestSize = minFontSize;
 	let iterations = 0;
-	const maxIterations = 1000; // Safety guard against infinite loops
+	const maxIterations = 50; // Much fewer iterations needed with binary search
 
-	while (iterations < maxIterations) {
-		element.style.fontSize = `${fontSize}px`;
+	while (minSize <= maxSize && iterations < maxIterations) {
+		const currentSize = Math.floor((minSize + maxSize) / 2);
+		element.style.fontSize = `${currentSize}px`;
 
 		// Force reflow
 		element.offsetHeight;
-
 		const rect = element.getBoundingClientRect();
 
 		if (rect.width <= maxWidth && rect.height <= maxHeight) {
-			lastValidSize = fontSize;
-			fontSize += step;
+			// Size fits - try larger
+			bestSize = currentSize;
+			minSize = currentSize + 1;
 		} else {
-			// We exceeded - use last valid size
-			break;
+			// Size too big - try smaller
+			maxSize = currentSize - 1;
 		}
 		iterations++;
 	}
 
-	element.style.fontSize = `${lastValidSize}px`;
-	console.log(`Final font size for ${element.className}:`, lastValidSize);
+	element.style.fontSize = `${bestSize}px`;
 }
 
 /**
@@ -60,11 +58,7 @@ export function createFontResizeObserver(element: HTMLElement, widthPercent: num
 	const observer = new ResizeObserver(() => {
 		adjustFontToFit(element, widthPercent, heightPercent, options?.minFontSize, options?.step);
 	});
-
-	if (element.parentElement) {
-		observer.observe(element.parentElement);
-	}
-
+	if (element.parentElement) observer.observe(element.parentElement);
 	return observer;
 }
 
@@ -78,7 +72,6 @@ export function createFontResizeObserver(element: HTMLElement, widthPercent: num
  */
 export function createFontManager(element: HTMLElement | HTMLElement[], widthPercent: number, heightPercent: number, options?: { minFontSize?: number; step?: number }) {
 	const elements = Array.isArray(element) ? element : [element];
-
 	const adjust = () => {
 		elements.forEach(el => {
 			if (el) adjustFontToFit(el, widthPercent, heightPercent, options?.minFontSize, options?.step);
@@ -88,7 +81,6 @@ export function createFontManager(element: HTMLElement | HTMLElement[], widthPer
 	// Create observer for the first element's parent (assuming all elements share same parent)
 	const firstElement = elements[0];
 	const observer = firstElement ? createFontResizeObserver(firstElement, widthPercent, heightPercent, options) : null;
-
 	return {
 		adjust,
 		observer,
@@ -107,13 +99,11 @@ export function createFontManager(element: HTMLElement | HTMLElement[], widthPer
 export function autoFont(elements: HTMLElement | HTMLElement[], widthPercent: number = 90, heightPercent: number = 90, options?: { minFontSize?: number; step?: number }): () => void {
 	const elementsArray = Array.isArray(elements) ? elements : [elements];
 	const managers: ReturnType<typeof createFontManager>[] = [];
-
 	// Filter out null/undefined elements and create managers
 	elementsArray.filter(Boolean).forEach(element => {
 		const manager = createFontManager(element, widthPercent, heightPercent, options);
 		managers.push(manager);
 	});
-
 	// Return cleanup function
 	return () => {
 		managers.forEach(manager => manager.disconnect());

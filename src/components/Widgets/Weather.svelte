@@ -65,29 +65,18 @@
 		// Clear existing cleanups
 		cleanupFunctions.forEach(cleanup => cleanup());
 		cleanupFunctions = [];
-
 		// Setup font managers for different elements
-		if (titleElement) {
-			cleanupFunctions.push(autoFont(titleElement, 90, 10));
-		}
-
-		if (errorElement) {
-			cleanupFunctions.push(autoFont(errorElement, 90, 10));
-		}
-
+		if (titleElement) cleanupFunctions.push(autoFont(titleElement, 90, 10));
+		if (errorElement) cleanupFunctions.push(autoFont(errorElement, 90, 10));
 		// Setup font managers for day elements - individual span elements
 		dayNameElements.forEach(element => {
-			if (element) cleanupFunctions.push(autoFont(element, 90, 90));
+			if (element) cleanupFunctions.push(autoFont(element, 25, 90));
 		});
-
 		iconElements.forEach(element => {
-			if (element) cleanupFunctions.push(autoFont(element, 90, 90));
+			if (element) cleanupFunctions.push(autoFont(element, 25, 90));
 		});
-
 		tempElements.forEach(element => {
-			if (element) {
-				cleanupFunctions.push(autoFont(element, 90, 90));
-			}
+			if (element) cleanupFunctions.push(autoFont(element, 25, 90));
 		});
 	}
 
@@ -95,7 +84,6 @@
 		loadWeatherForecast();
 		// Automatic refresh every 30 minutes
 		const interval = setInterval(() => loadWeatherForecast(), 1800000);
-
 		return () => {
 			clearInterval(interval);
 			cleanupFunctions.forEach(cleanup => cleanup());
@@ -118,18 +106,25 @@
 	}
 
 	.days .day {
-		display: grid;
-		grid-template-columns: 1fr 1fr 1fr;
+		display: flex;
 		align-items: center;
+		justify-content: space-between;
 		border-bottom: 1cqh solid rgba(255, 255, 255, 0.2);
 		font-weight: bold;
 		height: calc(100% / 7);
 		box-sizing: border-box;
+		padding: 0 10px;
 	}
 
 	.days .day > div {
-		flex: 1;
 		text-align: center;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex: 0 0 auto; /* Don't grow or shrink, use natural size */
+		min-width: 0;
+		max-width: 30%; /* Respect the 30% width limit */
+		overflow: hidden;
 	}
 
 	.days .day:last-child {
