@@ -191,6 +191,19 @@
 		document.removeEventListener('mouseup', handleDragEnd);
 	}
 
+	function handleResizeKeydown(event: KeyboardEvent, direction: string) {
+		if (event.key === 'Enter' || event.key === ' ') {
+			event.preventDefault();
+			// Simulate a mouse event for resize start
+			const mouseEvent = new MouseEvent('mousedown', {
+				clientX: 0,
+				clientY: 0,
+				button: 0,
+			});
+			handleResizeStart(mouseEvent, direction);
+		}
+	}
+
 	// Mouse activity handlers for resize handles visibility
 	function handleMouseEnter() {
 		showResizeHandles = true;
@@ -386,7 +399,7 @@
 	}
 </style>
 
-<div class="section" class:with-border={border} class:dragging={isDragging} on:mousedown={handleDragStart} on:mouseenter={handleMouseEnter} on:mousemove={handleMouseMove} on:mouseleave={handleMouseLeave}>
+<div class="section" class:with-border={border} class:dragging={isDragging} on:mousedown={handleDragStart} on:mouseenter={handleMouseEnter} on:mousemove={handleMouseMove} on:mouseleave={handleMouseLeave} role="button" tabindex="0" aria-label="Draggable widget">
 	<slot />
 
 	<!-- Border toggle button -->
@@ -396,15 +409,15 @@
 
 	{#if resizable && showResizeHandles}
 		<!-- Sides -->
-		<div class="resize-handle resize-top" on:mousedown={e => handleResizeStart(e, 'top')} role="button" tabindex="0"></div>
-		<div class="resize-handle resize-right" on:mousedown={e => handleResizeStart(e, 'right')} role="button" tabindex="0"></div>
-		<div class="resize-handle resize-bottom" on:mousedown={e => handleResizeStart(e, 'bottom')} role="button" tabindex="0"></div>
-		<div class="resize-handle resize-left" on:mousedown={e => handleResizeStart(e, 'left')} role="button" tabindex="0"></div>
+		<div class="resize-handle resize-top" on:mousedown={e => handleResizeStart(e, 'top')} on:keydown={e => handleResizeKeydown(e, 'top')} role="button" tabindex="0" aria-label="Resize top"></div>
+		<div class="resize-handle resize-right" on:mousedown={e => handleResizeStart(e, 'right')} on:keydown={e => handleResizeKeydown(e, 'right')} role="button" tabindex="0" aria-label="Resize right"></div>
+		<div class="resize-handle resize-bottom" on:mousedown={e => handleResizeStart(e, 'bottom')} on:keydown={e => handleResizeKeydown(e, 'bottom')} role="button" tabindex="0" aria-label="Resize bottom"></div>
+		<div class="resize-handle resize-left" on:mousedown={e => handleResizeStart(e, 'left')} on:keydown={e => handleResizeKeydown(e, 'left')} role="button" tabindex="0" aria-label="Resize left"></div>
 
 		<!-- Corners -->
-		<div class="resize-handle resize-corner-tl" on:mousedown={e => handleResizeStart(e, 'top-left')} role="button" tabindex="0"></div>
-		<div class="resize-handle resize-corner-tr" on:mousedown={e => handleResizeStart(e, 'top-right')} role="button" tabindex="0"></div>
-		<div class="resize-handle resize-corner-bl" on:mousedown={e => handleResizeStart(e, 'bottom-left')} role="button" tabindex="0"></div>
-		<div class="resize-handle resize-corner-br" on:mousedown={e => handleResizeStart(e, 'bottom-right')} role="button" tabindex="0"></div>
+		<div class="resize-handle resize-corner-tl" on:mousedown={e => handleResizeStart(e, 'top-left')} on:keydown={e => handleResizeKeydown(e, 'top-left')} role="button" tabindex="0" aria-label="Resize top-left corner"></div>
+		<div class="resize-handle resize-corner-tr" on:mousedown={e => handleResizeStart(e, 'top-right')} on:keydown={e => handleResizeKeydown(e, 'top-right')} role="button" tabindex="0" aria-label="Resize top-right corner"></div>
+		<div class="resize-handle resize-corner-bl" on:mousedown={e => handleResizeStart(e, 'bottom-left')} on:keydown={e => handleResizeKeydown(e, 'bottom-left')} role="button" tabindex="0" aria-label="Resize bottom-left corner"></div>
+		<div class="resize-handle resize-corner-br" on:mousedown={e => handleResizeStart(e, 'bottom-right')} on:keydown={e => handleResizeKeydown(e, 'bottom-right')} role="button" tabindex="0" aria-label="Resize bottom-right corner"></div>
 	{/if}
 </div>

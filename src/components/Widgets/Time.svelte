@@ -1,24 +1,21 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { adjustFontToFit, createFontResizeObserver } from '../../scripts/fontUtils';
+	import { adjustFontToFit, createFontResizeObserver } from '../../scripts/font.ts';
 	let currentTime = new Date();
 	let timeElement: HTMLDivElement;
 
-	function adjustTimeElement() {
-		// Apply 90% width and 80% height to time element
-		adjustFontToFit(timeElement, 90, 80);
+	function adjustElementsFontSize() {
+		adjustFontToFit(timeElement, 90, 80); // Apply 90% width and 80% height to time element
 	}
 
 	// Update time every second
 	onMount(() => {
 		const interval = setInterval(() => {
 			currentTime = new Date();
-			setTimeout(adjustTimeElement, 0); // Adjust after DOM update
+			setTimeout(adjustElementsFontSize, 0); // Adjust after DOM update
 		}, 1000);
-
 		// Initial adjustment
-		setTimeout(adjustTimeElement, 100);
-
+		setTimeout(adjustElementsFontSize, 100);
 		// Create resize observer using utility function
 		const resizeObserver = createFontResizeObserver(timeElement, 90, 80);
 

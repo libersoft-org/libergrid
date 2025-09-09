@@ -180,7 +180,7 @@
 			const otherEndCol = otherItem.gridCol + otherItem.colSpan - 1;
 			// Overlap check
 			const rowOverlap = newGridRow <= otherEndRow && newEndRow >= otherItem.gridRow;
- 		const colOverlap = newGridCol <= otherEndCol && newEndCol >= otherItem.gridCol;
+			const colOverlap = newGridCol <= otherEndCol && newEndCol >= otherItem.gridCol;
 			return rowOverlap && colOverlap;
 		});
 		// Grid bounds check
@@ -337,9 +337,11 @@
 		width: 90%;
 	}
 
-	.dialog h3 {
+	#dialog-title {
 		margin: 0 0 1rem 0;
 		text-align: center;
+		font-size: 1.2rem;
+		font-weight: bold;
 	}
 
 	.component-options {
@@ -383,7 +385,7 @@
 	<meta name="description" content="Dashboard pro nástěnné hodiny" />
 </svelte:head>
 
-<div class="dashboard" style="background-image: url('{currentBackground}')" on:click={toggleBackground} on:keydown={toggleBackground} role="button" tabindex="0">
+<div class="dashboard" style="background-image: url('{currentBackground}')" on:click={toggleBackground} on:keydown={e => (e.key === 'Enter' || e.key === ' ' ? toggleBackground() : null)} role="button" tabindex="0" aria-label="Toggle background image">
 	<!-- Generate grid cells - only for empty fields -->
 	{#if showFields}
 		{#each Array(gridRows) as _, row}
@@ -402,6 +404,10 @@
 				grid-row: {item.gridRow + 1} / span {item.rowSpan};
 			"
 			on:click|stopPropagation
+			on:keydown={(e) => e.key === 'Enter' || e.key === ' ' ? e.stopPropagation() : null}
+			role="button"
+			tabindex="0"
+			aria-label="Dashboard item"
 		>
 			<div class="component-wrapper">
 				<button class="remove-button" on:click|stopPropagation={() => removeComponent(item.id)}>×</button>
@@ -415,10 +421,10 @@
 
 <!-- Dialog for adding component -->
 {#if showAddDialog}
-	<div class="dialog-overlay" on:click={() => (showAddDialog = false)} on:keydown role="button" tabindex="0">
-		<div class="dialog" on:click|stopPropagation on:keydown|stopPropagation role="button" tabindex="0">
+	<div class="dialog-overlay" on:click={() => (showAddDialog = false)} on:keydown={e => (e.key === 'Escape' ? (showAddDialog = false) : null)} role="dialog" tabindex="0" aria-label="Add component dialog">
+		<div class="dialog" on:click|stopPropagation on:keydown|stopPropagation role="dialog" tabindex="0" aria-labelledby="dialog-title">
 			<button class="close-button" on:click={() => (showAddDialog = false)}>×</button>
-			<h3>Select component</h3>
+			<div id="dialog-title">Select component</div>
 			<div class="component-options">
 				<button class="component-option" on:click={() => addComponent('time')}>Time</button>
 				<button class="component-option" on:click={() => addComponent('date')}>Date</button>
