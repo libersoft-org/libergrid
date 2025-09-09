@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
+	import { createFontManager } from '../../scripts/font';
 	interface NameDay {
 		date: string;
 		names: string[];
@@ -7,6 +8,22 @@
 	let yesterday: NameDay | null = null;
 	let today: NameDay | null = null;
 	let tomorrow: NameDay | null = null;
+
+	// Font manager elements
+	let yesterdayDayElement: HTMLElement;
+	let yesterdayNameElement: HTMLElement;
+	let todayDayElement: HTMLElement;
+	let todayNameElement: HTMLElement;
+	let tomorrowDayElement: HTMLElement;
+	let tomorrowNameElement: HTMLElement;
+
+	// Font managers
+	let yesterdayDayManager: ReturnType<typeof createFontManager>;
+	let yesterdayNameManager: ReturnType<typeof createFontManager>;
+	let todayDayManager: ReturnType<typeof createFontManager>;
+	let todayNameManager: ReturnType<typeof createFontManager>;
+	let tomorrowDayManager: ReturnType<typeof createFontManager>;
+	let tomorrowNameManager: ReturnType<typeof createFontManager>;
 	// Czech namedays - TODO: it doesn't contain all namedays!
 	const nameDays: Record<string, string[]> = {
 		'01-01': ['Nový rok'],
@@ -401,12 +418,56 @@
 		yesterday = getNameDay(yesterdayDate);
 		today = getNameDay(now);
 		tomorrow = getNameDay(tomorrowDate);
+		updateFontSizes();
+	}
+
+	async function updateFontSizes() {
+		await tick();
+
+		// Initialize font managers if not already done and elements are available
+		if (!yesterdayDayManager && yesterdayDayElement) {
+			yesterdayDayManager = createFontManager(yesterdayDayElement, 90, 30);
+		}
+		if (!yesterdayNameManager && yesterdayNameElement) {
+			yesterdayNameManager = createFontManager(yesterdayNameElement, 90, 40);
+		}
+		if (!todayDayManager && todayDayElement) {
+			todayDayManager = createFontManager(todayDayElement, 90, 30);
+		}
+		if (!todayNameManager && todayNameElement) {
+			todayNameManager = createFontManager(todayNameElement, 90, 40);
+		}
+		if (!tomorrowDayManager && tomorrowDayElement) {
+			tomorrowDayManager = createFontManager(tomorrowDayElement, 90, 30);
+		}
+		if (!tomorrowNameManager && tomorrowNameElement) {
+			tomorrowNameManager = createFontManager(tomorrowNameElement, 90, 40);
+		}
+
+		// Adjust font sizes
+		if (yesterdayDayManager && yesterdayNameManager && todayDayManager && todayNameManager && tomorrowDayManager && tomorrowNameManager) {
+			yesterdayDayManager.adjust();
+			yesterdayNameManager.adjust();
+			todayDayManager.adjust();
+			todayNameManager.adjust();
+			tomorrowDayManager.adjust();
+			tomorrowNameManager.adjust();
+		}
 	}
 
 	onMount(() => {
 		updateNameDays();
 		const interval = setInterval(updateNameDays, 1000);
-		return () => clearInterval(interval);
+
+		return () => {
+			clearInterval(interval);
+			if (yesterdayDayManager) yesterdayDayManager.disconnect();
+			if (yesterdayNameManager) yesterdayNameManager.disconnect();
+			if (todayDayManager) todayDayManager.disconnect();
+			if (todayNameManager) todayNameManager.disconnect();
+			if (tomorrowDayManager) tomorrowDayManager.disconnect();
+			if (tomorrowNameManager) tomorrowNameManager.disconnect();
+		};
 	});
 </script>
 
@@ -422,22 +483,12 @@
 	}
 
 	.nameday-item .day {
-		font-size: 8cqmin;
 		color: #888;
 	}
 
 	.nameday-item .name {
-		font-size: 10cqmin;
 		font-weight: bold;
 		line-height: 1.2;
-	}
-
-	.nameday-item .day.today {
-		font-size: 10cqmin;
-	}
-
-	.nameday-item .name.today {
-		font-size: 12cqmin;
 	}
 
 	.divider {
@@ -451,17 +502,17 @@
 
 {#if yesterday && today && tomorrow}
 	<div class="nameday-item">
-		<div class="day">Yesterday</div>
-		<div class="name">{yesterday.names.join(', ')}</div>
+		<div class="day" bind:this={yesterdayDayElement}>Yesterday</div>
+		<div class="name" bind:this={yesterdayNameElement}>{yesterday.names.join(', ')}</div>
 	</div>
 	<div class="divider"></div>
 	<div class="nameday-item">
-		<div class="day today">Today</div>
-		<div class="name today">{today.names.join(', ')}</div>
+		<div class="day" bind:this={todayDayElement}>Today</div>
+		<div class="name" bind:this={todayNameElement}>{today.names.join(', ')}</div>
 	</div>
 	<div class="divider"></div>
 	<div class="nameday-item">
-		<div class="day">Tomorrow</div>
-		<div class="name">{tomorrow.names.join(', ')}</div>
+		<div class="day" bind:this={tomorrowDayElement}>Tomorrow</div>
+		<div class="name" bind:this={tomorrowNameElement}>{tomorrow.names.join(', ')}</div>
 	</div>
 {/if}
