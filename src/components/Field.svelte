@@ -1,24 +1,27 @@
 <script lang="ts">
-	export let row: number;
-	export let col: number;
-	export let isOccupied: boolean;
-	export let onAddClick: (row: number, col: number) => void;
+	interface Props {
+		row: number;
+		col: number;
+		isOccupied: boolean;
+		onAddClick: (row: number, col: number) => void;
+	}
+	let { row, col, isOccupied, onAddClick }: Props = $props();
 </script>
 
 <style>
-	.grid-cell {
+	.field {
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		border-radius: 1vw;
 		border: 0.2vw dashed rgba(255, 255, 255, 0.3);
+		border-radius: 1vw;
 		transition: all 0.3s ease;
 		cursor: pointer;
 		min-height: 0;
 		min-width: 0;
 	}
 
-	.grid-cell:hover {
+	.field:hover {
 		border-color: rgba(255, 255, 255, 0.8);
 		background: rgba(255, 255, 255, 0.1);
 		backdrop-filter: blur(5px);
@@ -46,7 +49,5 @@
 </style>
 
 {#if !isOccupied}
-	<div class="grid-cell" style="grid-column: {col + 1}; grid-row: {row + 1};" on:click|stopPropagation={() => onAddClick(row, col)} on:keydown|stopPropagation role="button" tabindex="0">
-		<button class="add-button">+</button>
-	</div>
+	<div class="field" style="grid-column: {col + 1}; grid-row: {row + 1};" on:click|stopPropagation={() => onAddClick(row, col)} on:keydown|stopPropagation role="button" tabindex="0">+</div>
 {/if}
