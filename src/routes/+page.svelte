@@ -27,7 +27,6 @@
 	// Dialog state
 	let showAddDialog = false;
 	let selectedGridPosition = { row: 0, col: 0 };
-
 	// Mouse activity tracking for Field visibility
 	let showFields = false;
 	let mouseTimeout: number;
@@ -126,30 +125,23 @@
 	function updateComponentSize(id: string, newColSpan: number, newRowSpan: number, newGridRow?: number, newGridCol?: number) {
 		const item = dashboardItems.find(i => i.id === id);
 		if (!item) return;
-
 		// Use new positions if specified, otherwise use original
 		const targetGridRow = newGridRow !== undefined ? newGridRow : item.gridRow;
 		const targetGridCol = newGridCol !== undefined ? newGridCol : item.gridCol;
-
 		// Collision check - verify that new size and position don't collide with other widgets
 		const wouldCollide = dashboardItems.some(otherItem => {
 			if (otherItem.id === id) return false; // Ignore itself
-
 			const newEndRow = targetGridRow + newRowSpan - 1;
 			const newEndCol = targetGridCol + newColSpan - 1;
 			const otherEndRow = otherItem.gridRow + otherItem.rowSpan - 1;
 			const otherEndCol = otherItem.gridCol + otherItem.colSpan - 1;
-
 			// Overlap check
 			const rowOverlap = targetGridRow <= otherEndRow && newEndRow >= otherItem.gridRow;
 			const colOverlap = targetGridCol <= otherEndCol && newEndCol >= otherItem.gridCol;
-
 			return rowOverlap && colOverlap;
 		});
-
 		// Grid bounds check
 		const exceedsBounds = targetGridCol + newColSpan > gridCols || targetGridRow + newRowSpan > gridRows || targetGridCol < 0 || targetGridRow < 0;
-
 		// Always update for live feedback, but only if valid
 		if (!wouldCollide && !exceedsBounds) {
 			dashboardItems = dashboardItems.map(item =>
@@ -224,11 +216,9 @@
 	onMount(() => {
 		loadDashboardFromStorage();
 		dataLoaded = true; // Activate automatic saving
-
 		// Add mouse event listeners for Field visibility
 		document.addEventListener('mousemove', handleMouseMove);
 		document.addEventListener('mouseleave', handleMouseLeave);
-
 		// Cleanup on component destroy
 		return () => {
 			clearTimeout(mouseTimeout);
@@ -260,12 +250,10 @@
 		cursor: pointer;
 		transition: background-image 0.5s ease-in-out;
 		user-select: none;
-
 		display: grid;
 		grid-template-columns: repeat(10, 1fr);
 		grid-template-rows: repeat(6, 1fr);
 		gap: 1vw;
-
 		/* FIXED grid size - PROHIBITED adding new rows/columns */
 		grid-auto-rows: 0;
 		grid-auto-columns: 0;
@@ -391,7 +379,6 @@
 			{/each}
 		{/each}
 	{/if}
-
 	<!-- Render dashboard components -->
 	{#each dashboardItems as item (item.id)}
 		<div
@@ -415,7 +402,6 @@
 		</div>
 	{/each}
 </div>
-
 <!-- Dialog for adding component -->
 {#if showAddDialog}
 	<div class="dialog-overlay" on:click={() => (showAddDialog = false)} on:keydown={e => (e.key === 'Escape' ? (showAddDialog = false) : null)} role="dialog" tabindex="0" aria-label="Add component dialog">
