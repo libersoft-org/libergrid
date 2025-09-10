@@ -15,11 +15,9 @@
 		align-items: center;
 		min-height: 0;
 		min-width: 0;
-		font-size: 3cqw;
-		font-weight: bold;
+		container-type: size;
 		border: 0.2cqw dashed rgba(255, 255, 255, 0.5);
 		border-radius: 1vw;
-		color: rgba(255, 255, 255, 0.5);
 		background-color: rgba(255, 255, 255, 0.2);
 		transition: all 0.5s ease;
 		cursor: pointer;
@@ -31,8 +29,16 @@
 		background-color: rgba(255, 255, 255, 0.4);
 		backdrop-filter: blur(5px);
 	}
+
+	.plus {
+		font-size: 30cqw;
+		font-weight: bold;
+		color: rgba(255, 255, 255, 0.5);
+	}
 </style>
 
 {#if !occupied}
-	<div class="field" style="grid-column: {col + 1}; grid-row: {row + 1};" on:click|stopPropagation={() => onAddClick(row, col)} on:keydown|stopPropagation role="button" tabindex="0">+</div>
+	<div class="field" style="grid-column: {col + 1}; grid-row: {row + 1};" on:click|stopPropagation={() => onAddClick(row, col)} on:keydown|stopPropagation role="button" tabindex="0">
+		<div class="plus">+</div>
+	</div>
 {/if}
