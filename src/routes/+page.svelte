@@ -294,7 +294,7 @@
 	{#if showFields}
 		{#each Array(gridRows) as _, row}
 			{#each Array(gridCols) as _, col}
-				<Field {row} {col} isOccupied={gridOccupancy[row][col]} onAddClick={showAddComponentDialog} />
+				<Field {row} {col} occupied={gridOccupancy[row][col]} onAddClick={showAddComponentDialog} />
 			{/each}
 		{/each}
 	{/if}

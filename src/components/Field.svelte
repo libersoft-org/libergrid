@@ -2,10 +2,10 @@
 	interface Props {
 		row: number;
 		col: number;
-		isOccupied: boolean;
+		occupied: boolean;
 		onAddClick: (row: number, col: number) => void;
 	}
-	let { row, col, isOccupied, onAddClick }: Props = $props();
+	let { row, col, occupied: occupied, onAddClick }: Props = $props();
 </script>
 
 <style>
@@ -13,41 +13,26 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		border: 0.2vw dashed rgba(255, 255, 255, 0.3);
-		border-radius: 1vw;
-		transition: all 0.3s ease;
-		cursor: pointer;
 		min-height: 0;
 		min-width: 0;
+		font-size: 3cqw;
+		font-weight: bold;
+		border: 0.2cqw dashed rgba(255, 255, 255, 0.5);
+		border-radius: 1vw;
+		color: rgba(255, 255, 255, 0.5);
+		background-color: rgba(255, 255, 255, 0.2);
+		transition: all 0.5s ease;
+		cursor: pointer;
 	}
 
 	.field:hover {
-		border-color: rgba(255, 255, 255, 0.8);
-		background: rgba(255, 255, 255, 0.1);
+		border-color: rgba(255, 255, 255, 1);
+		color: rgba(255, 255, 255, 1);
+		background-color: rgba(255, 255, 255, 0.4);
 		backdrop-filter: blur(5px);
-	}
-
-	.add-button {
-		background: transparent;
-		border: none;
-		color: white;
-		font-size: clamp(1rem, 3vw, 2rem);
-		cursor: pointer;
-		opacity: 0.6;
-		transition: all 0.3s ease;
-		width: 100%;
-		height: 100%;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-	}
-
-	.add-button:hover {
-		opacity: 1;
-		transform: scale(1.2);
 	}
 </style>
 
-{#if !isOccupied}
+{#if !occupied}
 	<div class="field" style="grid-column: {col + 1}; grid-row: {row + 1};" on:click|stopPropagation={() => onAddClick(row, col)} on:keydown|stopPropagation role="button" tabindex="0">+</div>
 {/if}
