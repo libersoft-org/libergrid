@@ -7,11 +7,9 @@
 	import WidgetDate from '../components/Widgets/Date.svelte';
 	import WidgetWeather from '../components/Widgets/Weather.svelte';
 	import WidgetNameday from '../components/Widgets/Nameday.svelte';
-
-	// LocalStorage key for storing dashboard
 	const dashboardStorageKey = 'libergrid';
+	const mouseTimeoutDelay = 2000; // 2 seconds
 	const backgroundImages = ['https://images.pexels.com/photos/440731/pexels-photo-440731.jpeg', 'https://images.pexels.com/photos/433155/pexels-photo-433155.jpeg', 'https://images.pexels.com/photos/250716/pexels-photo-250716.jpeg', 'https://images.pexels.com/photos/169647/pexels-photo-169647.jpeg', 'https://images.pexels.com/photos/2098428/pexels-photo-2098428.jpeg'];
-	// Index for current background
 	let currentBackgroundIndex = 0;
 	// Grid - FIXED dimensions
 	const gridCols = 10;
@@ -33,7 +31,6 @@
 	// Mouse activity tracking for Field visibility
 	let showFields = false;
 	let mouseTimeout: number;
-	const MOUSE_TIMEOUT_DELAY = 2000; // 2 seconds
 
 	// Reactive map of occupied cells for better performance and reactivity
 	$: occupiedCells = new Set(
@@ -215,7 +212,7 @@
 		clearTimeout(mouseTimeout);
 		mouseTimeout = setTimeout(() => {
 			showFields = false;
-		}, MOUSE_TIMEOUT_DELAY);
+		}, mouseTimeoutDelay);
 	}
 
 	function handleMouseLeave() {
