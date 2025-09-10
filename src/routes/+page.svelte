@@ -9,7 +9,7 @@
 	import WidgetNameday from '../components/Widgets/Nameday.svelte';
 
 	// LocalStorage key for storing dashboard
-	const DASHBOARD_STORAGE_KEY = 'dashboard-items';
+	const dashboardStorageKey = 'libergrid';
 	const backgroundImages = ['https://images.pexels.com/photos/440731/pexels-photo-440731.jpeg', 'https://images.pexels.com/photos/433155/pexels-photo-433155.jpeg', 'https://images.pexels.com/photos/250716/pexels-photo-250716.jpeg', 'https://images.pexels.com/photos/169647/pexels-photo-169647.jpeg', 'https://images.pexels.com/photos/2098428/pexels-photo-2098428.jpeg'];
 	// Index for current background
 	let currentBackgroundIndex = 0;
@@ -65,7 +65,7 @@
 	function saveDashboardToStorage() {
 		if (typeof window !== 'undefined') {
 			try {
-				localStorage.setItem(DASHBOARD_STORAGE_KEY, JSON.stringify(dashboardItems));
+				localStorage.setItem(dashboardStorageKey, JSON.stringify(dashboardItems));
 			} catch (error) {
 				console.error('Failed to save dashboard to localStorage:', error);
 			}
@@ -76,7 +76,7 @@
 	function loadDashboardFromStorage() {
 		if (typeof window !== 'undefined') {
 			try {
-				const stored = localStorage.getItem(DASHBOARD_STORAGE_KEY);
+				const stored = localStorage.getItem(dashboardStorageKey);
 				console.log('Loading from localStorage:', stored);
 				if (stored) {
 					const loadedItems = JSON.parse(stored);

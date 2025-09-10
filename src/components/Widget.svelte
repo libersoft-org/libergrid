@@ -26,15 +26,36 @@
 	let showResizeHandles = false;
 	let mouseTimeout: number;
 	const MOUSE_TIMEOUT_DELAY = 2000; // 2 seconds
+	let isTouchDevice = false;
 
-	function handleResizeStart(event: MouseEvent, direction: string) {
+	// Detect touch device
+	function detectTouchDevice() {
+		isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+	}
+
+	// Initialize touch detection on mount
+	import { onMount } from 'svelte';
+
+	onMount(() => {
+		detectTouchDevice();
+	});
+
+	function handleResizeStart(event: MouseEvent | TouchEvent, direction: string) {
 		if (!resizable) return;
 
 		event.stopPropagation();
 		isResizing = true;
 		resizeDirection = direction;
-		startX = event.clientX;
-		startY = event.clientY;
+
+		// Handle both mouse and touch events
+		if (event instanceof TouchEvent) {
+			startX = event.touches[0].clientX;
+			startY = event.touches[0].clientY;
+		} else {
+			startX = event.clientX;
+			startY = event.clientY;
+		}
+
 		startColSpan = colSpan;
 		startRowSpan = rowSpan;
 
@@ -52,9 +73,11 @@
 
 		document.addEventListener('mousemove', handleResizeMove);
 		document.addEventListener('mouseup', handleResizeEnd);
+		document.addEventListener('touchmove', handleResizeMove);
+		document.addEventListener('touchend', handleResizeEnd);
 	}
 
-	function handleDragStart(event: MouseEvent) {
+	function handleDragStart(event: MouseEvent | TouchEvent) {
 		if (!draggable || isResizing) return;
 
 		// Check if we're not clicking on resize handle
@@ -65,8 +88,15 @@
 
 		event.stopPropagation();
 		isDragging = true;
-		startX = event.clientX;
-		startY = event.clientY;
+
+		// Handle both mouse and touch events
+		if (event instanceof TouchEvent) {
+			startX = event.touches[0].clientX;
+			startY = event.touches[0].clientY;
+		} else {
+			startX = event.clientX;
+			startY = event.clientY;
+		}
 
 		// Get current grid position from parent element
 		const dashboardItem = (event.target as HTMLElement).closest('.dashboard-item') as HTMLElement;
@@ -82,13 +112,30 @@
 
 		document.addEventListener('mousemove', handleDragMove);
 		document.addEventListener('mouseup', handleDragEnd);
+		document.addEventListener('touchmove', handleDragMove);
+		document.addEventListener('touchend', handleDragEnd);
 	}
 
-	function handleResizeMove(event: MouseEvent) {
+	function handleResizeMove(event: MouseEvent | TouchEvent) {
 		if (!isResizing) return;
 
-		const deltaX = event.clientX - startX;
-		const deltaY = event.clientY - startY;
+		// Prevent scrolling on touch devices
+		if (event instanceof TouchEvent) {
+			event.preventDefault();
+		}
+
+		// Handle both mouse and touch events
+		let clientX: number, clientY: number;
+		if (event instanceof TouchEvent) {
+			clientX = event.touches[0].clientX;
+			clientY = event.touches[0].clientY;
+		} else {
+			clientX = event.clientX;
+			clientY = event.clientY;
+		}
+
+		const deltaX = clientX - startX;
+		const deltaY = clientY - startY;
 
 		// Calculation based on actual grid size
 		const dashboard = document.querySelector('.dashboard') as HTMLElement;
@@ -135,11 +182,26 @@
 		}
 	}
 
-	function handleDragMove(event: MouseEvent) {
+	function handleDragMove(event: MouseEvent | TouchEvent) {
 		if (!isDragging) return;
 
-		const deltaX = event.clientX - startX;
-		const deltaY = event.clientY - startY;
+		// Prevent scrolling on touch devices
+		if (event instanceof TouchEvent) {
+			event.preventDefault();
+		}
+
+		// Handle both mouse and touch events
+		let clientX: number, clientY: number;
+		if (event instanceof TouchEvent) {
+			clientX = event.touches[0].clientX;
+			clientY = event.touches[0].clientY;
+		} else {
+			clientX = event.clientX;
+			clientY = event.clientY;
+		}
+
+		const deltaX = clientX - startX;
+		const deltaY = clientY - startY;
 
 		// Calculation based on actual grid size
 		const dashboard = document.querySelector('.dashboard') as HTMLElement;
@@ -180,6 +242,8 @@
 		}
 		document.removeEventListener('mousemove', handleResizeMove);
 		document.removeEventListener('mouseup', handleResizeEnd);
+		document.removeEventListener('touchmove', handleResizeMove);
+		document.removeEventListener('touchend', handleResizeEnd);
 	}
 
 	function handleDragEnd() {
@@ -189,6 +253,8 @@
 		}
 		document.removeEventListener('mousemove', handleDragMove);
 		document.removeEventListener('mouseup', handleDragEnd);
+		document.removeEventListener('touchmove', handleDragMove);
+		document.removeEventListener('touchend', handleDragEnd);
 	}
 
 	function handleResizeKeydown(event: KeyboardEvent, direction: string) {
@@ -224,11 +290,32 @@
 			showResizeHandles = false;
 		}, 300); // Short delay when leaving to avoid flickering
 	}
+
+	// Touch handlers for resize handles visibility
+	function handleTouchStart() {
+		detectTouchDevice();
+		if (isTouchDevice) {
+			showResizeHandles = true;
+			clearTimeout(mouseTimeout);
+			mouseTimeout = setTimeout(() => {
+				showResizeHandles = false;
+			}, 3000); // Show longer on touch devices
+		}
+	}
+
+	function handleTouchEnd() {
+		if (isTouchDevice && !isResizing && !isDragging) {
+			clearTimeout(mouseTimeout);
+			mouseTimeout = setTimeout(() => {
+				showResizeHandles = false;
+			}, 1000);
+		}
+	}
 </script>
 
 <style>
 	.widget {
-		border-radius: 1vw;
+		border-radius: 1vh;
 		padding: 10px;
 		container-type: size;
 		display: flex;
@@ -256,7 +343,7 @@
 
 	.widget.with-border {
 		background: rgba(0, 0, 0, 0.7);
-		border: 0.2vw solid rgba(0, 0, 0, 0.5);
+		border: 0.2vh solid rgba(0, 0, 0, 0.5);
 		backdrop-filter: blur(5px);
 	}
 
@@ -266,6 +353,9 @@
 		transition: all 0.2s ease;
 		z-index: 10;
 		cursor: default; /* Override parent cursor */
+		/* Make resize handles larger on touch devices */
+		min-width: 20px;
+		min-height: 20px;
 	}
 
 	.resize-handle:hover {
@@ -279,7 +369,7 @@
 		right: 10px;
 		height: 12px;
 		cursor: ns-resize;
-		border-radius: 1vw 1vw 0 0;
+		border-radius: 1vh 1vh 0 0;
 	}
 
 	.resize-right {
@@ -288,7 +378,7 @@
 		bottom: 10px;
 		width: 12px;
 		cursor: ew-resize;
-		border-radius: 0 1vw 1vw 0;
+		border-radius: 0 1vh 1vh 0;
 	}
 
 	.resize-bottom {
@@ -297,7 +387,7 @@
 		right: 10px;
 		height: 12px;
 		cursor: ns-resize;
-		border-radius: 0 0 1vw 1vw;
+		border-radius: 0 0 1vh 1vh;
 	}
 
 	.resize-left {
@@ -306,47 +396,47 @@
 		bottom: 10px;
 		width: 12px;
 		cursor: ew-resize;
-		border-radius: 1vw 0 0 1vw;
+		border-radius: 1vh 0 0 1vh;
 	}
 
-	/* Rohy */
+	/* Rohy - make them larger for touch */
 	.resize-corner-tl {
 		top: 0;
 		left: 0;
-		width: 16px;
-		height: 16px;
+		width: 24px;
+		height: 24px;
 		cursor: nw-resize;
-		border-radius: 1vw 0 0 0;
+		border-radius: 1vh 0 0 0;
 		background: rgba(255, 255, 255, 0.4);
 	}
 
 	.resize-corner-tr {
 		top: 0;
 		right: 0;
-		width: 16px;
-		height: 16px;
+		width: 24px;
+		height: 24px;
 		cursor: ne-resize;
-		border-radius: 0 1vw 0 0;
+		border-radius: 0 1vh 0 0;
 		background: rgba(255, 255, 255, 0.4);
 	}
 
 	.resize-corner-bl {
 		bottom: 0;
 		left: 0;
-		width: 16px;
-		height: 16px;
+		width: 24px;
+		height: 24px;
 		cursor: sw-resize;
-		border-radius: 0 0 0 1vw;
+		border-radius: 0 0 0 1vh;
 		background: rgba(255, 255, 255, 0.4);
 	}
 
 	.resize-corner-br {
 		bottom: 0;
 		right: 0;
-		width: 16px;
-		height: 16px;
+		width: 24px;
+		height: 24px;
 		cursor: se-resize;
-		border-radius: 0 0 1vw 0;
+		border-radius: 0 0 1vh 0;
 		background: rgba(255, 255, 255, 0.4);
 	}
 
@@ -366,6 +456,17 @@
 		transition:
 			opacity 0.2s ease,
 			background 0.2s ease;
+	}
+
+	/* Show resize handles on touch devices when widget is touched */
+	@media (hover: none) and (pointer: coarse) {
+		.resize-handle {
+			opacity: 0.6;
+		}
+
+		.widget:active .resize-handle {
+			opacity: 1;
+		}
 	}
 
 	.border-toggle {
@@ -399,7 +500,7 @@
 	}
 </style>
 
-<div class="widget" class:with-border={border} class:dragging={isDragging} on:mousedown={handleDragStart} on:mouseenter={handleMouseEnter} on:mousemove={handleMouseMove} on:mouseleave={handleMouseLeave} role="button" tabindex="0" aria-label="Draggable widget">
+<div class="widget" class:with-border={border} class:dragging={isDragging} on:mousedown={handleDragStart} on:touchstart={handleDragStart} on:mouseenter={handleMouseEnter} on:mousemove={handleMouseMove} on:mouseleave={handleMouseLeave} on:touchend={handleTouchEnd} role="button" tabindex="0" aria-label="Draggable widget">
 	<slot />
 
 	<!-- Border toggle button -->
@@ -409,15 +510,15 @@
 
 	{#if resizable && showResizeHandles}
 		<!-- Sides -->
-		<div class="resize-handle resize-top" on:mousedown={e => handleResizeStart(e, 'top')} on:keydown={e => handleResizeKeydown(e, 'top')} role="button" tabindex="0" aria-label="Resize top"></div>
-		<div class="resize-handle resize-right" on:mousedown={e => handleResizeStart(e, 'right')} on:keydown={e => handleResizeKeydown(e, 'right')} role="button" tabindex="0" aria-label="Resize right"></div>
-		<div class="resize-handle resize-bottom" on:mousedown={e => handleResizeStart(e, 'bottom')} on:keydown={e => handleResizeKeydown(e, 'bottom')} role="button" tabindex="0" aria-label="Resize bottom"></div>
-		<div class="resize-handle resize-left" on:mousedown={e => handleResizeStart(e, 'left')} on:keydown={e => handleResizeKeydown(e, 'left')} role="button" tabindex="0" aria-label="Resize left"></div>
+		<div class="resize-handle resize-top" on:mousedown={e => handleResizeStart(e, 'top')} on:touchstart={e => handleResizeStart(e, 'top')} on:keydown={e => handleResizeKeydown(e, 'top')} role="button" tabindex="0" aria-label="Resize top"></div>
+		<div class="resize-handle resize-right" on:mousedown={e => handleResizeStart(e, 'right')} on:touchstart={e => handleResizeStart(e, 'right')} on:keydown={e => handleResizeKeydown(e, 'right')} role="button" tabindex="0" aria-label="Resize right"></div>
+		<div class="resize-handle resize-bottom" on:mousedown={e => handleResizeStart(e, 'bottom')} on:touchstart={e => handleResizeStart(e, 'bottom')} on:keydown={e => handleResizeKeydown(e, 'bottom')} role="button" tabindex="0" aria-label="Resize bottom"></div>
+		<div class="resize-handle resize-left" on:mousedown={e => handleResizeStart(e, 'left')} on:touchstart={e => handleResizeStart(e, 'left')} on:keydown={e => handleResizeKeydown(e, 'left')} role="button" tabindex="0" aria-label="Resize left"></div>
 
 		<!-- Corners -->
-		<div class="resize-handle resize-corner-tl" on:mousedown={e => handleResizeStart(e, 'top-left')} on:keydown={e => handleResizeKeydown(e, 'top-left')} role="button" tabindex="0" aria-label="Resize top-left corner"></div>
-		<div class="resize-handle resize-corner-tr" on:mousedown={e => handleResizeStart(e, 'top-right')} on:keydown={e => handleResizeKeydown(e, 'top-right')} role="button" tabindex="0" aria-label="Resize top-right corner"></div>
-		<div class="resize-handle resize-corner-bl" on:mousedown={e => handleResizeStart(e, 'bottom-left')} on:keydown={e => handleResizeKeydown(e, 'bottom-left')} role="button" tabindex="0" aria-label="Resize bottom-left corner"></div>
-		<div class="resize-handle resize-corner-br" on:mousedown={e => handleResizeStart(e, 'bottom-right')} on:keydown={e => handleResizeKeydown(e, 'bottom-right')} role="button" tabindex="0" aria-label="Resize bottom-right corner"></div>
+		<div class="resize-handle resize-corner-tl" on:mousedown={e => handleResizeStart(e, 'top-left')} on:touchstart={e => handleResizeStart(e, 'top-left')} on:keydown={e => handleResizeKeydown(e, 'top-left')} role="button" tabindex="0" aria-label="Resize top-left corner"></div>
+		<div class="resize-handle resize-corner-tr" on:mousedown={e => handleResizeStart(e, 'top-right')} on:touchstart={e => handleResizeStart(e, 'top-right')} on:keydown={e => handleResizeKeydown(e, 'top-right')} role="button" tabindex="0" aria-label="Resize top-right corner"></div>
+		<div class="resize-handle resize-corner-bl" on:mousedown={e => handleResizeStart(e, 'bottom-left')} on:touchstart={e => handleResizeStart(e, 'bottom-left')} on:keydown={e => handleResizeKeydown(e, 'bottom-left')} role="button" tabindex="0" aria-label="Resize bottom-left corner"></div>
+		<div class="resize-handle resize-corner-br" on:mousedown={e => handleResizeStart(e, 'bottom-right')} on:touchstart={e => handleResizeStart(e, 'bottom-right')} on:keydown={e => handleResizeKeydown(e, 'bottom-right')} role="button" tabindex="0" aria-label="Resize bottom-right corner"></div>
 	{/if}
 </div>
