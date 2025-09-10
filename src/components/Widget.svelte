@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	export let border: boolean = true;
 	export let colSpan: number = 1; // Number of columns the widget occupies (out of 10)
 	export let rowSpan: number = 1; // Number of rows the widget occupies
@@ -11,7 +12,6 @@
 	export let onResizeEnd: () => void = () => {};
 	export let onMoveStart: () => void = () => {};
 	export let onMoveEnd: () => void = () => {};
-
 	let isResizing = false;
 	let isDragging = false;
 	let resizeDirection = '';
@@ -21,32 +21,26 @@
 	let startRowSpan = rowSpan;
 	let startGridCol = 0;
 	let startGridRow = 0;
-
 	// Mouse activity tracking for resize handles visibility
 	let showResizeHandles = false;
 	let mouseTimeout: number;
-	const MOUSE_TIMEOUT_DELAY = 2000; // 2 seconds
+	const mouseTimeoutDelay = 2000; // 2 seconds
 	let isTouchDevice = false;
+
+	onMount(() => {
+		detectTouchDevice();
+	});
 
 	// Detect touch device
 	function detectTouchDevice() {
 		isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 	}
 
-	// Initialize touch detection on mount
-	import { onMount } from 'svelte';
-
-	onMount(() => {
-		detectTouchDevice();
-	});
-
 	function handleResizeStart(event: MouseEvent | TouchEvent, direction: string) {
 		if (!resizable) return;
-
 		event.stopPropagation();
 		isResizing = true;
 		resizeDirection = direction;
-
 		// Handle both mouse and touch events
 		if (event instanceof TouchEvent) {
 			startX = event.touches[0].clientX;
@@ -55,10 +49,8 @@
 			startX = event.clientX;
 			startY = event.clientY;
 		}
-
 		startColSpan = colSpan;
 		startRowSpan = rowSpan;
-
 		// Get current grid position from parent element
 		const dashboardItem = (event.target as HTMLElement).closest('.dashboard-item') as HTMLElement;
 		if (dashboardItem) {
@@ -68,9 +60,7 @@
 			startGridCol = gridColumnMatch ? parseInt(gridColumnMatch[1]) - 1 : 0;
 			startGridRow = gridRowMatch ? parseInt(gridRowMatch[1]) - 1 : 0;
 		}
-
 		onResizeStart();
-
 		document.addEventListener('mousemove', handleResizeMove);
 		document.addEventListener('mouseup', handleResizeEnd);
 		document.addEventListener('touchmove', handleResizeMove);
@@ -79,16 +69,13 @@
 
 	function handleDragStart(event: MouseEvent | TouchEvent) {
 		if (!draggable || isResizing) return;
-
 		// Check if we're not clicking on resize handle
 		const target = event.target as HTMLElement;
 		if (target.classList.contains('resize-handle') || target.classList.contains('remove-button') || target.classList.contains('border-toggle')) {
 			return; // Don't allow drag on resize handles, remove button or border toggle
 		}
-
 		event.stopPropagation();
 		isDragging = true;
-
 		// Handle both mouse and touch events
 		if (event instanceof TouchEvent) {
 			startX = event.touches[0].clientX;
@@ -97,7 +84,6 @@
 			startX = event.clientX;
 			startY = event.clientY;
 		}
-
 		// Get current grid position from parent element
 		const dashboardItem = (event.target as HTMLElement).closest('.dashboard-item') as HTMLElement;
 		if (dashboardItem) {
@@ -107,9 +93,7 @@
 			startGridCol = gridColumnMatch ? parseInt(gridColumnMatch[1]) - 1 : 0;
 			startGridRow = gridRowMatch ? parseInt(gridRowMatch[1]) - 1 : 0;
 		}
-
 		onMoveStart();
-
 		document.addEventListener('mousemove', handleDragMove);
 		document.addEventListener('mouseup', handleDragEnd);
 		document.addEventListener('touchmove', handleDragMove);
@@ -118,12 +102,8 @@
 
 	function handleResizeMove(event: MouseEvent | TouchEvent) {
 		if (!isResizing) return;
-
 		// Prevent scrolling on touch devices
-		if (event instanceof TouchEvent) {
-			event.preventDefault();
-		}
-
+		if (event instanceof TouchEvent) event.preventDefault();
 		// Handle both mouse and touch events
 		let clientX: number, clientY: number;
 		if (event instanceof TouchEvent) {
@@ -133,23 +113,18 @@
 			clientX = event.clientX;
 			clientY = event.clientY;
 		}
-
 		const deltaX = clientX - startX;
 		const deltaY = clientY - startY;
-
 		// Calculation based on actual grid size
 		const dashboard = document.querySelector('.dashboard') as HTMLElement;
 		if (!dashboard) return;
-
 		const dashboardRect = dashboard.getBoundingClientRect();
 		const gridCellWidth = (dashboardRect.width - 2 * parseFloat(getComputedStyle(dashboard).paddingLeft) - 9 * parseFloat(getComputedStyle(dashboard).gap)) / 10;
 		const gridCellHeight = (dashboardRect.height - 2 * parseFloat(getComputedStyle(dashboard).paddingTop) - 5 * parseFloat(getComputedStyle(dashboard).gap)) / 6;
-
 		let newColSpan = startColSpan;
 		let newRowSpan = startRowSpan;
 		let newGridRow = startGridRow;
 		let newGridCol = startGridCol;
-
 		// Horizontal changes
 		if (resizeDirection.includes('right')) {
 			const colChange = Math.round(deltaX / gridCellWidth);
@@ -161,7 +136,6 @@
 			newColSpan = Math.max(1, startColSpan + maxColChange);
 			newGridCol = startGridCol - (newColSpan - startColSpan);
 		}
-
 		// Vertical changes
 		if (resizeDirection.includes('bottom')) {
 			const rowChange = Math.round(deltaY / gridCellHeight);
@@ -173,7 +147,6 @@
 			newRowSpan = Math.max(1, startRowSpan + maxRowChange);
 			newGridRow = startGridRow - (newRowSpan - startRowSpan);
 		}
-
 		// Update values in real-time for visual feedback
 		if (newColSpan !== colSpan || newRowSpan !== rowSpan || newGridRow !== startGridRow || newGridCol !== startGridCol) {
 			colSpan = newColSpan;
@@ -184,12 +157,8 @@
 
 	function handleDragMove(event: MouseEvent | TouchEvent) {
 		if (!isDragging) return;
-
 		// Prevent scrolling on touch devices
-		if (event instanceof TouchEvent) {
-			event.preventDefault();
-		}
-
+		if (event instanceof TouchEvent) event.preventDefault();
 		// Handle both mouse and touch events
 		let clientX: number, clientY: number;
 		if (event instanceof TouchEvent) {
@@ -199,31 +168,24 @@
 			clientX = event.clientX;
 			clientY = event.clientY;
 		}
-
 		const deltaX = clientX - startX;
 		const deltaY = clientY - startY;
-
 		// Calculation based on actual grid size
 		const dashboard = document.querySelector('.dashboard') as HTMLElement;
 		if (!dashboard) return;
-
 		const dashboardRect = dashboard.getBoundingClientRect();
 		const gridCellWidth = (dashboardRect.width - 2 * parseFloat(getComputedStyle(dashboard).paddingLeft) - 9 * parseFloat(getComputedStyle(dashboard).gap)) / 10;
 		const gridCellHeight = (dashboardRect.height - 2 * parseFloat(getComputedStyle(dashboard).paddingTop) - 5 * parseFloat(getComputedStyle(dashboard).gap)) / 6;
-
 		const colChange = Math.round(deltaX / gridCellWidth);
 		const rowChange = Math.round(deltaY / gridCellHeight);
-
 		const newGridCol = Math.max(0, Math.min(10 - colSpan, startGridCol + colChange));
 		const newGridRow = Math.max(0, Math.min(6 - rowSpan, startGridRow + rowChange));
-
 		onMove(newGridRow, newGridCol);
 	}
 
 	function handleResizeEnd() {
 		if (isResizing) {
 			isResizing = false;
-
 			// Get current position from DOM
 			const dashboardItem = document.querySelector('.dashboard-item') as HTMLElement;
 			if (dashboardItem) {
@@ -232,12 +194,10 @@
 				const gridRowMatch = style.gridRow.match(/(\d+)/);
 				const currentGridCol = gridColumnMatch ? parseInt(gridColumnMatch[1]) - 1 : startGridCol;
 				const currentGridRow = gridRowMatch ? parseInt(gridRowMatch[1]) - 1 : startGridRow;
-
 				onResize(colSpan, rowSpan, currentGridRow, currentGridCol);
 			} else {
 				onResize(colSpan, rowSpan);
 			}
-
 			onResizeEnd();
 		}
 		document.removeEventListener('mousemove', handleResizeMove);
@@ -281,7 +241,7 @@
 		clearTimeout(mouseTimeout);
 		mouseTimeout = setTimeout(() => {
 			showResizeHandles = false;
-		}, MOUSE_TIMEOUT_DELAY);
+		}, mouseTimeoutDelay);
 	}
 
 	function handleMouseLeave() {
@@ -332,7 +292,6 @@
 		min-width: 0; /* Umožní zmenšení */
 		cursor: move; /* Indikuje, že je možné přesouvat */
 		transition: opacity 0.2s ease;
-
 		/* Odstraníme grid positioning - to řeší parent */
 	}
 
@@ -502,19 +461,16 @@
 
 <div class="widget" class:with-border={border} class:dragging={isDragging} on:mousedown={handleDragStart} on:touchstart={handleDragStart} on:mouseenter={handleMouseEnter} on:mousemove={handleMouseMove} on:mouseleave={handleMouseLeave} on:touchend={handleTouchEnd} role="button" tabindex="0" aria-label="Draggable widget">
 	<slot />
-
 	<!-- Border toggle button -->
 	<button class="border-toggle" on:click|stopPropagation={onToggleBorder} title={border ? 'Turn off border' : 'Turn on border'}>
 		{border ? '🔲' : '⬜'}
 	</button>
-
 	{#if resizable && showResizeHandles}
 		<!-- Sides -->
 		<div class="resize-handle resize-top" on:mousedown={e => handleResizeStart(e, 'top')} on:touchstart={e => handleResizeStart(e, 'top')} on:keydown={e => handleResizeKeydown(e, 'top')} role="button" tabindex="0" aria-label="Resize top"></div>
 		<div class="resize-handle resize-right" on:mousedown={e => handleResizeStart(e, 'right')} on:touchstart={e => handleResizeStart(e, 'right')} on:keydown={e => handleResizeKeydown(e, 'right')} role="button" tabindex="0" aria-label="Resize right"></div>
 		<div class="resize-handle resize-bottom" on:mousedown={e => handleResizeStart(e, 'bottom')} on:touchstart={e => handleResizeStart(e, 'bottom')} on:keydown={e => handleResizeKeydown(e, 'bottom')} role="button" tabindex="0" aria-label="Resize bottom"></div>
 		<div class="resize-handle resize-left" on:mousedown={e => handleResizeStart(e, 'left')} on:touchstart={e => handleResizeStart(e, 'left')} on:keydown={e => handleResizeKeydown(e, 'left')} role="button" tabindex="0" aria-label="Resize left"></div>
-
 		<!-- Corners -->
 		<div class="resize-handle resize-corner-tl" on:mousedown={e => handleResizeStart(e, 'top-left')} on:touchstart={e => handleResizeStart(e, 'top-left')} on:keydown={e => handleResizeKeydown(e, 'top-left')} role="button" tabindex="0" aria-label="Resize top-left corner"></div>
 		<div class="resize-handle resize-corner-tr" on:mousedown={e => handleResizeStart(e, 'top-right')} on:touchstart={e => handleResizeStart(e, 'top-right')} on:keydown={e => handleResizeKeydown(e, 'top-right')} role="button" tabindex="0" aria-label="Resize top-right corner"></div>
