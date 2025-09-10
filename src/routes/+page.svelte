@@ -2,6 +2,8 @@
 	import { onMount } from 'svelte';
 	import Field from '../components/Field.svelte';
 	import Widget from '../components/Widget.svelte';
+	import Button from '../components/Button.svelte';
+	import WindowWidgetAdd from '../components/WindowWidgetAdd.svelte';
 	import WidgetTime from '../components/Widgets/Time.svelte';
 	import WidgetTemp from '../components/Widgets/Temp.svelte';
 	import WidgetDate from '../components/Widgets/Date.svelte';
@@ -111,6 +113,9 @@
 			border: true,
 		};
 		dashboardItems = [...dashboardItems, newItem];
+	}
+
+	function closeAddDialog() {
 		showAddDialog = false;
 	}
 
@@ -242,7 +247,6 @@
 		background-position: center;
 		background-repeat: no-repeat;
 		color: white;
-		font-family: 'Ubuntu', sans-serif;
 		margin: 0;
 		padding: 2vw;
 		box-sizing: border-box;
@@ -276,93 +280,8 @@
 		overflow: hidden; /* Clip overflowing content */
 	}
 
-	.remove-button {
-		position: absolute;
-		top: 8px;
-		right: 8px;
-		width: 24px;
-		height: 24px;
-		border-radius: 50%;
-		border: none;
-		background: rgba(255, 0, 0, 0.7);
-		color: white;
-		font-size: 16px;
-		cursor: pointer;
-		z-index: 100;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		opacity: 0;
-		transition: opacity 0.2s ease;
-	}
-
-	.dashboard-item:hover .remove-button {
+	.dashboard-item:hover :global(.button-remove) {
 		opacity: 1;
-	}
-
-	.dialog-overlay {
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		background: rgba(0, 0, 0, 0.8);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		z-index: 10000;
-	}
-
-	.dialog {
-		background: rgba(0, 0, 0, 0.9);
-		border: 2px solid rgba(255, 255, 255, 0.3);
-		border-radius: 1vw;
-		padding: 2rem;
-		backdrop-filter: blur(10px);
-		max-width: 400px;
-		width: 90%;
-	}
-
-	#dialog-title {
-		margin: 0 0 1rem 0;
-		text-align: center;
-		font-size: 1.2rem;
-		font-weight: bold;
-	}
-
-	.component-options {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: 1rem;
-	}
-
-	.component-option {
-		padding: 1rem;
-		border: 2px solid rgba(255, 255, 255, 0.3);
-		border-radius: 0.5vw;
-		background: rgba(255, 255, 255, 0.1);
-		cursor: pointer;
-		text-align: center;
-		transition: all 0.2s ease;
-		color: white;
-		font-size: 16px;
-		font-weight: bold;
-	}
-
-	.component-option:hover {
-		border-color: rgba(255, 255, 255, 0.8);
-		background: rgba(255, 255, 255, 0.2);
-	}
-
-	.close-button {
-		position: absolute;
-		top: 1rem;
-		right: 1rem;
-		background: none;
-		border: none;
-		color: white;
-		font-size: 24px;
-		cursor: pointer;
 	}
 </style>
 
@@ -394,7 +313,7 @@
 			aria-label="Dashboard item"
 		>
 			<div class="component-wrapper">
-				<button class="remove-button" on:click|stopPropagation={() => removeComponent(item.id)}>×</button>
+				<Button variant="remove" onClick={() => removeComponent(item.id)} ariaLabel="Remove component">×</Button>
 				<Widget border={item.border} colSpan={item.colSpan} rowSpan={item.rowSpan} draggable={true} onResize={(newColSpan, newRowSpan, newGridRow, newGridCol) => updateComponentSize(item.id, newColSpan, newRowSpan, newGridRow, newGridCol)} onMove={(newGridRow, newGridCol) => updateComponentPosition(item.id, newGridRow, newGridCol)} onToggleBorder={() => toggleComponentBorder(item.id)}>
 					<svelte:component this={getComponentByType(item.type)} />
 				</Widget>
@@ -402,19 +321,5 @@
 		</div>
 	{/each}
 </div>
-<!-- Dialog for adding component -->
-{#if showAddDialog}
-	<div class="dialog-overlay" on:click={() => (showAddDialog = false)} on:keydown={e => (e.key === 'Escape' ? (showAddDialog = false) : null)} role="dialog" tabindex="0" aria-label="Add component dialog">
-		<div class="dialog" on:click|stopPropagation on:keydown|stopPropagation role="dialog" tabindex="0" aria-labelledby="dialog-title">
-			<button class="close-button" on:click={() => (showAddDialog = false)}>×</button>
-			<div id="dialog-title">Select component</div>
-			<div class="component-options">
-				<button class="component-option" on:click={() => addComponent('time')}>Time</button>
-				<button class="component-option" on:click={() => addComponent('date')}>Date</button>
-				<button class="component-option" on:click={() => addComponent('temp')}>Temperature</button>
-				<button class="component-option" on:click={() => addComponent('weather')}>Weather</button>
-				<button class="component-option" on:click={() => addComponent('nameday')}>Name day</button>
-			</div>
-		</div>
-	</div>
-{/if}
+<!-- Widget Add Dialog Component -->
+<WindowWidgetAdd show={showAddDialog} onAddComponent={addComponent} onClose={closeAddDialog} />
