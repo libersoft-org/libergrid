@@ -12,7 +12,14 @@
 	import WidgetVideo from '../components/Widgets/Video.svelte';
 	const dashboardStorageKey = 'libergrid';
 	const mouseTimeoutDelay = 2000; // 2 seconds
-	const backgroundImages = ['https://images.pexels.com/photos/440731/pexels-photo-440731.jpeg', 'https://images.pexels.com/photos/433155/pexels-photo-433155.jpeg', 'https://images.pexels.com/photos/250716/pexels-photo-250716.jpeg', 'https://images.pexels.com/photos/169647/pexels-photo-169647.jpeg', 'https://images.pexels.com/photos/2098428/pexels-photo-2098428.jpeg'];
+	const backgroundMedia = [
+		{ type: 'image', url: 'https://images.pexels.com/photos/440731/pexels-photo-440731.jpeg' },
+		{ type: 'image', url: 'https://images.pexels.com/photos/433155/pexels-photo-433155.jpeg' },
+		{ type: 'image', url: 'https://images.pexels.com/photos/250716/pexels-photo-250716.jpeg' },
+		{ type: 'image', url: 'https://images.pexels.com/photos/169647/pexels-photo-169647.jpeg' },
+		{ type: 'image', url: 'https://images.pexels.com/photos/2098428/pexels-photo-2098428.jpeg' },
+		{ type: 'video', url: 'https://file-examples.com/storage/feb23bcbd368c1ded9d9b0e/2017/04/file_example_MP4_480_1_5MG.mp4' },
+	];
 	let currentBackgroundIndex = 0;
 	// Grid - FIXED dimensions
 	const gridCols = 10;
@@ -33,6 +40,7 @@
 	// Mouse activity tracking for Field visibility
 	let showFields = false;
 	let mouseTimeout: number;
+	let backgroundVideoElement: HTMLVideoElement;
 
 	// Reactive map of occupied cells for better performance and reactivity
 	$: occupiedCells = new Set(
@@ -57,7 +65,23 @@
 	$: if (dataLoaded && dashboardItems) saveDashboardToStorage();
 
 	function toggleBackground() {
-		currentBackgroundIndex = (currentBackgroundIndex + 1) % backgroundImages.length;
+		currentBackgroundIndex = (currentBackgroundIndex + 1) % backgroundMedia.length;
+
+		// Try to play video if switching to video background
+		if (backgroundMedia[currentBackgroundIndex].type === 'video' && backgroundVideoElement) {
+			setTimeout(() => {
+				backgroundVideoElement.play().catch(() => {
+					// Video autoplay blocked - normal behavior
+				});
+			}, 300);
+		}
+
+		// Also try to play video if current background is already video
+		if (currentBackground.type === 'video' && backgroundVideoElement) {
+			backgroundVideoElement.play().catch(() => {
+				// Video autoplay blocked - normal behavior
+			});
+		}
 	}
 
 	// Function for saving to localStorage
@@ -204,7 +228,26 @@
 		}
 	}
 
-	$: currentBackground = backgroundImages[currentBackgroundIndex];
+	$: currentBackground = backgroundMedia[currentBackgroundIndex];
+
+	// Keep background video synchronized with widget video URL
+	$: if (typeof window !== 'undefined') {
+		const savedVideoUrl = localStorage.getItem('libergrid-video-url');
+		if (savedVideoUrl && backgroundMedia[backgroundMedia.length - 1].url !== savedVideoUrl) {
+			backgroundMedia[backgroundMedia.length - 1].url = savedVideoUrl;
+		}
+	}
+
+	// Handle video background changes
+	$: if (backgroundVideoElement && currentBackground.type === 'video') {
+		backgroundVideoElement.src = currentBackground.url;
+		backgroundVideoElement.load();
+		setTimeout(() => {
+			backgroundVideoElement.play().catch(() => {
+				// Video autoplay blocked - normal browser behavior
+			});
+		}, 200);
+	}
 
 	// Mouse activity handlers for Field visibility
 	function handleMouseMove() {
@@ -224,14 +267,55 @@
 	onMount(() => {
 		loadDashboardFromStorage();
 		dataLoaded = true; // Activate automatic saving
+
+		// Add the video widget URL to backgrounds if it exists
+		const savedVideoUrl = localStorage.getItem('libergrid-video-url');
+		if (savedVideoUrl && savedVideoUrl !== backgroundMedia[backgroundMedia.length - 1].url) {
+			// Update the video background with the widget's video URL
+			backgroundMedia[backgroundMedia.length - 1].url = savedVideoUrl;
+		}
+
 		// Add mouse event listeners for Field visibility
 		document.addEventListener('mousemove', handleMouseMove);
 		document.addEventListener('mouseleave', handleMouseLeave);
+
+		// Add user interaction listeners to enable video autoplay
+		const enableVideoPlayback = () => {
+			if (backgroundVideoElement && currentBackground.type === 'video') {
+				backgroundVideoElement.play().catch(() => {
+					// Video autoplay still blocked
+				});
+			}
+		};
+
+		// Add click listener specifically to dashboard
+		const dashboardElement = document.querySelector('.dashboard');
+		if (dashboardElement) {
+			dashboardElement.addEventListener('click', enableVideoPlayback);
+		}
+
+		document.addEventListener('keydown', enableVideoPlayback);
+
+		// Handle initial video background if it's a video
+		if (currentBackground.type === 'video') {
+			setTimeout(() => {
+				if (backgroundVideoElement) {
+					backgroundVideoElement.play().catch(() => {
+						// Video autoplay blocked - normal for many browsers
+					});
+				}
+			}, 500);
+		}
+
 		// Cleanup on component destroy
 		return () => {
 			clearTimeout(mouseTimeout);
 			document.removeEventListener('mousemove', handleMouseMove);
 			document.removeEventListener('mouseleave', handleMouseLeave);
+			document.removeEventListener('keydown', enableVideoPlayback);
+			if (dashboardElement) {
+				dashboardElement.removeEventListener('click', enableVideoPlayback);
+			}
 		};
 	});
 </script>
@@ -266,6 +350,11 @@
 		grid-auto-columns: 0;
 	}
 
+	/* Make dashboard more transparent when video is playing */
+	.dashboard.video-background {
+		background: linear-gradient(135deg, rgba(61, 22, 84, 0.3) 0%, rgba(9, 1, 17, 0.5) 100%);
+	}
+
 	.dashboard-item {
 		position: relative;
 		/* Grid positioning is now inline in HTML */
@@ -286,13 +375,28 @@
 	.dashboard-item:hover :global(.button-remove) {
 		opacity: 1;
 	}
+
+	.background-video {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		object-fit: cover;
+		z-index: -1;
+		pointer-events: none;
+	}
 </style>
 
 <svelte:head>
 	<title>LiberGrid</title>
 </svelte:head>
 
-<div class="dashboard" style="background-image: url('{currentBackground}')" on:click={toggleBackground} on:keydown={e => (e.key === 'Enter' || e.key === ' ' ? toggleBackground() : null)} role="button" tabindex="0" aria-label="Toggle background image">
+<!-- Background Video - always present but conditionally visible -->
+<!-- svelte-ignore a11y-media-has-caption -->
+<video bind:this={backgroundVideoElement} class="background-video" style="display: {currentBackground.type === 'video' ? 'block' : 'none'}" src={currentBackground.type === 'video' ? currentBackground.url : ''} autoplay loop muted playsinline preload="auto"> Your browser does not support the video tag. </video>
+
+<div class="dashboard {currentBackground.type === 'video' ? 'video-background' : ''}" style={currentBackground.type === 'image' ? `background-image: url('${currentBackground.url}')` : ''} on:click={toggleBackground} on:keydown={e => (e.key === 'Enter' || e.key === ' ' ? toggleBackground() : null)} role="button" tabindex="0" aria-label="Toggle background">
 	<!-- Generate grid cells - only for empty fields -->
 	{#if showFields}
 		{#each Array(gridRows) as _, row}
