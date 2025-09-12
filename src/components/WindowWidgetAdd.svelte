@@ -1,10 +1,10 @@
 <script lang="ts">
 	import Button from './Button.svelte';
 	export let show: boolean = false;
-	export let onAddComponent: (type: 'time' | 'date' | 'temp' | 'weather' | 'nameday') => void;
+	export let onAddComponent: (type: 'time' | 'date' | 'temp' | 'weather' | 'nameday' | 'video') => void;
 	export let onClose: () => void;
 
-	function handleAddComponent(type: 'time' | 'date' | 'temp' | 'weather' | 'nameday') {
+	function handleAddComponent(type: 'time' | 'date' | 'temp' | 'weather' | 'nameday' | 'video') {
 		onAddComponent(type);
 		onClose();
 	}
@@ -52,7 +52,7 @@
 
 	.options {
 		display: grid;
-		grid-template-columns: repeat(2, 1fr);
+		grid-template-columns: repeat(3, 1fr);
 		gap: 1rem;
 	}
 </style>
@@ -68,6 +68,7 @@
 				<Button variant="primary" onClick={() => handleAddComponent('temp')}>Temperature</Button>
 				<Button variant="primary" onClick={() => handleAddComponent('weather')}>Weather</Button>
 				<Button variant="primary" onClick={() => handleAddComponent('nameday')}>Name day</Button>
+				<Button variant="primary" onClick={() => handleAddComponent('video')}>Video</Button>
 			</div>
 		</div>
 	</div>

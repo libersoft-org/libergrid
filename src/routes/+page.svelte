@@ -9,6 +9,7 @@
 	import WidgetDate from '../components/Widgets/Date.svelte';
 	import WidgetWeather from '../components/Widgets/Weather.svelte';
 	import WidgetNameday from '../components/Widgets/Nameday.svelte';
+	import WidgetVideo from '../components/Widgets/Video.svelte';
 	const dashboardStorageKey = 'libergrid';
 	const mouseTimeoutDelay = 2000; // 2 seconds
 	const backgroundImages = ['https://images.pexels.com/photos/440731/pexels-photo-440731.jpeg', 'https://images.pexels.com/photos/433155/pexels-photo-433155.jpeg', 'https://images.pexels.com/photos/250716/pexels-photo-250716.jpeg', 'https://images.pexels.com/photos/169647/pexels-photo-169647.jpeg', 'https://images.pexels.com/photos/2098428/pexels-photo-2098428.jpeg'];
@@ -19,7 +20,7 @@
 	// Dashboard components
 	let dashboardItems: Array<{
 		id: string;
-		type: 'time' | 'date' | 'temp' | 'weather' | 'nameday';
+		type: 'time' | 'date' | 'temp' | 'weather' | 'nameday' | 'video';
 		gridRow: number;
 		gridCol: number;
 		colSpan: number;
@@ -102,7 +103,7 @@
 		showAddDialog = true;
 	}
 
-	function addComponent(type: 'time' | 'date' | 'temp' | 'weather' | 'nameday') {
+	function addComponent(type: 'time' | 'date' | 'temp' | 'weather' | 'nameday' | 'video') {
 		const newItem = {
 			id: `${type}-${Date.now()}`,
 			type,
@@ -196,6 +197,8 @@
 				return WidgetWeather;
 			case 'nameday':
 				return WidgetNameday;
+			case 'video':
+				return WidgetVideo;
 			default:
 				return null;
 		}
