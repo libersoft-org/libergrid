@@ -116,5 +116,7 @@
 <svelte:head>
 	<title>LiberGrid</title>
 </svelte:head>
-<video bind:this={backgroundVideoElement} class="background-video" style="display: {currentBackground.type === 'video' ? 'block' : 'none'}" src={currentBackground.type === 'video' ? currentBackground.url : ''} autoplay loop muted playsinline preload="auto"> Your browser does not support the video tag. </video>
+{#if currentBackground.type === 'video'}
+	<video bind:this={backgroundVideoElement} class="background-video" src={currentBackground.url} autoplay loop muted playsinline preload="auto"> Your browser does not support the video tag. </video>
+{/if}
 <Dashboard isVideoBackground={currentBackground.type === 'video'} onDashboardClick={toggleBackground} backgroundStyle={currentBackground.type === 'image' ? `background-image: url('${currentBackground.url}')` : ''} />
