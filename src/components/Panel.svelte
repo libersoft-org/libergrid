@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { backgroundStore, backgroundMedia } from '../scripts/background';
+	import type { BackgroundItem } from '../scripts/background';
+
 	let panelElement: HTMLDivElement;
+	let currentBackground: BackgroundItem = backgroundStore.current;
 	let isDragging = false;
 	let isExpanded = false;
 	let startY = 0;
@@ -9,6 +13,11 @@
 	let maxHeight = 400; // Maximum panel height in pixels
 
 	onMount(() => {
+		// Subscribe to background changes
+		const unsubscribeBackground = backgroundStore.subscribe(background => {
+			currentBackground = background;
+		});
+
 		// Add global event listeners
 		document.addEventListener('touchstart', handleGlobalTouchStart, { passive: true });
 		document.addEventListener('touchmove', handleGlobalTouchMove, { passive: true });
@@ -18,6 +27,7 @@
 		document.addEventListener('mouseup', handleGlobalMouseUp);
 		return () => {
 			// Cleanup listeners
+			unsubscribeBackground();
 			document.removeEventListener('touchstart', handleGlobalTouchStart);
 			document.removeEventListener('touchmove', handleGlobalTouchMove);
 			document.removeEventListener('touchend', handleGlobalTouchEnd);
@@ -130,6 +140,10 @@
 	$: if (panelElement) {
 		panelHeight = panelElement.offsetHeight || maxHeight;
 	}
+
+	function handleBackgroundSelect(index: number) {
+		backgroundStore.setBackground(index);
+	}
 </script>
 
 <style>
@@ -174,6 +188,60 @@
 	.drag-area.show {
 		opacity: 1;
 	}
+
+	.background-selector {
+		margin-bottom: 20px;
+	}
+
+	.background-selector h3 {
+		margin-bottom: 10px;
+		font-size: 16px;
+		font-weight: bold;
+	}
+
+	.background-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+		gap: 8px;
+	}
+
+	.background-item {
+		position: relative;
+		aspect-ratio: 16/9;
+		border-radius: 4px;
+		overflow: hidden;
+		cursor: pointer;
+		border: 2px solid transparent;
+		transition: border-color 0.2s ease;
+	}
+
+	.background-item.active {
+		border-color: #007acc;
+	}
+
+	.background-item:hover {
+		border-color: rgba(255, 255, 255, 0.3);
+	}
+
+	.background-thumbnail {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		background-size: cover;
+		background-position: center;
+	}
+
+	.background-name {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+		color: white;
+		font-size: 10px;
+		padding: 8px 4px 4px;
+		text-align: center;
+	}
 </style>
 
 <!-- Drag hint area at top of screen -->
@@ -181,6 +249,20 @@
 
 <div bind:this={panelElement} class="panel" style="transform: translateY({translateY}px)">
 	<div class="panel-content">
-		<!-- Custom content will go here -->
+		<div class="background-selector">
+			<h3>Background Selection</h3>
+			<div class="background-grid">
+				{#each backgroundMedia as background, index (background.url)}
+					<div class="background-item" class:active={currentBackground.url === background.url} onclick={() => handleBackgroundSelect(index)}>
+						{#if background.type === 'image'}
+							<div class="background-thumbnail" style="background-image: url('{background.url}')"></div>
+						{:else}
+							<div class="background-thumbnail" style="background: linear-gradient(45deg, #333, #666); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">▶ Video</div>
+						{/if}
+						<div class="background-name">{background.name}</div>
+					</div>
+				{/each}
+			</div>
+		</div>
 	</div>
 </div>
