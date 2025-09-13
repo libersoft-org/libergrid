@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Button from './Button.svelte';
+	import Button from '../components/Button.svelte';
 	import type { WidgetType } from '../scripts/dashboard';
 	import { AVAILABLE_WIDGETS } from '../scripts/dashboard';
 

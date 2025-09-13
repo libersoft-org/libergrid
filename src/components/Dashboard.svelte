@@ -3,7 +3,7 @@
 	import Field from './DashboardField.svelte';
 	import Widget from './Widget.svelte';
 	import Button from './Button.svelte';
-	import WindowWidgetAdd from './WindowWidgetAdd.svelte';
+	import WindowWidgetAdd from '../windows/WidgetAdd.svelte';
 	import WidgetTime from '../widgets/Time.svelte';
 	import WidgetTemp from '../widgets/Temp.svelte';
 	import WidgetDate from '../widgets/Date.svelte';
