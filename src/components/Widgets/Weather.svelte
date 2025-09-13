@@ -137,10 +137,6 @@
 		border-bottom: none;
 	}
 
-	.temp {
-		font-weight: bold;
-	}
-
 	.error {
 		text-align: center;
 		font-style: italic;

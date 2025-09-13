@@ -61,8 +61,8 @@
 </style>
 
 {#if show}
-	<div class="overlay" on:click={handleOverlayClick} on:keydown={handleKeydown} role="window" tabindex="0" aria-label="Add component window">
-		<div class="window" on:click|stopPropagation on:keydown|stopPropagation role="window" tabindex="0" aria-labelledby="title">
+	<div class="overlay" onclick={handleOverlayClick} onkeydown={handleKeydown} role="dialog" tabindex="0" aria-modal="true" aria-label="Add component window">
+		<div class="window" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()} role="dialog" tabindex="0" aria-labelledby="title">
 			<Button variant="close" onClick={onClose} ariaLabel="Close window">×</Button>
 			<div class="title">Select component</div>
 			<div class="options">

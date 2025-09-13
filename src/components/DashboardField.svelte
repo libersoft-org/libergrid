@@ -38,7 +38,7 @@
 </style>
 
 {#if !occupied}
-	<div class="field" style="grid-column: {col + 1}; grid-row: {row + 1};" on:click|stopPropagation={() => onAddClick(row, col)} on:keydown|stopPropagation role="button" tabindex="0">
+	<div class="field" style="grid-column: {col + 1}; grid-row: {row + 1};" onclick={(e) => {e.stopPropagation(); onAddClick(row, col);}} onkeydown={(e) => e.stopPropagation()} role="button" tabindex="0">
 		<div class="plus">+</div>
 	</div>
 {/if}

@@ -7,8 +7,8 @@
 		celsius?: boolean;
 	}
 	let { label, temp, celsius = true }: Props = $props();
-	let elLabel: HTMLElement;
-	let elTemp: HTMLElement;
+	let elLabel: HTMLElement | undefined = $state();
+	let elTemp: HTMLElement | undefined = $state();
 	// Cleanup functions
 	let cleanupFunctions: (() => void)[] = [];
 
