@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { autoFont } from '../../scripts/font';
+	import { autoFont } from '../scripts/font';
 	let currentTime = new Date();
 	let dayElement: HTMLElement;
 	let dateElement: HTMLElement;

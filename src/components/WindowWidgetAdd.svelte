@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Button from './Button.svelte';
-	import type { WidgetType } from '../scripts/widgets';
-	import { AVAILABLE_WIDGETS } from '../scripts/widgets';
+	import type { WidgetType } from '../scripts/dashboard';
+	import { AVAILABLE_WIDGETS } from '../scripts/dashboard';
 
 	export let show: boolean = false;
 	export let onAddComponent: (type: WidgetType) => void;
@@ -62,7 +62,7 @@
 
 {#if show}
 	<div class="overlay" onclick={handleOverlayClick} onkeydown={handleKeydown} role="dialog" tabindex="0" aria-modal="true" aria-label="Add component window">
-		<div class="window" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()} role="dialog" tabindex="0" aria-labelledby="title">
+		<div class="window" onclick={e => e.stopPropagation()} onkeydown={e => e.stopPropagation()} role="dialog" tabindex="0" aria-labelledby="title">
 			<Button variant="close" onClick={onClose} ariaLabel="Close window">×</Button>
 			<div class="title">Select component</div>
 			<div class="options">

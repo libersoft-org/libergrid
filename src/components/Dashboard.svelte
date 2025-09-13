@@ -4,13 +4,13 @@
 	import Widget from './Widget.svelte';
 	import Button from './Button.svelte';
 	import WindowWidgetAdd from './WindowWidgetAdd.svelte';
-	import WidgetTime from './Widgets/Time.svelte';
-	import WidgetTemp from './Widgets/Temp.svelte';
-	import WidgetDate from './Widgets/Date.svelte';
-	import WidgetWeather from './Widgets/Weather.svelte';
-	import WidgetNameday from './Widgets/Nameday.svelte';
-	import WidgetVideo from './Widgets/Video.svelte';
-	import type { WidgetType, DashboardItem } from '../scripts/widgets';
+	import WidgetTime from '../widgets/Time.svelte';
+	import WidgetTemp from '../widgets/Temp.svelte';
+	import WidgetDate from '../widgets/Date.svelte';
+	import WidgetWeather from '../widgets/Weather.svelte';
+	import WidgetNameday from '../widgets/Nameday.svelte';
+	import WidgetVideo from '../widgets/Video.svelte';
+	import type { WidgetType, DashboardItem } from '../scripts/dashboard';
 	// Props from parent
 	export let onDashboardClick: () => void = () => {};
 	// Background state - updated by listening to Background component events

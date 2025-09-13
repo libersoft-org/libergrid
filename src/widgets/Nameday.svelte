@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { autoFont } from '../../scripts/font';
+	import { autoFont } from '../scripts/font';
 	interface NameDay {
 		date: string;
 		names: string[];

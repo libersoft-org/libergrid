@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { autoFont } from '../../scripts/font';
+	import { autoFont } from '../scripts/font';
 	export let weatherForecast: Array<{ day: string; temp: string; icon: string }> = [];
 	export let weatherError: boolean = false;
 	// Elements for font management
