@@ -10,6 +10,7 @@
 	import WidgetWeather from '../widgets/Weather.svelte';
 	import WidgetNameday from '../widgets/Nameday.svelte';
 	import WidgetVideo from '../widgets/Video.svelte';
+	import WidgetChart from '../widgets/Chart.svelte';
 	import type { WidgetType, DashboardItem } from '../scripts/dashboard';
 	// Props from parent
 	export let onDashboardClick: () => void = () => {};
@@ -187,6 +188,8 @@
 				return WidgetNameday;
 			case 'video':
 				return WidgetVideo;
+			case 'chart':
+				return WidgetChart;
 			default:
 				return null;
 		}

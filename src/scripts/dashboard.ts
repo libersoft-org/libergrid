@@ -1,4 +1,4 @@
-export type WidgetType = 'time' | 'date' | 'temp' | 'weather' | 'nameday' | 'video';
+export type WidgetType = 'time' | 'date' | 'temp' | 'weather' | 'nameday' | 'video' | 'chart';
 
 export interface DashboardItem {
 	id: string;
@@ -16,5 +16,6 @@ export const AVAILABLE_WIDGETS: { type: WidgetType; label: string }[] = [
 	{ type: 'temp', label: 'Temperature' },
 	{ type: 'weather', label: 'Weather' },
 	{ type: 'nameday', label: 'Name day' },
-	{ type: 'video', label: 'Video' }
+	{ type: 'video', label: 'Video' },
+	{ type: 'chart', label: 'Chart' }
 ];

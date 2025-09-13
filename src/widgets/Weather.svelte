@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { autoFont } from '../scripts/font';
+	import { autoFont } from '../scripts/font.ts';
+	import { getAPI } from '../scripts/api.ts';
 	export let weatherForecast: Array<{ day: string; temp: string; icon: string }> = [];
 	export let weatherError: boolean = false;
 	// Elements for font management
@@ -18,8 +19,7 @@
 			// Prague coordinates
 			const latitude = 50.0755;
 			const longitude = 14.4378;
-			const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max,weather_code&timezone=Europe%2FBerlin&forecast_days=7`);
-			const data = await response.json();
+			const data = await getAPI(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max,weather_code&timezone=Europe%2FBerlin&forecast_days=7`);
 			if (data.daily) {
 				weatherForecast = data.daily.temperature_2m_max.map((temp: number, index: number) => {
 					const date = new Date(data.daily.time[index]);
