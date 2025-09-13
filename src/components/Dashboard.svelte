@@ -11,13 +11,10 @@
 	import WidgetNameday from './Widgets/Nameday.svelte';
 	import WidgetVideo from './Widgets/Video.svelte';
 	import type { WidgetType, DashboardItem } from '../scripts/widgets';
-	
 	// Props from parent
 	export let onDashboardClick: () => void = () => {};
-
 	// Background state - updated by listening to Background component events
 	let isVideoBackground: boolean = false;
-
 	const dashboardStorageKey = 'libergrid';
 	const mouseTimeoutDelay = 2000; // 2 seconds
 	// Grid - FIXED dimensions
