@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import Field from './Field.svelte';
+	import Field from './DashboardField.svelte';
 	import Widget from './Widget.svelte';
 	import Button from './Button.svelte';
 	import WindowWidgetAdd from './WindowWidgetAdd.svelte';
