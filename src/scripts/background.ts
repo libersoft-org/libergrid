@@ -10,7 +10,7 @@ export const backgroundMedia: BackgroundItem[] = [
 	{ type: 'image', url: 'https://images.pexels.com/photos/250716/pexels-photo-250716.jpeg', name: 'Ocean Sunset' },
 	{ type: 'image', url: 'https://images.pexels.com/photos/169647/pexels-photo-169647.jpeg', name: 'City Lights' },
 	{ type: 'image', url: 'https://images.pexels.com/photos/2098428/pexels-photo-2098428.jpeg', name: 'Desert Stars' },
-	{ type: 'video', url: 'https://file-examples.com/storage/fef94d4ca968c5b73a200b5/2017/04/file_example_MP4_1920_18MG.mp4', name: 'Sample Video' },
+	{ type: 'video', url: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_5MB.mp4', name: 'Sample Video' },
 ];
 
 // Simple reactive store without $state for now

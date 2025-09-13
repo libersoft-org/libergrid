@@ -1,6 +1,6 @@
 <script lang="ts">
 	let videoElement: HTMLVideoElement;
-	let videoUrl: string = 'https://file-examples.com/storage/fef94d4ca968c5b73a200b5/2017/04/file_example_MP4_1920_18MG.mp4';
+	let videoUrl: string = 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_5MB.mp4';
 	let hasError: boolean = false;
 	let errorMessage: string = '';
 
