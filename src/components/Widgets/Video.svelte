@@ -1,6 +1,6 @@
 <script lang="ts">
 	let videoElement: HTMLVideoElement;
-	let videoUrl: string = 'https://file-examples.com/storage/feb23bcbd368c1ded9d9b0e/2017/04/file_example_MP4_480_1_5MG.mp4';
+	let videoUrl: string = 'https://file-examples.com/storage/fef94d4ca968c5b73a200b5/2017/04/file_example_MP4_1920_18MG.mp4';
 	let hasError: boolean = false;
 	let errorMessage: string = '';
 

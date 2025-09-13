@@ -12,17 +12,16 @@
 	import WidgetVideo from './Widgets/Video.svelte';
 
 	// Props from parent
-	export let isVideoBackground: boolean = false;
 	export let onDashboardClick: () => void = () => {};
-	export let backgroundStyle: string = '';
+
+	// Background state - updated by listening to Background component events
+	let isVideoBackground: boolean = false;
 
 	const dashboardStorageKey = 'libergrid';
 	const mouseTimeoutDelay = 2000; // 2 seconds
-
 	// Grid - FIXED dimensions
 	const gridCols = 10;
 	const gridRows = 6;
-
 	// Dashboard components
 	let dashboardItems: Array<{
 		id: string;
@@ -33,11 +32,9 @@
 		rowSpan: number;
 		border: boolean;
 	}> = [];
-
 	// Dialog state
 	let showAddDialog = false;
 	let selectedGridPosition = { row: 0, col: 0 };
-
 	// Mouse activity tracking for Field visibility
 	let showFields = false;
 	let mouseTimeout: number;
@@ -241,11 +238,20 @@
 		document.addEventListener('mousemove', handleMouseMove);
 		document.addEventListener('mouseleave', handleMouseLeave);
 
+		// Listen for background changes from Background component
+		const handleBackgroundChange = (event: Event) => {
+			const customEvent = event as CustomEvent;
+			isVideoBackground = customEvent.detail.isVideo;
+		};
+
+		document.addEventListener('backgroundChange', handleBackgroundChange);
+
 		// Cleanup on component destroy
 		return () => {
 			clearTimeout(mouseTimeout);
 			document.removeEventListener('mousemove', handleMouseMove);
 			document.removeEventListener('mouseleave', handleMouseLeave);
+			document.removeEventListener('backgroundChange', handleBackgroundChange);
 		};
 	});
 </script>
@@ -259,17 +265,15 @@
 		bottom: 0;
 		height: 100vh;
 		width: 100vw;
-		background: linear-gradient(135deg, #3d1654ff 0%, #090111ff 100%);
-		background-size: cover;
-		background-position: center;
-		background-repeat: no-repeat;
+		/* Transparent by default - Background component provides the background */
+		background: transparent;
 		color: white;
 		margin: 0;
 		padding: 2vw;
 		box-sizing: border-box;
 		overflow: hidden;
 		cursor: pointer;
-		transition: background-image 0.5s ease-in-out;
+		transition: background 0.5s ease-in-out;
 		user-select: none;
 		display: grid;
 		grid-template-columns: repeat(10, 1fr);
@@ -280,9 +284,9 @@
 		grid-auto-columns: 0;
 	}
 
-	/* Make dashboard more transparent when video is playing */
+	/* Add overlay when video is playing */
 	.dashboard.video-background {
-		background: linear-gradient(135deg, rgba(61, 22, 84, 0.3) 0%, rgba(9, 1, 17, 0.5) 100%);
+		background: transparent;
 	}
 
 	.dashboard-item {
@@ -307,7 +311,7 @@
 	}
 </style>
 
-<div class="dashboard {isVideoBackground ? 'video-background' : ''}" style={backgroundStyle} on:click={handleDashboardClick} on:keydown={e => (e.key === 'Enter' || e.key === ' ' ? handleDashboardClick() : null)} role="button" tabindex="0" aria-label="Dashboard">
+<div class="dashboard {isVideoBackground ? 'video-background' : ''}" on:click={handleDashboardClick} on:keydown={e => (e.key === 'Enter' || e.key === ' ' ? handleDashboardClick() : null)} role="button" tabindex="0" aria-label="Dashboard">
 	<!-- Generate grid cells - only for empty fields -->
 	{#if showFields}
 		{#each Array(gridRows) as _, row}
