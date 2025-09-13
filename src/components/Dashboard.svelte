@@ -10,7 +10,8 @@
 	import WidgetWeather from './Widgets/Weather.svelte';
 	import WidgetNameday from './Widgets/Nameday.svelte';
 	import WidgetVideo from './Widgets/Video.svelte';
-
+	import type { WidgetType, DashboardItem } from '../scripts/widgets';
+	
 	// Props from parent
 	export let onDashboardClick: () => void = () => {};
 
@@ -23,15 +24,7 @@
 	const gridCols = 10;
 	const gridRows = 6;
 	// Dashboard components
-	let dashboardItems: Array<{
-		id: string;
-		type: 'time' | 'date' | 'temp' | 'weather' | 'nameday' | 'video';
-		gridRow: number;
-		gridCol: number;
-		colSpan: number;
-		rowSpan: number;
-		border: boolean;
-	}> = [];
+	let dashboardItems: DashboardItem[] = [];
 	// Dialog state
 	let showAddDialog = false;
 	let selectedGridPosition = { row: 0, col: 0 };
@@ -101,7 +94,7 @@
 		showAddDialog = true;
 	}
 
-	function addComponent(type: 'time' | 'date' | 'temp' | 'weather' | 'nameday' | 'video') {
+	function addComponent(type: WidgetType) {
 		const newItem = {
 			id: `${type}-${Date.now()}`,
 			type,

@@ -1,10 +1,13 @@
 <script lang="ts">
 	import Button from './Button.svelte';
+	import type { WidgetType } from '../scripts/widgets';
+	import { AVAILABLE_WIDGETS } from '../scripts/widgets';
+
 	export let show: boolean = false;
-	export let onAddComponent: (type: 'time' | 'date' | 'temp' | 'weather' | 'nameday' | 'video') => void;
+	export let onAddComponent: (type: WidgetType) => void;
 	export let onClose: () => void;
 
-	function handleAddComponent(type: 'time' | 'date' | 'temp' | 'weather' | 'nameday' | 'video') {
+	function handleAddComponent(type: WidgetType) {
 		onAddComponent(type);
 		onClose();
 	}
@@ -25,7 +28,7 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
-		background: rgba(0, 0, 0, 0.8);
+		background-color: rgba(0, 0, 0, 0.8);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -33,7 +36,7 @@
 	}
 
 	.window {
-		background: rgba(0, 0, 0, 0.9);
+		background-color: rgba(0, 0, 0, 0.9);
 		border: 2px solid rgba(255, 255, 255, 0.3);
 		border-radius: 1vw;
 		padding: 2rem;
@@ -63,12 +66,11 @@
 			<Button variant="close" onClick={onClose} ariaLabel="Close window">×</Button>
 			<div class="title">Select component</div>
 			<div class="options">
-				<Button variant="primary" onClick={() => handleAddComponent('time')}>Time</Button>
-				<Button variant="primary" onClick={() => handleAddComponent('date')}>Date</Button>
-				<Button variant="primary" onClick={() => handleAddComponent('temp')}>Temperature</Button>
-				<Button variant="primary" onClick={() => handleAddComponent('weather')}>Weather</Button>
-				<Button variant="primary" onClick={() => handleAddComponent('nameday')}>Name day</Button>
-				<Button variant="primary" onClick={() => handleAddComponent('video')}>Video</Button>
+				{#each AVAILABLE_WIDGETS as widget (widget.type)}
+					<Button variant="primary" onClick={() => handleAddComponent(widget.type)}>
+						{widget.label}
+					</Button>
+				{/each}
 			</div>
 		</div>
 	</div>
