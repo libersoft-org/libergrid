@@ -44,18 +44,23 @@
 		}
 	}
 
-	// Convert weather code to emoji icon
+	// Convert weather code to SVG icon URL
 	function getWeatherIcon(code: number): string {
-		// WMO weather codes
-		if (code === 0) return '☀️'; // Clear sky
-		if (code <= 3) return '⛅'; // Partly cloudy
-		if (code <= 48) return '🌫️'; // Fog
-		if (code <= 67) return '🌧️'; // Rain
-		if (code <= 77) return '🌨️'; // Snow
-		if (code <= 82) return '🌦️'; // Rain showers
-		if (code <= 86) return '🌨️'; // Snow showers
-		if (code <= 99) return '⛈️'; // Thunderstorm
-		return '☀️'; // Default
+		const baseUrl = 'https://raw.githubusercontent.com/basmilius/weather-icons/dev/production/fill/svg/';
+
+		// WMO weather codes mapping to appropriate SVG icons
+		if (code === 0) return baseUrl + 'clear-day.svg'; // Clear sky
+		if (code === 1) return baseUrl + 'partly-cloudy-day.svg'; // Mainly clear
+		if (code === 2) return baseUrl + 'cloudy.svg'; // Partly cloudy
+		if (code === 3) return baseUrl + 'overcast.svg'; // Overcast
+		if (code >= 45 && code <= 48) return baseUrl + 'fog.svg'; // Fog
+		if (code >= 51 && code <= 57) return baseUrl + 'drizzle.svg'; // Drizzle
+		if (code >= 61 && code <= 67) return baseUrl + 'rain.svg'; // Rain
+		if (code >= 71 && code <= 77) return baseUrl + 'snow.svg'; // Snow
+		if (code >= 80 && code <= 82) return baseUrl + 'partly-cloudy-day-rain.svg'; // Rain showers
+		if (code >= 85 && code <= 86) return baseUrl + 'partly-cloudy-day-snow.svg'; // Snow showers
+		if (code >= 95 && code <= 99) return baseUrl + 'thunderstorms.svg'; // Thunderstorm
+		return baseUrl + 'clear-day.svg'; // Default
 	}
 
 	function setupFontManagers() {
@@ -69,9 +74,7 @@
 		dayNameElements.forEach(element => {
 			if (element) cleanupFunctions.push(autoFont(element, 25, 90));
 		});
-		iconElements.forEach(element => {
-			if (element) cleanupFunctions.push(autoFont(element, 25, 90));
-		});
+		// DON'T apply autoFont to iconElements - they contain SVG, not text
 		tempElements.forEach(element => {
 			if (element) cleanupFunctions.push(autoFont(element, 25, 90));
 		});
@@ -124,6 +127,12 @@
 		overflow: hidden;
 	}
 
+	.days .day > div:has(.weather-icon) {
+		height: 100%;
+		aspect-ratio: 1;
+		max-width: none;
+	}
+
 	.days .day:last-child {
 		border-bottom: none;
 	}
@@ -137,6 +146,11 @@
 		font-style: italic;
 		padding: 20px 0;
 	}
+
+	.weather-icon {
+		height: 100%;
+		aspect-ratio: 1;
+	}
 </style>
 
 {#if !weatherError}
@@ -145,7 +159,9 @@
 		{#each weatherForecast as forecast, i}
 			<div class="day">
 				<div bind:this={dayNameElements[i]}>{forecast.day}</div>
-				<div bind:this={iconElements[i]}>{forecast.icon}</div>
+				<div bind:this={iconElements[i]}>
+					<img src={forecast.icon} alt="Weather icon" class="weather-icon" />
+				</div>
 				<div bind:this={tempElements[i]}>{forecast.temp}</div>
 			</div>
 		{/each}
