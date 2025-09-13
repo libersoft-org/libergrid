@@ -144,6 +144,13 @@
 	function handleBackgroundSelect(index: number) {
 		backgroundStore.setBackground(index);
 	}
+
+	function handleKeydown(event: KeyboardEvent, index: number) {
+		if (event.key === 'Enter' || event.key === ' ') {
+			event.preventDefault();
+			handleBackgroundSelect(index);
+		}
+	}
 </script>
 
 <style>
@@ -223,6 +230,12 @@
 		border-color: rgba(255, 255, 255, 0.3);
 	}
 
+	.background-item:focus {
+		outline: none;
+		border-color: #007acc;
+		box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.3);
+	}
+
 	.background-thumbnail {
 		width: 100%;
 		height: 100%;
@@ -253,7 +266,15 @@
 			<h3>Background Selection</h3>
 			<div class="background-grid">
 				{#each backgroundMedia as background, index (background.url)}
-					<div class="background-item" class:active={currentBackground.url === background.url} onclick={() => handleBackgroundSelect(index)}>
+					<div 
+						class="background-item" 
+						class:active={currentBackground.url === background.url}
+						role="button"
+						tabindex="0"
+						aria-label="Select {background.name} background"
+						onclick={() => handleBackgroundSelect(index)}
+						onkeydown={(e) => handleKeydown(e, index)}
+					>
 						{#if background.type === 'image'}
 							<div class="background-thumbnail" style="background-image: url('{background.url}')"></div>
 						{:else}
