@@ -1,16 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { autoFont } from '../../scripts/font';
-
 	interface NameDay {
 		date: string;
 		names: string[];
 	}
-
 	let yesterday: NameDay | null = null;
 	let today: NameDay | null = null;
 	let tomorrow: NameDay | null = null;
-
 	// Elements for font management
 	let yesterdayDayElement: HTMLElement;
 	let yesterdayNameElement: HTMLElement;
@@ -18,7 +15,6 @@
 	let todayNameElement: HTMLElement;
 	let tomorrowDayElement: HTMLElement;
 	let tomorrowNameElement: HTMLElement;
-
 	// Cleanup functions
 	let cleanupFunctions: (() => void)[] = [];
 	// Czech namedays

@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { autoFont } from '../../scripts/font';
-	// Here will be autonomous data - hardcoded for now, later we can add API calls
-	let insideTemp: number = 24;
-	let outsideTemp: number = 17;
-	// Elements for font management
-	let indoorLabelElement: HTMLElement;
-	let indoorTempElement: HTMLElement;
-	let outdoorLabelElement: HTMLElement;
-	let outdoorTempElement: HTMLElement;
+	interface Props {
+		label?: string;
+		temp?: number;
+		celsius?: boolean;
+	}
+	let { label, temp, celsius = true }: Props = $props();
+	let elLabel: HTMLElement;
+	let elTemp: HTMLElement;
 	// Cleanup functions
 	let cleanupFunctions: (() => void)[] = [];
 
@@ -17,10 +17,8 @@
 		cleanupFunctions.forEach(cleanup => cleanup());
 		cleanupFunctions = [];
 		// Setup font managers for different elements
-		if (indoorLabelElement) cleanupFunctions.push(autoFont(indoorLabelElement, 90, 20));
-		if (indoorTempElement) cleanupFunctions.push(autoFont(indoorTempElement, 90, 35));
-		if (outdoorLabelElement) cleanupFunctions.push(autoFont(outdoorLabelElement, 90, 20));
-		if (outdoorTempElement) cleanupFunctions.push(autoFont(outdoorTempElement, 90, 35));
+		if (elLabel) cleanupFunctions.push(autoFont(elLabel, 90, 20));
+		if (elTemp) cleanupFunctions.push(autoFont(elTemp, 90, 60));
 	}
 
 	onMount(() => {
@@ -34,16 +32,30 @@
 </script>
 
 <style>
-	.temp-label {
-		margin-bottom: 5px;
+	.temp-container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
+		width: 100%;
 	}
 
-	.temp-item {
+	.label {
+		margin-bottom: 5px;
+		opacity: 0.8;
+	}
+
+	.temp {
 		font-weight: bold;
 	}
 </style>
 
-<div class="temp-label" bind:this={indoorLabelElement}>Indoor temperature</div>
-<div class="temp-item" bind:this={indoorTempElement}>{insideTemp}°C</div>
-<div class="temp-label" bind:this={outdoorLabelElement}>Outdoor temperature</div>
-<div class="temp-item" bind:this={outdoorTempElement}>{outsideTemp}°C</div>
+<div class="temp-container">
+	{#if label}
+		<div class="label" bind:this={elLabel}>{label}</div>
+	{/if}
+	<div class="temp" bind:this={elTemp}>
+		{temp}°{celsius ? 'C' : 'F'}
+	</div>
+</div>

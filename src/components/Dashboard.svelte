@@ -186,7 +186,7 @@
 		if (!wouldCollide && !exceedsBounds) dashboardItems = dashboardItems.map(item => (item.id === id ? { ...item, gridRow: newGridRow, gridCol: newGridCol } : item));
 	}
 
-	function getComponentByType(type: string) {
+	function getComponentByType(type: string, item?: any) {
 		switch (type) {
 			case 'time':
 				return WidgetTime;
@@ -202,6 +202,15 @@
 				return WidgetVideo;
 			default:
 				return null;
+		}
+	}
+
+	function getComponentProps(type: string, item: any): any {
+		switch (type) {
+			case 'temp':
+				return { label: 'Indoor', temp: 24 };
+			default:
+				return {};
 		}
 	}
 
@@ -324,7 +333,7 @@
 			<div class="component-wrapper">
 				<Button variant="remove" onClick={() => removeComponent(item.id)} ariaLabel="Remove component">×</Button>
 				<Widget border={item.border} colSpan={item.colSpan} rowSpan={item.rowSpan} draggable={true} onResize={(newColSpan, newRowSpan, newGridRow, newGridCol) => updateComponentSize(item.id, newColSpan, newRowSpan, newGridRow, newGridCol)} onMove={(newGridRow, newGridCol) => updateComponentPosition(item.id, newGridRow, newGridCol)} onToggleBorder={() => toggleComponentBorder(item.id)}>
-					<svelte:component this={getComponentByType(item.type)} />
+					<svelte:component this={getComponentByType(item.type)} {...getComponentProps(item.type, item)} />
 				</Widget>
 			</div>
 		</div>
