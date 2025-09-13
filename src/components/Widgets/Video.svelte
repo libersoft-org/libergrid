@@ -11,10 +11,7 @@
 	onMount(() => {
 		// Load saved video URL from localStorage
 		const savedUrl = localStorage.getItem('libergrid-video-url');
-		if (savedUrl) {
-			videoUrl = savedUrl;
-		}
-
+		if (savedUrl) videoUrl = savedUrl;
 		// Auto-resize functionality (for potential text overlay)
 		if (containerElement) {
 			const cleanup = autoFont(containerElement, 90, 90);
@@ -23,9 +20,7 @@
 	});
 
 	function handleVideoClick() {
-		if (!videoUrl) {
-			startEditing();
-		}
+		if (!videoUrl) startEditing();
 	}
 
 	function startEditing() {
