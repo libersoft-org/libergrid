@@ -1,16 +1,16 @@
-export interface IWidget {
+export interface IGridItemType {
 	type: string;
 	label: string;
 }
 
-interface IGridConfig {
+export interface IGrids {
 	cols: number;
 	rows: number;
 }
 
-export interface DashboardItem {
+export interface IGridItem {
 	id: string;
-	type: IWidget['type'];
+	type: IGridItemType['type'];
 	gridRow: number;
 	gridCol: number;
 	colSpan: number;
@@ -18,7 +18,7 @@ export interface DashboardItem {
 	border: boolean;
 }
 
-export const widgets: IWidget[] = [
+export const gridItems: IGridItemType[] = [
 	{ type: 'time', label: 'Time' },
 	{ type: 'date', label: 'Date' },
 	{ type: 'temp', label: 'Temperature' },
@@ -27,8 +27,3 @@ export const widgets: IWidget[] = [
 	{ type: 'video', label: 'Video' },
 	{ type: 'chart', label: 'Chart' },
 ];
-
-export const gridConfig: IGridConfig = {
-	cols: 10,
-	rows: 6,
-};

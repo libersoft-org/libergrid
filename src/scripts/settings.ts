@@ -1,13 +1,15 @@
-import type { DashboardItem } from './dashboard.ts';
+import type { IGridItem, IGrids } from './dashboard.ts';
 interface IUserSettings {
 	inactivityTimeout?: number;
 	backgroundIndex?: number;
-	dashboardItems?: DashboardItem[];
+	dashboardItems?: IGridItem[];
+	grid?: IGrids;
 }
 const defaultSettings: IUserSettings = {
 	inactivityTimeout: 2000,
 	backgroundIndex: 0,
 	dashboardItems: [],
+	grid: { cols: 10, rows: 6 },
 };
 const settingsStorageKey = 'libergrid-settings';
 
@@ -21,6 +23,7 @@ function getSettings(): IUserSettings {
 			inactivityTimeout: userSettings.inactivityTimeout ?? defaultSettings.inactivityTimeout,
 			backgroundIndex: userSettings.backgroundIndex ?? defaultSettings.backgroundIndex,
 			dashboardItems: userSettings.dashboardItems ?? defaultSettings.dashboardItems,
+			grid: userSettings.grid ?? defaultSettings.grid,
 		};
 	} catch (error) {
 		console.warn('Failed to load settings from localStorage:', error);
@@ -29,6 +32,7 @@ function getSettings(): IUserSettings {
 			inactivityTimeout: defaultSettings.inactivityTimeout,
 			backgroundIndex: defaultSettings.backgroundIndex,
 			dashboardItems: defaultSettings.dashboardItems,
+			grid: defaultSettings.grid,
 		};
 	}
 }

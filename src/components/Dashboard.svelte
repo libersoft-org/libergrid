@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { gridConfig, type IWidget, type DashboardItem } from '../scripts/dashboard.ts';
+	import { type IGridItemType, type IGridItem, type IGrids } from '../scripts/dashboard.ts';
 	import { getSettingsValue, setSettingsValue } from '../scripts/settings.ts';
 	import Field from './DashboardField.svelte';
 	import Widget from './Widget.svelte';
@@ -18,7 +18,7 @@
 	// Background state - updated by listening to Background component events
 	let isVideoBackground: boolean = false;
 	// Dashboard components
-	let dashboardItems: DashboardItem[] = [];
+	let dashboardItems: IGridItem[] = [];
 	// Dialog state
 	let showWindowWidgetAdd = false;
 	let showWindowSettings = false;
@@ -27,6 +27,10 @@
 	let showFields = false;
 	let showSettingsButton = false;
 	let mouseTimeout: number;
+	// Flag to track if data has been loaded
+	let dataLoaded = false;
+	// Reactive grid configuration from settings
+	$: gridConfig = getSettingsValue('grid');
 
 	// Reactive map of occupied cells for better performance and reactivity
 	$: occupiedCells = new Set(
@@ -43,9 +47,6 @@
 
 	// Reactive 2D array for display in template
 	$: gridOccupancy = Array.from({ length: gridConfig.rows }, (_, row) => Array.from({ length: gridConfig.cols }, (_, col) => occupiedCells.has(`${row}-${col}`)));
-
-	// Flag to track if data has been loaded
-	let dataLoaded = false;
 
 	// Automatic saving when dashboardItems change (only after data is loaded)
 	$: if (dataLoaded && dashboardItems) saveDashboardToStorage();
@@ -83,7 +84,7 @@
 		showWindowWidgetAdd = true;
 	}
 
-	function addComponent(type: IWidget['type']) {
+	function addComponent(type: IGridItemType['type']) {
 		const newItem = {
 			id: `${type}-${Date.now()}`,
 			type,

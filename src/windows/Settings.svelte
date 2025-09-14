@@ -12,6 +12,7 @@
 	let { show = false, onClose = () => {} }: Props = $props();
 	let currentBackground: BackgroundItem = $state(backgroundStore.current);
 	let inactivityTimeout: number = $state(getSettingsValue('inactivityTimeout') / 1000); // Convert to seconds
+	let grid = $state(getSettingsValue('grid'));
 
 	$effect(() => {
 		console.log('Settings component, show prop:', show);
@@ -38,6 +39,24 @@
 		if (seconds > 0) {
 			inactivityTimeout = seconds;
 			setSettingsValue('inactivityTimeout', seconds * 1000); // Convert to milliseconds
+		}
+	}
+
+	function handleGridColsChange(event: Event) {
+		const target = event.target as HTMLInputElement;
+		const cols = parseInt(target.value, 10);
+		if (cols >= 5 && cols <= 20) {
+			gridCols = cols;
+			setSettingsValue('gridCols', cols);
+		}
+	}
+
+	function handleGridRowsChange(event: Event) {
+		const target = event.target as HTMLInputElement;
+		const rows = parseInt(target.value, 10);
+		if (rows >= 3 && rows <= 15) {
+			gridRows = rows;
+			setSettingsValue('gridRows', rows);
 		}
 	}
 
@@ -164,6 +183,16 @@
 			<label for="inactivity-timeout">Auto-hide timeout:</label>
 			<input id="inactivity-timeout" type="number" min="1" max="30" bind:value={inactivityTimeout} onchange={handleInactivityTimeoutChange} />
 			<span>seconds</span>
+		</div>
+		<div class="settings-field">
+			<label for="grid-cols">Grid columns:</label>
+			<input id="grid-cols" type="number" min="5" max="20" bind:value={grid.cols} onchange={handleGridColsChange} />
+			<span>columns</span>
+		</div>
+		<div class="settings-field">
+			<label for="grid-rows">Grid rows:</label>
+			<input id="grid-rows" type="number" min="3" max="15" bind:value={grid.rows} onchange={handleGridRowsChange} />
+			<span>rows</span>
 		</div>
 	</div>
 

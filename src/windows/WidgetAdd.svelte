@@ -1,13 +1,13 @@
 <script lang="ts">
 	import Button from '../components/Button.svelte';
 	import Window from '../components/Window.svelte';
-	import { widgets, type IWidget } from '../scripts/dashboard.ts';
+	import { gridItems, type IGridItemType } from '../scripts/dashboard.ts';
 
 	export let show: boolean = false;
-	export let onAddComponent: (type: IWidget['type']) => void;
+	export let onAddComponent: (type: IGridItemType['type']) => void;
 	export let onClose: () => void;
 
-	function handleAddComponent(type: IWidget['type']) {
+	function handleAddComponent(type: IGridItemType['type']) {
 		onAddComponent(type);
 		onClose();
 	}
@@ -23,7 +23,7 @@
 
 <Window {show} title="Select component" {onClose} maxWidth="400px">
 	<div class="options">
-		{#each widgets as widget (widget.type)}
+		{#each gridItems as widget (widget.type)}
 			<Button variant="primary" onClick={() => handleAddComponent(widget.type)}>
 				{widget.label}
 			</Button>
