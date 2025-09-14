@@ -8,6 +8,7 @@
 	export let onResize: (newColSpan: number, newRowSpan: number, newGridRow?: number, newGridCol?: number) => void = () => {};
 	export let onMove: (newGridRow: number, newGridCol: number) => void = () => {};
 	export let onToggleBorder: () => void = () => {};
+	export let onRemove: () => void = () => {};
 	export let onResizeStart: () => void = () => {};
 	export let onResizeEnd: () => void = () => {};
 	export let onMoveStart: () => void = () => {};
@@ -443,8 +444,6 @@
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
-		opacity: 0;
-		transition: all 0.2s ease;
 		z-index: 15;
 		backdrop-filter: blur(5px);
 	}
@@ -454,17 +453,44 @@
 		border-color: rgba(255, 255, 255, 0.8);
 	}
 
-	.widget:hover .border-toggle {
-		opacity: 1;
+	.remove-button {
+		position: absolute;
+		top: 5px;
+		right: 5px;
+		width: 24px;
+		height: 24px;
+		background: rgba(255, 0, 0, 0.7);
+		border: 1px solid rgba(255, 255, 255, 0.3);
+		border-radius: 4px;
+		color: white;
+		font-size: 14px;
+		font-weight: bold;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		z-index: 15;
+		backdrop-filter: blur(5px);
+	}
+
+	.remove-button:hover {
+		background: rgba(255, 0, 0, 0.9);
+		border-color: rgba(255, 255, 255, 0.8);
 	}
 </style>
 
 <div class="widget" class:with-border={border} class:dragging={isDragging} on:mousedown={handleDragStart} on:touchstart={handleDragStart} on:mouseenter={handleMouseEnter} on:mousemove={handleMouseMove} on:mouseleave={handleMouseLeave} on:touchend={handleTouchEnd} role="button" tabindex="0" aria-label="Draggable widget">
 	<slot />
-	<!-- Border toggle button -->
-	<button class="border-toggle" on:click|stopPropagation={onToggleBorder} title={border ? 'Turn off border' : 'Turn on border'}>
-		{border ? '🔲' : '⬜'}
-	</button>
+	{#if showResizeHandles}
+		<!-- Remove button -->
+		<button class="remove-button" on:click|stopPropagation={onRemove} title="Remove widget">
+			×
+		</button>
+		<!-- Border toggle button -->
+		<button class="border-toggle" on:click|stopPropagation={onToggleBorder} title={border ? 'Turn off border' : 'Turn on border'}>
+			{border ? '🔲' : '⬜'}
+		</button>
+	{/if}
 	{#if resizable && showResizeHandles}
 		<!-- Sides -->
 		<div class="resize-handle resize-top" on:mousedown={e => handleResizeStart(e, 'top')} on:touchstart={e => handleResizeStart(e, 'top')} on:keydown={e => handleResizeKeydown(e, 'top')} role="button" tabindex="0" aria-label="Resize top"></div>

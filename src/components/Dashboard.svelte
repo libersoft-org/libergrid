@@ -295,10 +295,6 @@
 		min-width: 0; /* Allow shrinking */
 		overflow: hidden; /* Clip overflowing content */
 	}
-
-	.dashboard-item:hover :global(.button-remove) {
-		opacity: 1;
-	}
 </style>
 
 <div class="dashboard {isVideoBackground ? 'video-background' : ''}" on:click={handleDashboardClick} on:keydown={e => (e.key === 'Enter' || e.key === ' ' ? handleDashboardClick() : null)} role="button" tabindex="0" aria-label="Dashboard">
@@ -325,8 +321,7 @@
 			aria-label="Dashboard item"
 		>
 			<div class="component-wrapper">
-				<Button variant="remove" onClick={() => removeComponent(item.id)} ariaLabel="Remove component">×</Button>
-				<Widget border={item.border} colSpan={item.colSpan} rowSpan={item.rowSpan} draggable={true} onResize={(newColSpan, newRowSpan, newGridRow, newGridCol) => updateComponentSize(item.id, newColSpan, newRowSpan, newGridRow, newGridCol)} onMove={(newGridRow, newGridCol) => updateComponentPosition(item.id, newGridRow, newGridCol)} onToggleBorder={() => toggleComponentBorder(item.id)}>
+				<Widget border={item.border} colSpan={item.colSpan} rowSpan={item.rowSpan} draggable={true} onResize={(newColSpan, newRowSpan, newGridRow, newGridCol) => updateComponentSize(item.id, newColSpan, newRowSpan, newGridRow, newGridCol)} onMove={(newGridRow, newGridCol) => updateComponentPosition(item.id, newGridRow, newGridCol)} onToggleBorder={() => toggleComponentBorder(item.id)} onRemove={() => removeComponent(item.id)}>
 					<svelte:component this={getComponentByType(item.type)} {...getComponentProps(item.type, item)} />
 				</Widget>
 			</div>
