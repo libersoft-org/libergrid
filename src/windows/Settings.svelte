@@ -46,8 +46,8 @@
 		const target = event.target as HTMLInputElement;
 		const cols = parseInt(target.value, 10);
 		if (cols >= 5 && cols <= 20) {
-			gridCols = cols;
-			setSettingsValue('gridCols', cols);
+			grid = { ...grid, cols };
+			setSettingsValue('grid', grid);
 		}
 	}
 
@@ -55,8 +55,8 @@
 		const target = event.target as HTMLInputElement;
 		const rows = parseInt(target.value, 10);
 		if (rows >= 3 && rows <= 15) {
-			gridRows = rows;
-			setSettingsValue('gridRows', rows);
+			grid = { ...grid, rows };
+			setSettingsValue('grid', grid);
 		}
 	}
 

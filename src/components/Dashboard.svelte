@@ -280,8 +280,6 @@
 		transition: background 0.5s ease-in-out;
 		user-select: none;
 		display: grid;
-		grid-template-columns: repeat(10, 1fr);
-		grid-template-rows: repeat(6, 1fr);
 		gap: 1vw;
 		/* FIXED grid size - PROHIBITED adding new rows/columns */
 		grid-auto-rows: 0;
@@ -337,7 +335,15 @@
 	}
 </style>
 
-<div class="dashboard {isVideoBackground ? 'video-background' : ''}" onclick={handleDashboardClick} onkeydown={e => (e.key === 'Enter' || e.key === ' ' ? handleDashboardClick() : null)} role="button" tabindex="0" aria-label="Dashboard">
+<div 
+	class="dashboard {isVideoBackground ? 'video-background' : ''}" 
+	style="grid-template-columns: repeat({gridConfig.cols}, 1fr); grid-template-rows: repeat({gridConfig.rows}, 1fr);"
+	onclick={handleDashboardClick} 
+	onkeydown={e => (e.key === 'Enter' || e.key === ' ' ? handleDashboardClick() : null)} 
+	role="button" 
+	tabindex="0" 
+	aria-label="Dashboard"
+>
 	<!-- Generate empty grid cells -->
 	{#if showFields}
 		{#each Array(gridConfig.rows) as _, row}
