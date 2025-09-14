@@ -2,16 +2,25 @@
 	import { onMount } from 'svelte';
 	import { autoFont } from '../scripts/font';
 	import { getAPI } from '../scripts/api';
+	import { Chart, registerables } from 'chart.js';
+
+	// Register Chart.js components
+	Chart.register(...registerables);
+
 	// Chart data
 	export let price: number = 0;
 	export let change24h: number = 0;
 	export let isLoading: boolean = true;
 	export let error: string = '';
-	// Chart data
+
+	// Chart data and elements
 	let chartData: number[] = [];
+	let chartLabels: string[] = [];
 	let chartContainer: HTMLElement;
 	let priceElement: HTMLElement;
 	let changeElement: HTMLElement;
+	let chartInstance: Chart | null = null;
+
 	// Cleanup functions
 	let cleanupFunctions: (() => void)[] = [];
 
@@ -20,18 +29,33 @@
 		try {
 			isLoading = true;
 			error = '';
+
 			// Get current price from CoinGecko API
 			const priceData = await getAPI('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true');
+
 			if (priceData.bitcoin) {
 				price = priceData.bitcoin.usd;
 				change24h = priceData.bitcoin.usd_24h_change || 0;
 			}
+
 			// Get 7-day price history for chart
 			const historyData = await getAPI('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=7&interval=daily');
-			if (historyData.prices) chartData = historyData.prices.map((item: [number, number]) => item[1]);
+
+			if (historyData.prices) {
+				chartData = historyData.prices.map((item: [number, number]) => item[1]);
+				// Create labels for the last 7 days
+				chartLabels = historyData.prices.map((item: [number, number]) => {
+					const date = new Date(item[0]);
+					return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+				});
+			}
+
 			isLoading = false;
-			// Setup font managers after data load
-			setTimeout(setupFontManagers, 0);
+			// Setup font managers and chart after data load
+			setTimeout(() => {
+				setupFontManagers();
+				createChart();
+			}, 0);
 		} catch (err) {
 			console.error('Error loading Bitcoin data:', err);
 			error = 'Failed to load Bitcoin data';
@@ -62,72 +86,108 @@
 		return `${sign}${change.toFixed(2)}%`;
 	}
 
-	function drawChart() {
+	// Create Chart.js chart
+	function createChart() {
 		if (!chartContainer || chartData.length === 0) return;
+
 		const canvas = chartContainer.querySelector('canvas') as HTMLCanvasElement;
 		if (!canvas) return;
+
+		// Destroy existing chart
+		if (chartInstance) {
+			chartInstance.destroy();
+		}
+
 		const ctx = canvas.getContext('2d');
 		if (!ctx) return;
-		// Set canvas size
-		const rect = chartContainer.getBoundingClientRect();
-		canvas.width = rect.width * devicePixelRatio;
-		canvas.height = rect.height * devicePixelRatio;
-		canvas.style.width = rect.width + 'px';
-		canvas.style.height = rect.height + 'px';
-		ctx.scale(devicePixelRatio, devicePixelRatio);
-		const width = rect.width;
-		const height = rect.height;
-		const padding = 10;
-		// Clear canvas
-		ctx.clearRect(0, 0, width, height);
-		if (chartData.length < 2) return;
-		// Find min and max values for scaling
-		const minPrice = Math.min(...chartData);
-		const maxPrice = Math.max(...chartData);
-		const priceRange = maxPrice - minPrice;
-		if (priceRange === 0) return;
-		// Draw chart line
-		ctx.beginPath();
-		ctx.strokeStyle = change24h >= 0 ? '#10b981' : '#ef4444';
-		ctx.lineWidth = 2;
-		ctx.lineCap = 'round';
-		ctx.lineJoin = 'round';
-		chartData.forEach((price, index) => {
-			const x = padding + (index / (chartData.length - 1)) * (width - 2 * padding);
-			const y = height - padding - ((price - minPrice) / priceRange) * (height - 2 * padding);
-			if (index === 0) ctx.moveTo(x, y);
-			else ctx.lineTo(x, y);
+
+		const color = change24h >= 0 ? '#10b981' : '#ef4444';
+		const gradientFill = ctx.createLinearGradient(0, 0, 0, canvas.height);
+		gradientFill.addColorStop(0, change24h >= 0 ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)');
+		gradientFill.addColorStop(1, change24h >= 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)');
+
+		chartInstance = new Chart(ctx, {
+			type: 'line',
+			data: {
+				labels: chartLabels,
+				datasets: [
+					{
+						data: chartData,
+						borderColor: color,
+						backgroundColor: gradientFill,
+						borderWidth: 2,
+						fill: true,
+						tension: 0.3,
+						pointRadius: 0,
+						pointHoverRadius: 4,
+						pointHoverBackgroundColor: color,
+						pointHoverBorderColor: '#ffffff',
+						pointHoverBorderWidth: 2,
+					},
+				],
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				plugins: {
+					legend: {
+						display: false,
+					},
+					tooltip: {
+						mode: 'index',
+						intersect: false,
+						backgroundColor: 'rgba(0, 0, 0, 0.8)',
+						titleColor: '#ffffff',
+						bodyColor: '#ffffff',
+						borderColor: color,
+						borderWidth: 1,
+						callbacks: {
+							label: function (context) {
+								return `$${context.parsed.y.toLocaleString()}`;
+							},
+						},
+					},
+				},
+				scales: {
+					x: {
+						display: false,
+					},
+					y: {
+						display: false,
+					},
+				},
+				elements: {
+					point: {
+						radius: 0,
+					},
+				},
+				interaction: {
+					intersect: false,
+					mode: 'index',
+				},
+			},
 		});
-		ctx.stroke();
-		// Fill area under the curve
-		ctx.lineTo(width - padding, height - padding);
-		ctx.lineTo(padding, height - padding);
-		ctx.closePath();
-		const gradient = ctx.createLinearGradient(0, 0, 0, height);
-		gradient.addColorStop(0, change24h >= 0 ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)');
-		gradient.addColorStop(1, change24h >= 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)');
-		ctx.fillStyle = gradient;
-		ctx.fill();
 	}
 
 	onMount(() => {
+		// Load chart data
 		loadChartData();
+
 		// Update data every 5 minutes
 		const interval = setInterval(loadChartData, 5 * 60 * 1000);
-		// Draw chart when data is available
-		const chartInterval = setInterval(() => {
-			if (chartData.length > 0 && chartContainer) drawChart();
-		}, 100);
+
 		return () => {
 			clearInterval(interval);
-			clearInterval(chartInterval);
+			if (chartInstance) {
+				chartInstance.destroy();
+			}
 			cleanupFunctions.forEach(cleanup => cleanup());
 		};
 	});
 
-	// Redraw chart when container is resized or data changes
+	// Update chart when data changes
 	$: if (chartData.length > 0 && chartContainer) {
-		setTimeout(drawChart, 0);
+		setTimeout(createChart, 100);
 	}
 </script>
 
