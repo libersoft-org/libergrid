@@ -188,3 +188,45 @@ export function validateComponentUpdate(id: string, items: IGridItem[], gridRows
 
 	return { isValid, targetGridRow, targetGridCol, targetRowSpan, targetColSpan };
 }
+
+export function updateItemSize(
+	id: string, 
+	newColSpan: number, 
+	newRowSpan: number, 
+	items: IGridItem[], 
+	gridRows: number, 
+	gridCols: number,
+	newGridRow?: number, 
+	newGridCol?: number
+): boolean {
+	const validation = validateComponentUpdate(id, items, gridRows, gridCols, newGridRow, newGridCol, newRowSpan, newColSpan);
+	if (validation.isValid) {
+		dashboard.updateItem(id, {
+			colSpan: validation.targetColSpan,
+			rowSpan: validation.targetRowSpan,
+			gridRow: validation.targetGridRow,
+			gridCol: validation.targetGridCol,
+		});
+		return true;
+	}
+	return false;
+}
+
+export function updateItemPosition(
+	id: string, 
+	newGridRow: number, 
+	newGridCol: number, 
+	items: IGridItem[], 
+	gridRows: number, 
+	gridCols: number
+): boolean {
+	const validation = validateComponentUpdate(id, items, gridRows, gridCols, newGridRow, newGridCol);
+	if (validation.isValid) {
+		dashboard.updateItem(id, {
+			gridRow: validation.targetGridRow,
+			gridCol: validation.targetGridCol,
+		});
+		return true;
+	}
+	return false;
+}

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { type IGridItemType, dashboard, isGridCellOccupied, getGridOccupancy, createNewItem, getComponentProps, validateComponentUpdate } from '../scripts/dashboard.ts';
+	import { type IGridItemType, dashboard, isGridCellOccupied, getGridOccupancy, createNewItem, getComponentProps, updateItemSize, updateItemPosition } from '../scripts/dashboard.ts';
 	import { getSettingsValue } from '../scripts/settings.ts';
 	import Field from './DashboardField.svelte';
 	import Widget from './Widget.svelte';
@@ -81,25 +81,13 @@
 	}
 
 	function updateComponentSize(id: string, newColSpan: number, newRowSpan: number, newGridRow?: number, newGridCol?: number) {
-		const validation = validateComponentUpdate(id, dashboardItems, gridConfig.rows, gridConfig.cols, newGridRow, newGridCol, newRowSpan, newColSpan);
-		if (validation.isValid) {
-			dashboard.updateItem(id, {
-				colSpan: validation.targetColSpan,
-				rowSpan: validation.targetRowSpan,
-				gridRow: validation.targetGridRow,
-				gridCol: validation.targetGridCol,
-			});
+		if (updateItemSize(id, newColSpan, newRowSpan, dashboardItems, gridConfig.rows, gridConfig.cols, newGridRow, newGridCol)) {
 			dashboardItems = dashboard.items; // Update local reactive reference
 		}
 	}
 
 	function updateComponentPosition(id: string, newGridRow: number, newGridCol: number) {
-		const validation = validateComponentUpdate(id, dashboardItems, gridConfig.rows, gridConfig.cols, newGridRow, newGridCol);
-		if (validation.isValid) {
-			dashboard.updateItem(id, {
-				gridRow: validation.targetGridRow,
-				gridCol: validation.targetGridCol,
-			});
+		if (updateItemPosition(id, newGridRow, newGridCol, dashboardItems, gridConfig.rows, gridConfig.cols)) {
 			dashboardItems = dashboard.items; // Update local reactive reference
 		}
 	}
