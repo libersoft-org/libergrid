@@ -1,3 +1,4 @@
+import { getSettingsValue, setSettingsValue } from './settings.ts';
 export interface BackgroundItem {
 	type: 'image' | 'video';
 	url: string;
@@ -17,23 +18,24 @@ export const backgroundMedia: BackgroundItem[] = [
 let currentIndex = 0;
 let listeners: Set<(background: BackgroundItem) => void> = new Set();
 
-// Load saved background index from localStorage
+// Load saved background index from settings
 function loadSavedBackground() {
-	if (typeof window !== 'undefined') {
-		const savedIndex = localStorage.getItem('libergrid-background-index');
-		if (savedIndex !== null) {
-			const index = parseInt(savedIndex, 10);
-			if (index >= 0 && index < backgroundMedia.length) {
-				currentIndex = index;
-			}
+	try {
+		const savedIndex = getSettingsValue('backgroundIndex');
+		if (savedIndex >= 0 && savedIndex < backgroundMedia.length) {
+			currentIndex = savedIndex;
 		}
+	} catch (error) {
+		console.warn('Failed to load background index from settings:', error);
 	}
 }
 
-// Save current background index to localStorage
+// Save current background index to settings
 function saveCurrentBackground() {
-	if (typeof window !== 'undefined') {
-		localStorage.setItem('libergrid-background-index', currentIndex.toString());
+	try {
+		setSettingsValue('backgroundIndex', currentIndex);
+	} catch (error) {
+		console.warn('Failed to save background index to settings:', error);
 	}
 }
 

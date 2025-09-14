@@ -2,14 +2,13 @@
 	import { onMount } from 'svelte';
 	import { backgroundStore, backgroundMedia } from '../scripts/background';
 	import { type BackgroundItem } from '../scripts/background';
-
+	const savedVideoUrl = localStorage.getItem('libergrid-video-url');
 	let backgroundVideoElement: HTMLVideoElement;
 	let currentBackground: BackgroundItem = backgroundStore.current;
 
 	onMount(() => {
 		const unsubscribe = backgroundStore.subscribe(background => {
 			currentBackground = background;
-
 			if (backgroundVideoElement && background.type === 'video') {
 				backgroundVideoElement.src = background.url;
 				backgroundVideoElement.load();
@@ -20,12 +19,7 @@
 				}, 200);
 			}
 		});
-
-		const savedVideoUrl = localStorage.getItem('libergrid-video-url');
-		if (savedVideoUrl) {
-			backgroundMedia[backgroundMedia.length - 1].url = savedVideoUrl;
-		}
-
+		if (savedVideoUrl) backgroundMedia[backgroundMedia.length - 1].url = savedVideoUrl;
 		return unsubscribe;
 	});
 </script>

@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { type IWidget, type DashboardItem } from '../scripts/dashboard.ts';
 	import { gridConfig } from '../scripts/dashboard.ts';
-	import { getSettingsValue } from '../scripts/settings.ts';
+		import { getSettingsValue, setSettingsValue } from '../scripts/settings';
 	import Field from './DashboardField.svelte';
 	import Widget from './Widget.svelte';
 	import WindowWidgetAdd from '../windows/WidgetAdd.svelte';
@@ -18,7 +18,6 @@
 	export let onDashboardClick: () => void = () => {};
 	// Background state - updated by listening to Background component events
 	let isVideoBackground: boolean = false;
-	const dashboardStorageKey = 'libergrid';
 	// Dashboard components
 	let dashboardItems: DashboardItem[] = [];
 	// Dialog state
@@ -51,33 +50,35 @@
 	// Automatic saving when dashboardItems change (only after data is loaded)
 	$: if (dataLoaded && dashboardItems) saveDashboardToStorage();
 
-	// Function for saving to localStorage
+	// Function for saving to localStorage via settings
 	function saveDashboardToStorage() {
-		if (typeof window !== 'undefined') {
-			try {
-				localStorage.setItem(dashboardStorageKey, JSON.stringify(dashboardItems));
-			} catch (error) {
-				console.error('Failed to save dashboard to localStorage:', error);
-			}
+		try {
+			setSettingsValue('dashboardItems', dashboardItems);
+		} catch (error) {
+			console.error('Failed to save dashboard to localStorage:', error);
 		}
 	}
 
-	// Function for loading from localStorage
+	// Function for loading from localStorage via settings
 	function loadDashboardFromStorage() {
-		if (typeof window !== 'undefined') {
-			try {
-				const stored = localStorage.getItem(dashboardStorageKey);
-				if (stored) {
-					const loadedItems = JSON.parse(stored);
-					// Data validation
-					if (Array.isArray(loadedItems)) {
-						const validItems = loadedItems.filter(item => item && typeof item.id === 'string' && typeof item.type === 'string' && typeof item.gridRow === 'number' && typeof item.gridCol === 'number' && typeof item.colSpan === 'number' && typeof item.rowSpan === 'number' && typeof item.border === 'boolean');
-						dashboardItems = validItems;
-					}
-				}
-			} catch (error) {
-				console.error('Failed to load dashboard from localStorage:', error);
+		try {
+			const loadedItems = getSettingsValue('dashboardItems');
+			// Data validation
+			if (Array.isArray(loadedItems)) {
+				const validItems = loadedItems.filter(item => 
+					item && 
+					typeof item.id === 'string' && 
+					typeof item.type === 'string' && 
+					typeof item.gridRow === 'number' && 
+					typeof item.gridCol === 'number' && 
+					typeof item.colSpan === 'number' && 
+					typeof item.rowSpan === 'number' && 
+					typeof item.border === 'boolean'
+				);
+				dashboardItems = validItems;
 			}
+		} catch (error) {
+			console.error('Failed to load dashboard from localStorage:', error);
 		}
 	}
 
