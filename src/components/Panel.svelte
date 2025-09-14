@@ -101,9 +101,7 @@
 			startY = touchY;
 			// Clear inactivity timer while dragging
 			clearInactivityTimer();
-			if (panelElement) {
-				panelElement.style.transition = 'none';
-			}
+			if (panelElement) panelElement.style.transition = 'none';
 		}
 	}
 
@@ -134,13 +132,9 @@
 			panelElement.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
 			// Determine if we should expand or collapse based on drag distance and direction
 			if (Math.abs(deltaY) > 50) {
-				if (deltaY > 0 && !isExpanded) {
-					// Pulled down while collapsed - expand
-					isExpanded = true;
-				} else if (deltaY < 0 && isExpanded) {
-					// Pulled up while expanded - collapse
-					isExpanded = false;
-				}
+				if (deltaY > 0 && !isExpanded)
+					isExpanded = true; // Pulled down while collapsed - expand
+				else if (deltaY < 0 && isExpanded) isExpanded = false; // Pulled up while expanded - collapse
 			}
 			// Reset to proper position
 			panelElement.style.transform = `translateY(${translateY}px)`;
@@ -206,52 +200,15 @@
 </script>
 
 <style>
-	.panel {
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		height: 400px;
-		background-color: #112;
-		border-radius: 0 0 20px 20px;
-		box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-		z-index: 1000;
-		transition: transform 0.2s linear;
-		user-select: none;
-		overflow: hidden;
-	}
-
-	.panel.hidden {
-		display: none;
-	}
-
-	.panel-content {
-		padding: 20px;
-		height: 100%;
-		overflow-y: auto;
-		color: white;
-	}
-
-	.panel-overlay {
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		background-color: rgba(0, 0, 0, 0.9);
-		z-index: 999;
-		cursor: pointer;
-	}
-
-	/* Invisible drag area at the top of screen */
 	.drag-area {
+		z-index: 1001;
 		position: fixed;
 		top: 0;
 		left: 0;
 		right: 0;
 		height: 20px;
-		z-index: 999;
-		background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
+		/*background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);*/
+		background-color: red;
 		pointer-events: none;
 		opacity: 0;
 		transition: opacity 0.2s ease;
@@ -261,23 +218,61 @@
 		opacity: 1;
 	}
 
-	.background {
+	.panel-overlay {
+		z-index: 999;
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(0, 0, 0, 0.9);
+		cursor: pointer;
+	}
+
+	.panel {
+		z-index: 1000;
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 400px;
+		background-color: #112;
+		border-radius: 0 0 20px 20px;
+		box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+
+		transition: transform 0.2s linear;
+		user-select: none;
+		overflow: hidden;
+	}
+
+	.panel.hidden {
+		display: none;
+	}
+
+	.panel .content {
+		padding: 20px;
+		height: 100%;
+		overflow-y: auto;
+		color: white;
+	}
+
+	.content .background {
 		margin-bottom: 20px;
 	}
 
-	.background h3 {
+	.panel .content .background h3 {
 		margin-bottom: 10px;
 		font-size: 16px;
 		font-weight: bold;
 	}
 
-	.background .grid {
+	.panel .content .background .grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
 		gap: 8px;
 	}
 
-	.background .grid .item {
+	.panel .content .background .grid .item {
 		position: relative;
 		aspect-ratio: 16/9;
 		border-radius: 4px;
@@ -287,21 +282,21 @@
 		transition: border-color 0.2s ease;
 	}
 
-	.background .grid .item.active {
+	.panel .content .background .grid .item.active {
 		border-color: #007acc;
 	}
 
-	.background .grid .item:hover {
+	.panel .content .background .grid .item:hover {
 		border-color: rgba(255, 255, 255, 0.3);
 	}
 
-	.background .grid .item:focus {
+	.panel .content .background .grid .item:focus {
 		outline: none;
 		border-color: #007acc;
 		box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.3);
 	}
 
-	.background .grid .item .thumbnail {
+	.panel .content .background .grid .item .thumbnail {
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
@@ -309,7 +304,7 @@
 		background-position: center;
 	}
 
-	.background .grid .item .name {
+	.panel .content .background .grid .item .name {
 		position: absolute;
 		bottom: 0;
 		left: 0;
@@ -327,8 +322,8 @@
 {#if isExpanded}
 	<div class="panel-overlay" onclick={() => (isExpanded = false)}></div>
 {/if}
-<div bind:this={panelElement} class="panel" class:hidden={panelHidden} style="transform: translateY({translateY}px)">
-	<div class="panel-content">
+<div class="panel" class:hidden={panelHidden} style="transform: translateY({translateY}px)" bind:this={panelElement}>
+	<div class="content">
 		<div class="background">
 			<h3>Background Selection</h3>
 			<div class="grid">
