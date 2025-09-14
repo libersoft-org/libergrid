@@ -9,7 +9,7 @@
 	let startY = 0;
 	let currentY = 0;
 	let panelHeight = 0;
-	let maxHeight = 400;
+	let maxHeight = '50%';
 	let panelHidden = false;
 	let inactivityTimeout: number | null = null; // Auto-hide functionality
 
@@ -217,11 +217,9 @@
 		top: 0;
 		left: 0;
 		right: 0;
-		height: 400px;
 		background-color: #112;
 		border-radius: 0 0 20px 20px;
 		box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-
 		transition: transform 0.2s linear;
 		user-select: none;
 		overflow: hidden;
@@ -302,7 +300,7 @@
 {#if isExpanded}
 	<div class="panel-overlay" onclick={() => (isExpanded = false)}></div>
 {/if}
-<div class="panel" class:hidden={panelHidden} style="transform: translateY({translateY}px)" bind:this={panelElement}>
+<div class="panel" class:hidden={panelHidden} style="height: {maxHeight}; transform: translateY({translateY}px)" bind:this={panelElement}>
 	<div class="content">
 		<div class="background">
 			<h3>Background Selection</h3>
