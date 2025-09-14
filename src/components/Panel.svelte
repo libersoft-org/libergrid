@@ -200,24 +200,6 @@
 </script>
 
 <style>
-	.drag-area {
-		z-index: 1001;
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		height: 20px;
-		/*background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);*/
-		background-color: red;
-		pointer-events: none;
-		opacity: 0;
-		transition: opacity 0.2s ease;
-	}
-
-	.drag-area.show {
-		opacity: 1;
-	}
-
 	.panel-overlay {
 		z-index: 999;
 		position: fixed;
@@ -317,8 +299,6 @@
 	}
 </style>
 
-<!-- Drag hint area at top of screen -->
-<div class="drag-area" class:show={!isExpanded}></div>
 {#if isExpanded}
 	<div class="panel-overlay" onclick={() => (isExpanded = false)}></div>
 {/if}
