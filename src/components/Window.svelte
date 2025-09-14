@@ -1,12 +1,14 @@
 <script lang="ts">
 	import Button from './Button.svelte';
+	import type { Snippet } from 'svelte';
 	interface Props {
 		show?: boolean;
 		title?: string;
 		onClose?: () => void;
 		maxWidth?: string;
+		children?: Snippet;
 	}
-	let { show = false, title = '', onClose = () => {}, maxWidth = '400px' }: Props = $props();
+	let { show = false, title = '', onClose = () => {}, maxWidth = '400px', children }: Props = $props();
 
 	function handleKeydown(event: KeyboardEvent): void {
 		if (event.key === 'Escape') onClose();
@@ -51,13 +53,15 @@
 </style>
 
 {#if show}
-	<div class="overlay" on:click={handleOverlayClick} on:keydown={handleKeydown} role="dialog" tabindex="0" aria-modal="true" aria-label="Dialog window">
-		<div class="window" style="max-width: {maxWidth}" on:click={e => e.stopPropagation()} on:keydown={e => e.stopPropagation()} role="dialog" tabindex="0" aria-labelledby="title">
+	<div class="overlay" onclick={handleOverlayClick} onkeydown={handleKeydown} role="dialog" tabindex="0" aria-modal="true" aria-label="Dialog window">
+		<div class="window" style="max-width: {maxWidth}" onclick={e => e.stopPropagation()} onkeydown={e => e.stopPropagation()} role="dialog" tabindex="0" aria-labelledby="title">
 			<Button variant="close" onClick={onClose} ariaLabel="Close window">×</Button>
 			{#if title}
 				<div class="title" id="title">{title}</div>
 			{/if}
-			<slot />
+			{#if children}
+				{@render children()}
+			{/if}
 		</div>
 	</div>
 {/if}

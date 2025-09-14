@@ -1,20 +1,19 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { type IWidget, type DashboardItem } from '../scripts/dashboard.ts';
+	import { gridConfig } from '../scripts/dashboard.ts';
+	import { getSettingsValue } from '../scripts/settings.ts';
 	import Field from './DashboardField.svelte';
 	import Widget from './Widget.svelte';
-	import Button from './Button.svelte';
 	import WindowWidgetAdd from '../windows/WidgetAdd.svelte';
 	import WindowSettings from '../windows/Settings.svelte';
 	import WidgetTime from '../widgets/Time.svelte';
-	import WidgetTemp from '../widgets/Temp.svelte';
 	import WidgetDate from '../widgets/Date.svelte';
-	import WidgetWeather from '../widgets/Weather.svelte';
+	import WidgetTemp from '../widgets/Temp.svelte';
 	import WidgetNameday from '../widgets/Nameday.svelte';
+	import WidgetWeather from '../widgets/Weather.svelte';
 	import WidgetVideo from '../widgets/Video.svelte';
 	import WidgetChart from '../widgets/Chart.svelte';
-	import { type IWidget, type DashboardItem } from '../scripts/dashboard.ts';
-	import { gridConfig } from '../scripts/dashboard';
-	import { getSettingsValue } from '../scripts/settings';
 	// Props from parent
 	export let onDashboardClick: () => void = () => {};
 	// Background state - updated by listening to Background component events
@@ -335,7 +334,7 @@
 	}
 </style>
 
-<div class="dashboard {isVideoBackground ? 'video-background' : ''}" on:click={handleDashboardClick} on:keydown={e => (e.key === 'Enter' || e.key === ' ' ? handleDashboardClick() : null)} role="button" tabindex="0" aria-label="Dashboard">
+<div class="dashboard {isVideoBackground ? 'video-background' : ''}" onclick={handleDashboardClick} onkeydown={e => (e.key === 'Enter' || e.key === ' ' ? handleDashboardClick() : null)} role="button" tabindex="0" aria-label="Dashboard">
 	<!-- Generate grid cells - only for empty fields -->
 	{#if showFields}
 		{#each Array(gridConfig.rows) as _, row}
@@ -352,8 +351,8 @@
 				grid-column: {item.gridCol + 1} / span {item.colSpan}; 
 				grid-row: {item.gridRow + 1} / span {item.rowSpan};
 			"
-			on:click|stopPropagation
-			on:keydown={e => (e.key === 'Enter' || e.key === ' ' ? e.stopPropagation() : null)}
+			onclick={e => e.stopPropagation()}
+			onkeydown={e => (e.key === 'Enter' || e.key === ' ' ? e.stopPropagation() : null)}
 			role="button"
 			tabindex="0"
 			aria-label="Dashboard item"
@@ -366,7 +365,7 @@
 		</div>
 	{/each}
 	<!-- Settings Button -->
-	<button class="settings-button" on:click={openWindowSettings}> ⚙️ </button>
+	<button class="settings-button" onclick={openWindowSettings}> ⚙️ </button>
 </div>
 <!-- Widget Add Dialog Component -->
 <WindowWidgetAdd show={showWindowWidgetAdd} onAddComponent={addComponent} onClose={closeWindowWidgetAdd} />

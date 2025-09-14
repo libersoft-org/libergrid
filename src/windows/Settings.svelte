@@ -9,9 +9,11 @@
 	}
 
 	let { show = false, onClose = () => {} }: Props = $props();
-	let currentBackground: BackgroundItem = backgroundStore.current;
+	let currentBackground: BackgroundItem = $state(backgroundStore.current);
 
-	$: console.log('Settings component, show prop:', show);
+	$effect(() => {
+		console.log('Settings component, show prop:', show);
+	});
 
 	onMount(() => {
 		// Subscribe to background changes
@@ -104,7 +106,7 @@
 		<h3>Background Selection</h3>
 		<div class="background-grid">
 			{#each backgroundMedia as background, index (background.url)}
-				<div class="background-item" class:active={currentBackground.url === background.url} role="button" tabindex="0" aria-label="Select {background.name} background" on:click={() => handleBackgroundSelect(index)} on:keydown={e => handleKeydown(e, index)}>
+				<div class="background-item" class:active={currentBackground.url === background.url} role="button" tabindex="0" aria-label="Select {background.name} background" onclick={() => handleBackgroundSelect(index)} onkeydown={e => handleKeydown(e, index)}>
 					{#if background.type === 'image'}
 						<div class="background-thumbnail" style="background-image: url('{background.url}')"></div>
 					{:else}
