@@ -3,13 +3,11 @@
 	import Window from '../components/Window.svelte';
 	import { backgroundStore, backgroundMedia, type BackgroundItem } from '../scripts/background.ts';
 	import { getSettingsValue, setSettingsValue } from '../scripts/settings.ts';
-	import { validateGridResize, dashboard } from '../scripts/dashboard.ts';
-
+	import { validateGridResize, dashboard, gridLimits } from '../scripts/dashboard.ts';
 	interface Props {
 		show?: boolean;
 		onClose?: () => void;
 	}
-
 	let { show = false, onClose = () => {} }: Props = $props();
 	let currentBackground: BackgroundItem = $state(backgroundStore.current);
 	let inactivityTimeout: number = $state(getSettingsValue('inactivityTimeout') / 1000); // Convert to seconds
@@ -24,7 +22,6 @@
 		const unsubscribeBackground = backgroundStore.subscribe(background => {
 			currentBackground = background;
 		});
-
 		return () => {
 			unsubscribeBackground();
 		};
@@ -46,7 +43,7 @@
 	function handleGridColsChange(event: Event) {
 		const target = event.target as HTMLInputElement;
 		const cols = parseInt(target.value, 10);
-		if (cols >= 1 && cols <= 30) {
+		if (cols >= gridLimits.minCols && cols <= gridLimits.maxCols) {
 			// Get current grid state to ensure we have latest values
 			const currentGrid = getSettingsValue('grid');
 			const dashboardItems = getSettingsValue('dashboardItems');
@@ -72,7 +69,7 @@
 	function handleGridRowsChange(event: Event) {
 		const target = event.target as HTMLInputElement;
 		const rows = parseInt(target.value, 10);
-		if (rows >= 1 && rows <= 30) {
+		if (rows >= gridLimits.minRows && rows <= gridLimits.maxRows) {
 			// Get current grid state to ensure we have latest values
 			const currentGrid = getSettingsValue('grid');
 			const dashboardItems = getSettingsValue('dashboardItems');
@@ -221,16 +218,15 @@
 		</div>
 		<div class="settings-field">
 			<label for="grid-cols">Grid columns:</label>
-			<input id="grid-cols" type="number" min="1" max="30" value={grid.cols} onchange={handleGridColsChange} />
+			<input id="grid-cols" type="number" min={gridLimits.minCols} max={gridLimits.maxCols} value={grid.cols} onchange={handleGridColsChange} />
 			<span>columns</span>
 		</div>
 		<div class="settings-field">
 			<label for="grid-rows">Grid rows:</label>
-			<input id="grid-rows" type="number" min="1" max="30" value={grid.rows} onchange={handleGridRowsChange} />
+			<input id="grid-rows" type="number" min={gridLimits.minRows} max={gridLimits.maxRows} value={grid.rows} onchange={handleGridRowsChange} />
 			<span>rows</span>
 		</div>
 	</div>
-
 	<div class="settings-section">
 		<h3>Background selection</h3>
 		<div class="background-grid">

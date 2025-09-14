@@ -1,15 +1,21 @@
 import { getSettingsValue, setSettingsValue } from './settings.ts';
 
+// Grid configuration constants
+export const gridLimits = {
+	minCols: 1,
+	maxCols: 30,
+	minRows: 1,
+	maxRows: 30,
+} as const;
+
 export interface IGridItemType {
 	type: string;
 	label: string;
 }
-
 export interface IGrids {
 	cols: number;
 	rows: number;
 }
-
 export interface IGridItem {
 	id: string;
 	type: IGridItemType['type'];
@@ -19,7 +25,6 @@ export interface IGridItem {
 	rowSpan: number;
 	border: boolean;
 }
-
 // Dashboard items with reactive behavior
 let dashboardItems: IGridItem[] = [];
 
@@ -29,18 +34,8 @@ function loadDashboardItems(): IGridItem[] {
 		console.log('Loading dashboard from storage...');
 		const loadedItems = getSettingsValue('dashboardItems');
 		console.log('Loaded items from storage:', loadedItems);
-		
 		if (Array.isArray(loadedItems)) {
-			const validItems = loadedItems.filter(item => 
-				item && 
-				typeof item.id === 'string' && 
-				typeof item.type === 'string' && 
-				typeof item.gridRow === 'number' && 
-				typeof item.gridCol === 'number' && 
-				typeof item.colSpan === 'number' && 
-				typeof item.rowSpan === 'number' && 
-				typeof item.border === 'boolean'
-			);
+			const validItems = loadedItems.filter(item => item && typeof item.id === 'string' && typeof item.type === 'string' && typeof item.gridRow === 'number' && typeof item.gridCol === 'number' && typeof item.colSpan === 'number' && typeof item.rowSpan === 'number' && typeof item.border === 'boolean');
 			console.log('Valid items after filtering:', validItems);
 			return validItems;
 		} else {
@@ -85,15 +80,13 @@ export const dashboard = {
 		saveDashboardItems(dashboardItems);
 	},
 	updateItem(id: string, updates: Partial<IGridItem>) {
-		dashboardItems = dashboardItems.map(item => 
-			item.id === id ? { ...item, ...updates } : item
-		);
+		dashboardItems = dashboardItems.map(item => (item.id === id ? { ...item, ...updates } : item));
 		saveDashboardItems(dashboardItems);
 	},
 	reload() {
 		dashboardItems = loadDashboardItems();
 		return dashboardItems;
-	}
+	},
 };
 
 export const gridItems: IGridItemType[] = [
@@ -106,13 +99,6 @@ export const gridItems: IGridItemType[] = [
 	{ type: 'chart', label: 'Chart' },
 ];
 
-/**
- * Validates if grid can be resized to new dimensions without losing widgets
- * @param newCols New number of columns
- * @param newRows New number of rows
- * @param dashboardItems Current dashboard items to check
- * @returns true if resize is safe, false if widgets would be lost
- */
 export function validateGridResize(newCols: number, newRows: number, dashboardItems: IGridItem[]): boolean {
 	// Check if any widget would be outside the new grid bounds
 	return dashboardItems.every(item => {
