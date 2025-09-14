@@ -13,7 +13,7 @@
 	import WidgetChart from '../widgets/Chart.svelte';
 	import { type IWidget, type DashboardItem } from '../scripts/dashboard.ts';
 	import { gridConfig } from '../scripts/dashboard';
-	import { getSettingsValue } from '../scripts/common';
+	import { getSettingsValue } from '../scripts/settings';
 	// Props from parent
 	export let onDashboardClick: () => void = () => {};
 	// Background state - updated by listening to Background component events

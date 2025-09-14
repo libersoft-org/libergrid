@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { backgroundStore, backgroundMedia, type BackgroundItem } from '../scripts/background.ts';
-	import { getSettingsValue } from '../scripts/common.ts';
+	import { getSettingsValue } from '../scripts/settings.js';
 	let panelElement: HTMLDivElement;
 	let currentBackground: BackgroundItem = backgroundStore.current;
 	let isDragging = false;
