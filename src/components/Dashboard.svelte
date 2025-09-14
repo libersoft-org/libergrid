@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { type IGridItemType, type IGridItem, type IGrids, validateGridResize, dashboard } from '../scripts/dashboard.ts';
-	import { getSettingsValue, setSettingsValue } from '../scripts/settings.ts';
+	import { type IGridItemType, dashboard } from '../scripts/dashboard.ts';
+	import { getSettingsValue } from '../scripts/settings.ts';
 	import Field from './DashboardField.svelte';
 	import Widget from './Widget.svelte';
 	import WindowWidgetAdd from '../windows/WidgetAdd.svelte';
@@ -13,15 +13,6 @@
 	import WidgetWeather from '../widgets/Weather.svelte';
 	import WidgetVideo from '../widgets/Video.svelte';
 	import WidgetChart from '../widgets/Chart.svelte';
-
-	// Props interface
-	interface Props {
-		onDashboardClick?: () => void;
-	}
-
-	// Props from parent
-	let { onDashboardClick = () => {} }: Props = $props();
-
 	// Background state - updated by listening to Background component events
 	let isVideoBackground: boolean = false;
 	// Dashboard components - using reactive reference to dashboard.items
@@ -215,10 +206,6 @@
 		clearTimeout(mouseTimeout);
 	}
 
-	function handleDashboardClick() {
-		onDashboardClick();
-	}
-
 	// Load data from localStorage on startup
 	onMount(() => {
 		dashboardItems = dashboard.reload(); // Reload from storage and update reactive reference
@@ -331,7 +318,7 @@
 	}
 </style>
 
-<div class="dashboard {isVideoBackground ? 'video-background' : ''}" style="grid-template-columns: repeat({gridConfig.cols}, 1fr); grid-template-rows: repeat({gridConfig.rows}, 1fr);" onclick={handleDashboardClick} onkeydown={e => (e.key === 'Enter' || e.key === ' ' ? handleDashboardClick() : null)} role="button" tabindex="0" aria-label="Dashboard">
+<div class="dashboard {isVideoBackground ? 'video-background' : ''}" style="grid-template-columns: repeat({gridConfig.cols}, 1fr); grid-template-rows: repeat({gridConfig.rows}, 1fr);" role="button" tabindex="0" aria-label="Dashboard">
 	<!-- Generate empty grid cells -->
 	{#if showFields}
 		{#each Array(gridConfig.rows) as _, row}

@@ -46,7 +46,7 @@
 	function handleGridColsChange(event: Event) {
 		const target = event.target as HTMLInputElement;
 		const cols = parseInt(target.value, 10);
-		if (cols >= 5 && cols <= 20) {
+		if (cols >= 1 && cols <= 30) {
 			// Get current grid state to ensure we have latest values
 			const currentGrid = getSettingsValue('grid');
 			const dashboardItems = getSettingsValue('dashboardItems');
@@ -72,7 +72,7 @@
 	function handleGridRowsChange(event: Event) {
 		const target = event.target as HTMLInputElement;
 		const rows = parseInt(target.value, 10);
-		if (rows >= 3 && rows <= 15) {
+		if (rows >= 1 && rows <= 30) {
 			// Get current grid state to ensure we have latest values
 			const currentGrid = getSettingsValue('grid');
 			const dashboardItems = getSettingsValue('dashboardItems');
@@ -216,17 +216,17 @@
 		<h3>Interface settings</h3>
 		<div class="settings-field">
 			<label for="inactivity-timeout">Auto-hide timeout:</label>
-			<input id="inactivity-timeout" type="number" min="1" max="30" bind:value={inactivityTimeout} onchange={handleInactivityTimeoutChange} />
+			<input id="inactivity-timeout" type="number" min="1" max="15" bind:value={inactivityTimeout} onchange={handleInactivityTimeoutChange} />
 			<span>seconds</span>
 		</div>
 		<div class="settings-field">
 			<label for="grid-cols">Grid columns:</label>
-			<input id="grid-cols" type="number" min="5" max="20" value={grid.cols} onchange={handleGridColsChange} />
+			<input id="grid-cols" type="number" min="1" max="30" value={grid.cols} onchange={handleGridColsChange} />
 			<span>columns</span>
 		</div>
 		<div class="settings-field">
 			<label for="grid-rows">Grid rows:</label>
-			<input id="grid-rows" type="number" min="3" max="15" value={grid.rows} onchange={handleGridRowsChange} />
+			<input id="grid-rows" type="number" min="1" max="30" value={grid.rows} onchange={handleGridRowsChange} />
 			<span>rows</span>
 		</div>
 	</div>
