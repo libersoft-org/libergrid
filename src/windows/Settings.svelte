@@ -7,9 +7,10 @@
 	interface Props {
 		show?: boolean;
 		onClose?: () => void;
+		validateGridResize?: (newCols: number, newRows: number) => boolean;
 	}
 
-	let { show = false, onClose = () => {} }: Props = $props();
+	let { show = false, onClose = () => {}, validateGridResize = () => true }: Props = $props();
 	let currentBackground: BackgroundItem = $state(backgroundStore.current);
 	let inactivityTimeout: number = $state(getSettingsValue('inactivityTimeout') / 1000); // Convert to seconds
 	let grid = $state(getSettingsValue('grid'));
@@ -46,8 +47,24 @@
 		const target = event.target as HTMLInputElement;
 		const cols = parseInt(target.value, 10);
 		if (cols >= 5 && cols <= 20) {
-			grid = { ...grid, cols };
-			setSettingsValue('grid', grid);
+			// Get current grid state to ensure we have latest values
+			const currentGrid = getSettingsValue('grid');
+			// Validate if resize is possible without losing widgets
+			if (validateGridResize(cols, currentGrid.rows)) {
+				grid = { ...grid, cols };
+				setSettingsValue('grid', grid);
+			} else {
+				// Reset input to current value if validation failed
+				setTimeout(() => {
+					target.value = grid.cols.toString();
+				}, 0);
+				alert('Nelze zmenšit mřížku - některé widgety by se dostaly mimo rozsah!');
+			}
+		} else {
+			// Reset to valid range if outside bounds
+			setTimeout(() => {
+				target.value = grid.cols.toString();
+			}, 0);
 		}
 	}
 
@@ -55,8 +72,24 @@
 		const target = event.target as HTMLInputElement;
 		const rows = parseInt(target.value, 10);
 		if (rows >= 3 && rows <= 15) {
-			grid = { ...grid, rows };
-			setSettingsValue('grid', grid);
+			// Get current grid state to ensure we have latest values
+			const currentGrid = getSettingsValue('grid');
+			// Validate if resize is possible without losing widgets
+			if (validateGridResize(currentGrid.cols, rows)) {
+				grid = { ...grid, rows };
+				setSettingsValue('grid', grid);
+			} else {
+				// Reset input to current value if validation failed
+				setTimeout(() => {
+					target.value = grid.rows.toString();
+				}, 0);
+				alert('Nelze zmenšit mřížku - některé widgety by se dostaly mimo rozsah!');
+			}
+		} else {
+			// Reset to valid range if outside bounds
+			setTimeout(() => {
+				target.value = grid.rows.toString();
+			}, 0);
 		}
 	}
 
@@ -186,12 +219,12 @@
 		</div>
 		<div class="settings-field">
 			<label for="grid-cols">Grid columns:</label>
-			<input id="grid-cols" type="number" min="5" max="20" bind:value={grid.cols} onchange={handleGridColsChange} />
+			<input id="grid-cols" type="number" min="5" max="20" value={grid.cols} onchange={handleGridColsChange} />
 			<span>columns</span>
 		</div>
 		<div class="settings-field">
 			<label for="grid-rows">Grid rows:</label>
-			<input id="grid-rows" type="number" min="3" max="15" bind:value={grid.rows} onchange={handleGridRowsChange} />
+			<input id="grid-rows" type="number" min="3" max="15" value={grid.rows} onchange={handleGridRowsChange} />
 			<span>rows</span>
 		</div>
 	</div>

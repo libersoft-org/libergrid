@@ -59,15 +59,21 @@
 
 	// Automatic saving when dashboardItems change (only after data is loaded)
 	$effect(() => {
-		if (dataLoaded && dashboardItems) {
+		console.log('$effect triggered - dataLoaded:', dataLoaded, 'dashboardItems length:', dashboardItems.length);
+		if (dataLoaded && dashboardItems.length >= 0) {
+			console.log('$effect: Calling saveDashboardToStorage');
 			saveDashboardToStorage();
+		} else {
+			console.log('$effect: Not saving - conditions not met');
 		}
 	});
 
 	// Function for saving to localStorage via settings
 	function saveDashboardToStorage() {
 		try {
+			console.log('saveDashboardToStorage: Saving items:', dashboardItems);
 			setSettingsValue('dashboardItems', dashboardItems);
+			console.log('saveDashboardToStorage: After setSettingsValue, checking what was actually saved:', getSettingsValue('dashboardItems'));
 		} catch (error) {
 			console.error('Failed to save dashboard to localStorage:', error);
 		}
@@ -77,10 +83,13 @@
 	function loadDashboardFromStorage() {
 		try {
 			const loadedItems = getSettingsValue('dashboardItems');
+			console.log('loadDashboardFromStorage: loaded items:', loadedItems);
 			// Data validation
 			if (Array.isArray(loadedItems)) {
 				const validItems = loadedItems.filter(item => item && typeof item.id === 'string' && typeof item.type === 'string' && typeof item.gridRow === 'number' && typeof item.gridCol === 'number' && typeof item.colSpan === 'number' && typeof item.rowSpan === 'number' && typeof item.border === 'boolean');
+				console.log('Valid items after filtering:', validItems);
 				dashboardItems = validItems;
+				console.log('dashboardItems after assignment:', dashboardItems);
 			}
 		} catch (error) {
 			console.error('Failed to load dashboard from localStorage:', error);
@@ -96,9 +105,7 @@
 		selectedGridPosition = { row, col };
 		showWindowWidgetAdd = true;
 	}
-
 	function addComponent(type: IGridItemType['type']) {
-		console.log(`Adding component: ${type} at position ${selectedGridPosition.row}, ${selectedGridPosition.col}`);
 		const newItem = {
 			id: `${type}-${Date.now()}`,
 			type,
@@ -108,13 +115,21 @@
 			rowSpan: 1,
 			border: true,
 		};
-		console.log('New item:', newItem);
-		dashboardItems = [...dashboardItems, newItem];
-		console.log('Dashboard items after add:', dashboardItems);
+		dashboardItems.push(newItem);
+		dashboardItems = dashboardItems; // Trigger reactivity
 	}
 
 	function closeWindowWidgetAdd() {
 		showWindowWidgetAdd = false;
+	}
+
+	function validateGridResize(newCols: number, newRows: number): boolean {
+		// Check if any widget would be outside the new grid bounds
+		return dashboardItems.every(item => {
+			const maxCol = item.gridCol + item.colSpan - 1;
+			const maxRow = item.gridRow + item.rowSpan - 1;
+			return maxCol < newCols && maxRow < newRows;
+		});
 	}
 
 	function openWindowSettings() {
@@ -250,8 +265,15 @@
 
 	// Load data from localStorage on startup
 	onMount(() => {
+		console.log('onMount: Loading dashboard data...');
+		console.log('Initial gridConfig:', gridConfig);
+		console.log('Initial dashboardItems:', dashboardItems);
+		
 		loadDashboardFromStorage();
 		dataLoaded = true; // Activate automatic saving
+		
+		console.log('After loading - dashboardItems:', dashboardItems);
+		console.log('After loading - gridConfig:', gridConfig);
 
 		// Add mouse event listeners for Field visibility
 		document.addEventListener('mousemove', handleMouseMove);
@@ -395,4 +417,4 @@
 	{/if}
 </div>
 <WindowWidgetAdd show={showWindowWidgetAdd} onAddComponent={addComponent} onClose={closeWindowWidgetAdd} />
-<WindowSettings show={showWindowSettings} onClose={closeWindowSettings} />
+<WindowSettings show={showWindowSettings} onClose={closeWindowSettings} {validateGridResize} />

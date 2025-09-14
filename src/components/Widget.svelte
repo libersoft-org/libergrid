@@ -1,18 +1,27 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	export let border: boolean = true;
-	export let colSpan: number = 1; // Number of columns the widget occupies (out of 10)
-	export let rowSpan: number = 1; // Number of rows the widget occupies
-	export let resizable: boolean = true; // Allows resizing
-	export let draggable: boolean = true; // Allows moving
-	export let onResize: (newColSpan: number, newRowSpan: number, newGridRow?: number, newGridCol?: number) => void = () => {};
-	export let onMove: (newGridRow: number, newGridCol: number) => void = () => {};
-	export let onToggleBorder: () => void = () => {};
-	export let onRemove: () => void = () => {};
-	export let onResizeStart: () => void = () => {};
-	export let onResizeEnd: () => void = () => {};
-	export let onMoveStart: () => void = () => {};
-	export let onMoveEnd: () => void = () => {};
+	import { getSettingsValue } from '../scripts/settings.ts';
+	interface Props {
+		border?: boolean;
+		colSpan?: number;
+		rowSpan?: number;
+		resizable?: boolean;
+		draggable?: boolean;
+		onResize?: (newColSpan: number, newRowSpan: number, newGridRow?: number, newGridCol?: number) => void;
+		onMove?: (newGridRow: number, newGridCol: number) => void;
+		onToggleBorder?: () => void;
+		onRemove?: () => void;
+		onResizeStart?: () => void;
+		onResizeEnd?: () => void;
+		onMoveStart?: () => void;
+		onMoveEnd?: () => void;
+	}
+	let { border = true, colSpan = 1, rowSpan = 1, resizable = true, draggable = true, onResize = () => {}, onMove = () => {}, onToggleBorder = () => {}, onRemove = () => {}, onResizeStart = () => {}, onResizeEnd = () => {}, onMoveStart = () => {}, onMoveEnd = () => {} }: Props = $props();
+
+	// Get grid dimensions from settings
+	let gridConfig = $state(getSettingsValue('grid'));
+	const gridCols = $derived(gridConfig.cols);
+	const gridRows = $derived(gridConfig.rows);
 	let isResizing = false;
 	let isDragging = false;
 	let resizeDirection = '';
@@ -23,16 +32,27 @@
 	let startGridCol = 0;
 	let startGridRow = 0;
 	// Mouse activity tracking for resize handles visibility
-	let showResizeHandles = false;
+	let showResizeHandles = $state(false);
 	let mouseTimeout: number;
 	const mouseTimeoutDelay = 2000; // 2 seconds
 	let isTouchDevice = false;
 
 	onMount(() => {
 		detectTouchDevice();
-	});
 
-	// Detect touch device
+		// Listen for settings changes
+		const handleStorageChange = () => {
+			gridConfig = getSettingsValue('grid');
+		};
+
+		window.addEventListener('storage', handleStorageChange);
+		window.addEventListener('settingsUpdate', handleStorageChange);
+
+		return () => {
+			window.removeEventListener('storage', handleStorageChange);
+			window.removeEventListener('settingsUpdate', handleStorageChange);
+		};
+	}); // Detect touch device
 	function detectTouchDevice() {
 		isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 	}
@@ -129,7 +149,7 @@
 		// Horizontal changes
 		if (resizeDirection.includes('right')) {
 			const colChange = Math.round(deltaX / gridCellWidth);
-			newColSpan = Math.max(1, Math.min(10 - startGridCol, startColSpan + colChange));
+			newColSpan = Math.max(1, Math.min(gridCols - startGridCol, startColSpan + colChange));
 		}
 		if (resizeDirection.includes('left')) {
 			const colChange = Math.round(-deltaX / gridCellWidth);
@@ -140,7 +160,7 @@
 		// Vertical changes
 		if (resizeDirection.includes('bottom')) {
 			const rowChange = Math.round(deltaY / gridCellHeight);
-			newRowSpan = Math.max(1, Math.min(6 - startGridRow, startRowSpan + rowChange));
+			newRowSpan = Math.max(1, Math.min(gridRows - startGridRow, startRowSpan + rowChange));
 		}
 		if (resizeDirection.includes('top')) {
 			const rowChange = Math.round(-deltaY / gridCellHeight);
@@ -175,12 +195,12 @@
 		const dashboard = document.querySelector('.dashboard') as HTMLElement;
 		if (!dashboard) return;
 		const dashboardRect = dashboard.getBoundingClientRect();
-		const gridCellWidth = (dashboardRect.width - 2 * parseFloat(getComputedStyle(dashboard).paddingLeft) - 9 * parseFloat(getComputedStyle(dashboard).gap)) / 10;
-		const gridCellHeight = (dashboardRect.height - 2 * parseFloat(getComputedStyle(dashboard).paddingTop) - 5 * parseFloat(getComputedStyle(dashboard).gap)) / 6;
+		const gridCellWidth = (dashboardRect.width - 2 * parseFloat(getComputedStyle(dashboard).paddingLeft) - (gridCols - 1) * parseFloat(getComputedStyle(dashboard).gap)) / gridCols;
+		const gridCellHeight = (dashboardRect.height - 2 * parseFloat(getComputedStyle(dashboard).paddingTop) - (gridRows - 1) * parseFloat(getComputedStyle(dashboard).gap)) / gridRows;
 		const colChange = Math.round(deltaX / gridCellWidth);
 		const rowChange = Math.round(deltaY / gridCellHeight);
-		const newGridCol = Math.max(0, Math.min(10 - colSpan, startGridCol + colChange));
-		const newGridRow = Math.max(0, Math.min(6 - rowSpan, startGridRow + rowChange));
+		const newGridCol = Math.max(0, Math.min(gridCols - colSpan, startGridCol + colChange));
+		const newGridRow = Math.max(0, Math.min(gridRows - rowSpan, startGridRow + rowChange));
 		onMove(newGridRow, newGridCol);
 	}
 
@@ -483,9 +503,7 @@
 	<slot />
 	{#if showResizeHandles}
 		<!-- Remove button -->
-		<button class="remove-button" on:click|stopPropagation={onRemove} title="Remove widget">
-			×
-		</button>
+		<button class="remove-button" on:click|stopPropagation={onRemove} title="Remove widget"> × </button>
 		<!-- Border toggle button -->
 		<button class="border-toggle" on:click|stopPropagation={onToggleBorder} title={border ? 'Turn off border' : 'Turn on border'}>
 			{border ? '🔲' : '⬜'}
