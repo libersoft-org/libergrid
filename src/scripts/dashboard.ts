@@ -22,21 +22,15 @@ export interface IGridItem {
 	rowSpan: number;
 	border: boolean;
 }
-let dashboardItems: IGridItem[] = [];
-// Initialize dashboard items
-dashboardItems = loadDashboardItems();
+let dashboardItems: IGridItem[] = loadDashboardItems();
 
 function loadDashboardItems(): IGridItem[] {
 	try {
-		console.log('Loading dashboard from storage...');
 		const loadedItems = getSettingsValue('dashboardItems');
-		console.log('Loaded items from storage:', loadedItems);
 		if (Array.isArray(loadedItems)) {
 			const validItems = loadedItems.filter(item => item && typeof item.id === 'string' && typeof item.type === 'string' && typeof item.gridRow === 'number' && typeof item.gridCol === 'number' && typeof item.colSpan === 'number' && typeof item.rowSpan === 'number' && typeof item.border === 'boolean');
-			console.log('Valid items after filtering:', validItems);
 			return validItems;
 		} else {
-			console.log('No array found in storage, using empty array');
 			return [];
 		}
 	} catch (error) {
@@ -47,9 +41,7 @@ function loadDashboardItems(): IGridItem[] {
 
 function saveDashboardItems(items: IGridItem[]): void {
 	try {
-		console.log('Saving dashboard to storage:', items);
 		setSettingsValue('dashboardItems', items);
-		console.log('Dashboard saved successfully');
 	} catch (error) {
 		console.error('Failed to save dashboard to localStorage:', error);
 	}
@@ -168,37 +160,21 @@ export function checkBounds(targetGridRow: number, targetGridCol: number, newRow
 
 export function validateComponentUpdate(id: string, items: IGridItem[], gridRows: number, gridCols: number, newGridRow?: number, newGridCol?: number, newRowSpan?: number, newColSpan?: number): { isValid: boolean; targetGridRow: number; targetGridCol: number; targetRowSpan: number; targetColSpan: number } {
 	const item = items.find(i => i.id === id);
-	if (!item) {
-		return { isValid: false, targetGridRow: 0, targetGridCol: 0, targetRowSpan: 1, targetColSpan: 1 };
-	}
-
+	if (!item) return { isValid: false, targetGridRow: 0, targetGridCol: 0, targetRowSpan: 1, targetColSpan: 1 };
 	// Use new values if specified, otherwise use original
 	const targetGridRow = newGridRow !== undefined ? newGridRow : item.gridRow;
 	const targetGridCol = newGridCol !== undefined ? newGridCol : item.gridCol;
 	const targetRowSpan = newRowSpan !== undefined ? newRowSpan : item.rowSpan;
 	const targetColSpan = newColSpan !== undefined ? newColSpan : item.colSpan;
-
 	// Check for collisions with other widgets
 	const wouldCollide = checkCollision(targetGridRow, targetGridCol, targetRowSpan, targetColSpan, id, items);
-
 	// Check grid bounds
 	const exceedsBounds = checkBounds(targetGridRow, targetGridCol, targetRowSpan, targetColSpan, gridRows, gridCols);
-
 	const isValid = !wouldCollide && !exceedsBounds;
-
 	return { isValid, targetGridRow, targetGridCol, targetRowSpan, targetColSpan };
 }
 
-export function updateItemSize(
-	id: string, 
-	newColSpan: number, 
-	newRowSpan: number, 
-	items: IGridItem[], 
-	gridRows: number, 
-	gridCols: number,
-	newGridRow?: number, 
-	newGridCol?: number
-): boolean {
+export function updateItemSize(id: string, newColSpan: number, newRowSpan: number, items: IGridItem[], gridRows: number, gridCols: number, newGridRow?: number, newGridCol?: number): boolean {
 	const validation = validateComponentUpdate(id, items, gridRows, gridCols, newGridRow, newGridCol, newRowSpan, newColSpan);
 	if (validation.isValid) {
 		dashboard.updateItem(id, {
@@ -212,14 +188,7 @@ export function updateItemSize(
 	return false;
 }
 
-export function updateItemPosition(
-	id: string, 
-	newGridRow: number, 
-	newGridCol: number, 
-	items: IGridItem[], 
-	gridRows: number, 
-	gridCols: number
-): boolean {
+export function updateItemPosition(id: string, newGridRow: number, newGridCol: number, items: IGridItem[], gridRows: number, gridCols: number): boolean {
 	const validation = validateComponentUpdate(id, items, gridRows, gridCols, newGridRow, newGridCol);
 	if (validation.isValid) {
 		dashboard.updateItem(id, {
