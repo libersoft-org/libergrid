@@ -235,6 +235,18 @@
 		color: white;
 	}
 
+	/* Dark overlay behind expanded panel */
+	.panel-overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(0, 0, 0, 0.9);
+		z-index: 999;
+		cursor: pointer;
+	}
+
 	/* Invisible drag area at the top of screen */
 	.drag-area {
 		position: fixed;
@@ -316,6 +328,12 @@
 
 <!-- Drag hint area at top of screen -->
 <div class="drag-area" class:show={!isExpanded}></div>
+
+<!-- Dark overlay behind expanded panel -->
+{#if isExpanded}
+	<div class="panel-overlay" onclick={() => (isExpanded = false)}></div>
+{/if}
+
 <div bind:this={panelElement} class="panel" class:hidden={panelHidden} style="transform: translateY({translateY}px)">
 	<div class="panel-content">
 		<div class="background-selector">
