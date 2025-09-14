@@ -45,7 +45,7 @@
 		};
 	});
 
-	$: translateY = isExpanded ? 0 : -panelHeight + 20; // Show 20px when collapsed
+	$: translateY = isExpanded ? 0 : -panelHeight + 40; // Show 20px when collapsed
 
 	// Watch for panel expansion changes
 	$: if (isExpanded) {
@@ -212,14 +212,11 @@
 		left: 0;
 		right: 0;
 		height: 400px;
-		/*background: linear-gradient(135deg, rgba(20, 20, 30, 0.95) 0%, rgba(10, 10, 20, 0.98) 100%);*/
-		background-color: red;
-		backdrop-filter: blur(20px);
+		background-color: #112;
 		border-radius: 0 0 20px 20px;
-		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+		box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
 		z-index: 1000;
-		transform: translateY(-350px);
-		transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+		transition: transform 0.2s linear;
 		user-select: none;
 		overflow: hidden;
 	}
@@ -235,7 +232,6 @@
 		color: white;
 	}
 
-	/* Dark overlay behind expanded panel */
 	.panel-overlay {
 		position: fixed;
 		top: 0;
@@ -265,23 +261,23 @@
 		opacity: 1;
 	}
 
-	.background-selector {
+	.background {
 		margin-bottom: 20px;
 	}
 
-	.background-selector h3 {
+	.background h3 {
 		margin-bottom: 10px;
 		font-size: 16px;
 		font-weight: bold;
 	}
 
-	.background-grid {
+	.background .grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
 		gap: 8px;
 	}
 
-	.background-item {
+	.background .grid .item {
 		position: relative;
 		aspect-ratio: 16/9;
 		border-radius: 4px;
@@ -291,21 +287,21 @@
 		transition: border-color 0.2s ease;
 	}
 
-	.background-item.active {
+	.background .grid .item.active {
 		border-color: #007acc;
 	}
 
-	.background-item:hover {
+	.background .grid .item:hover {
 		border-color: rgba(255, 255, 255, 0.3);
 	}
 
-	.background-item:focus {
+	.background .grid .item:focus {
 		outline: none;
 		border-color: #007acc;
 		box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.3);
 	}
 
-	.background-thumbnail {
+	.background .grid .item .thumbnail {
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
@@ -313,7 +309,7 @@
 		background-position: center;
 	}
 
-	.background-name {
+	.background .grid .item .name {
 		position: absolute;
 		bottom: 0;
 		left: 0;
@@ -328,25 +324,22 @@
 
 <!-- Drag hint area at top of screen -->
 <div class="drag-area" class:show={!isExpanded}></div>
-
-<!-- Dark overlay behind expanded panel -->
 {#if isExpanded}
 	<div class="panel-overlay" onclick={() => (isExpanded = false)}></div>
 {/if}
-
 <div bind:this={panelElement} class="panel" class:hidden={panelHidden} style="transform: translateY({translateY}px)">
 	<div class="panel-content">
-		<div class="background-selector">
+		<div class="background">
 			<h3>Background Selection</h3>
-			<div class="background-grid">
+			<div class="grid">
 				{#each backgroundMedia as background, index (background.url)}
-					<div class="background-item" class:active={currentBackground.url === background.url} role="button" tabindex="0" aria-label="Select {background.name} background" onclick={() => handleBackgroundSelect(index)} onkeydown={e => handleKeydown(e, index)}>
+					<div class="item" class:active={currentBackground.url === background.url} role="button" tabindex="0" aria-label="Select {background.name} background" onclick={() => handleBackgroundSelect(index)} onkeydown={e => handleKeydown(e, index)}>
 						{#if background.type === 'image'}
-							<div class="background-thumbnail" style="background-image: url('{background.url}')"></div>
+							<div class="thumbnail" style="background-image: url('{background.url}')"></div>
 						{:else}
-							<div class="background-thumbnail" style="background: linear-gradient(45deg, #333, #666); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">▶ Video</div>
+							<div class="thumbnail" style="background: linear-gradient(45deg, #333, #666); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">▶ Video</div>
 						{/if}
-						<div class="background-name">{background.name}</div>
+						<div class="name">{background.name}</div>
 					</div>
 				{/each}
 			</div>

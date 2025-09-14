@@ -263,7 +263,6 @@
 		padding: 2vw;
 		box-sizing: border-box;
 		overflow: hidden;
-		cursor: pointer;
 		transition: background 0.5s ease-in-out;
 		user-select: none;
 		display: grid;
