@@ -55,7 +55,11 @@
 {#if show}
 	<div class="overlay" onclick={handleOverlayClick} onkeydown={handleKeydown} role="dialog" tabindex="0" aria-modal="true" aria-label="Dialog window">
 		<div class="window" style="max-width: {maxWidth}" onclick={e => e.stopPropagation()} onkeydown={e => e.stopPropagation()} role="dialog" tabindex="0" aria-labelledby="title">
-			<Button variant="close" onClick={onClose} ariaLabel="Close window">×</Button>
+			<Button variant="close" onClick={onClose} ariaLabel="Close window">
+				{#snippet children()}
+					×
+				{/snippet}
+			</Button>
 			{#if title}
 				<div class="title" id="title">{title}</div>
 			{/if}

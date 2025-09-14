@@ -1,9 +1,11 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	export let variant: 'primary' | 'secondary' | 'close' | 'remove' = 'primary';
 	export let onClick: () => void = () => {};
 	export let type: 'button' | 'submit' | 'reset' = 'button';
 	export let disabled: boolean = false;
 	export let ariaLabel: string = '';
+	export let children: Snippet;
 
 	function handleClick(event: MouseEvent) {
 		// Stop propagation for remove buttons to prevent dashboard background actions
@@ -96,6 +98,6 @@
 	}
 </style>
 
-<button class="button button-{variant}" {type} {disabled} on:click={handleClick} aria-label={ariaLabel}>
-	<slot />
+<button class="button button-{variant}" {type} {disabled} onclick={handleClick} aria-label={ariaLabel}>
+	{@render children()}
 </button>

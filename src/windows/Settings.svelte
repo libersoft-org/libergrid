@@ -101,17 +101,6 @@
 </script>
 
 <style>
-	.background-selector {
-		margin-bottom: 20px;
-	}
-
-	.background-selector h3 {
-		margin-bottom: 10px;
-		font-size: 16px;
-		font-weight: bold;
-		color: white;
-	}
-
 	.background-grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));

@@ -38,6 +38,6 @@
 			Failed to load video: {errorMessage}
 		</div>
 	{:else}
-		<video class="video" bind:this={videoElement} src={videoUrl} autoplay loop muted playsinline on:error={handleVideoError}> Your browser does not support the video tag. </video>
+		<video class="video" bind:this={videoElement} src={videoUrl} autoplay loop muted playsinline onerror={handleVideoError}> Your browser does not support the video tag. </video>
 	{/if}
 </div>

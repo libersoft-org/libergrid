@@ -24,7 +24,9 @@
 	<div class="options">
 		{#each gridItems as widget (widget.type)}
 			<Button variant="primary" onClick={() => handleAddComponent(widget.type)}>
-				{widget.label}
+				{#snippet children()}
+					{widget.label}
+				{/snippet}
 			</Button>
 		{/each}
 	</div>

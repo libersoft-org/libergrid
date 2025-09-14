@@ -14,7 +14,7 @@
 	import WidgetVideo from '../widgets/Video.svelte';
 	import WidgetChart from '../widgets/Chart.svelte';
 	// Background state - updated by listening to Background component events
-	let isVideoBackground: boolean = false;
+	let isVideoBackground: boolean = $state(false);
 	// Dashboard components - using reactive reference to dashboard.items
 	let dashboardItems = $state(dashboard.items);
 	// Dialog state
@@ -261,7 +261,12 @@
 		>
 			<div class="component-wrapper">
 				<Widget border={item.border} colSpan={item.colSpan} rowSpan={item.rowSpan} draggable={true} onResize={(newColSpan, newRowSpan, newGridRow, newGridCol) => updateComponentSize(item.id, newColSpan, newRowSpan, newGridRow, newGridCol)} onMove={(newGridRow, newGridCol) => updateComponentPosition(item.id, newGridRow, newGridCol)} onToggleBorder={() => toggleComponentBorder(item.id)} onRemove={() => removeComponent(item.id)}>
-					<svelte:component this={getComponentByType(item.type)} {...getComponentProps(item.type, item)} />
+					{#snippet children()}
+						{@const Component = getComponentByType(item.type)}
+						{#if Component}
+							<Component {...getComponentProps(item.type, item)} />
+						{/if}
+					{/snippet}
 				</Widget>
 			</div>
 		</div>

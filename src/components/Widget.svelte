@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { getSettingsValue } from '../scripts/settings.ts';
+	import type { Snippet } from 'svelte';
 	interface Props {
 		border?: boolean;
 		colSpan?: number;
@@ -11,14 +12,15 @@
 		onMove?: (newGridRow: number, newGridCol: number) => void;
 		onToggleBorder?: () => void;
 		onRemove?: () => void;
+		children: Snippet;
 	}
-	let { border = true, colSpan = 1, rowSpan = 1, resizable = true, draggable = true, onResize = () => {}, onMove = () => {}, onToggleBorder = () => {}, onRemove = () => {} }: Props = $props();
+	let { border = true, colSpan = 1, rowSpan = 1, resizable = true, draggable = true, onResize = () => {}, onMove = () => {}, onToggleBorder = () => {}, onRemove = () => {}, children }: Props = $props();
 	// Get grid dimensions from settings
 	let gridConfig = $state(getSettingsValue('grid'));
 	const gridCols = $derived(gridConfig.cols);
 	const gridRows = $derived(gridConfig.rows);
 	let isResizing = false;
-	let isDragging = false;
+	let isDragging = $state(false);
 	let resizeDirection = '';
 	let startX = 0;
 	let startY = 0;
@@ -515,26 +517,26 @@
 	}
 </style>
 
-<div class="widget" class:with-border={border} class:dragging={isDragging} on:mousedown={handleDragStart} on:touchstart={handleDragStart} on:mouseenter={handleMouseEnter} on:mousemove={handleMouseMove} on:mouseleave={handleMouseLeave} on:touchend={handleTouchEnd} role="button" tabindex="0" aria-label="Draggable widget">
-	<slot />
+<div class="widget" class:with-border={border} class:dragging={isDragging} onmousedown={handleDragStart} ontouchstart={handleDragStart} onmouseenter={handleMouseEnter} onmousemove={handleMouseMove} onmouseleave={handleMouseLeave} ontouchend={handleTouchEnd} role="button" tabindex="0" aria-label="Draggable widget">
+	{@render children()}
 	{#if showResizeHandles}
 		<!-- Remove button -->
-		<button class="remove-button" on:click|stopPropagation={onRemove} title="Remove widget"> × </button>
+		<button class="remove-button" onclick={e => { e.stopPropagation(); onRemove(e); }} title="Remove widget"> × </button>
 		<!-- Border toggle button -->
-		<button class="border-toggle" on:click|stopPropagation={onToggleBorder} title={border ? 'Turn off border' : 'Turn on border'}>
+		<button class="border-toggle" onclick={e => { e.stopPropagation(); onToggleBorder(e); }} title={border ? 'Turn off border' : 'Turn on border'}>
 			{border ? '🔲' : '⬜'}
 		</button>
 	{/if}
 	{#if resizable && showResizeHandles}
 		<!-- Sides -->
-		<div class="resize-handle resize-top" on:mousedown={e => handleResizeStart(e, 'top')} on:touchstart={e => handleResizeStart(e, 'top')} on:keydown={e => handleResizeKeydown(e, 'top')} role="button" tabindex="0" aria-label="Resize top"></div>
-		<div class="resize-handle resize-right" on:mousedown={e => handleResizeStart(e, 'right')} on:touchstart={e => handleResizeStart(e, 'right')} on:keydown={e => handleResizeKeydown(e, 'right')} role="button" tabindex="0" aria-label="Resize right"></div>
-		<div class="resize-handle resize-bottom" on:mousedown={e => handleResizeStart(e, 'bottom')} on:touchstart={e => handleResizeStart(e, 'bottom')} on:keydown={e => handleResizeKeydown(e, 'bottom')} role="button" tabindex="0" aria-label="Resize bottom"></div>
-		<div class="resize-handle resize-left" on:mousedown={e => handleResizeStart(e, 'left')} on:touchstart={e => handleResizeStart(e, 'left')} on:keydown={e => handleResizeKeydown(e, 'left')} role="button" tabindex="0" aria-label="Resize left"></div>
+		<div class="resize-handle resize-top" onmousedown={e => handleResizeStart(e, 'top')} ontouchstart={e => handleResizeStart(e, 'top')} onkeydown={e => handleResizeKeydown(e, 'top')} role="button" tabindex="0" aria-label="Resize top"></div>
+		<div class="resize-handle resize-right" onmousedown={e => handleResizeStart(e, 'right')} ontouchstart={e => handleResizeStart(e, 'right')} onkeydown={e => handleResizeKeydown(e, 'right')} role="button" tabindex="0" aria-label="Resize right"></div>
+		<div class="resize-handle resize-bottom" onmousedown={e => handleResizeStart(e, 'bottom')} ontouchstart={e => handleResizeStart(e, 'bottom')} onkeydown={e => handleResizeKeydown(e, 'bottom')} role="button" tabindex="0" aria-label="Resize bottom"></div>
+		<div class="resize-handle resize-left" onmousedown={e => handleResizeStart(e, 'left')} ontouchstart={e => handleResizeStart(e, 'left')} onkeydown={e => handleResizeKeydown(e, 'left')} role="button" tabindex="0" aria-label="Resize left"></div>
 		<!-- Corners -->
-		<div class="resize-handle resize-corner-tl" on:mousedown={e => handleResizeStart(e, 'top-left')} on:touchstart={e => handleResizeStart(e, 'top-left')} on:keydown={e => handleResizeKeydown(e, 'top-left')} role="button" tabindex="0" aria-label="Resize top-left corner"></div>
-		<div class="resize-handle resize-corner-tr" on:mousedown={e => handleResizeStart(e, 'top-right')} on:touchstart={e => handleResizeStart(e, 'top-right')} on:keydown={e => handleResizeKeydown(e, 'top-right')} role="button" tabindex="0" aria-label="Resize top-right corner"></div>
-		<div class="resize-handle resize-corner-bl" on:mousedown={e => handleResizeStart(e, 'bottom-left')} on:touchstart={e => handleResizeStart(e, 'bottom-left')} on:keydown={e => handleResizeKeydown(e, 'bottom-left')} role="button" tabindex="0" aria-label="Resize bottom-left corner"></div>
-		<div class="resize-handle resize-corner-br" on:mousedown={e => handleResizeStart(e, 'bottom-right')} on:touchstart={e => handleResizeStart(e, 'bottom-right')} on:keydown={e => handleResizeKeydown(e, 'bottom-right')} role="button" tabindex="0" aria-label="Resize bottom-right corner"></div>
+		<div class="resize-handle resize-corner-tl" onmousedown={e => handleResizeStart(e, 'top-left')} ontouchstart={e => handleResizeStart(e, 'top-left')} onkeydown={e => handleResizeKeydown(e, 'top-left')} role="button" tabindex="0" aria-label="Resize top-left corner"></div>
+		<div class="resize-handle resize-corner-tr" onmousedown={e => handleResizeStart(e, 'top-right')} ontouchstart={e => handleResizeStart(e, 'top-right')} onkeydown={e => handleResizeKeydown(e, 'top-right')} role="button" tabindex="0" aria-label="Resize top-right corner"></div>
+		<div class="resize-handle resize-corner-bl" onmousedown={e => handleResizeStart(e, 'bottom-left')} ontouchstart={e => handleResizeStart(e, 'bottom-left')} onkeydown={e => handleResizeKeydown(e, 'bottom-left')} role="button" tabindex="0" aria-label="Resize bottom-left corner"></div>
+		<div class="resize-handle resize-corner-br" onmousedown={e => handleResizeStart(e, 'bottom-right')} ontouchstart={e => handleResizeStart(e, 'bottom-right')} onkeydown={e => handleResizeKeydown(e, 'bottom-right')} role="button" tabindex="0" aria-label="Resize bottom-right corner"></div>
 	{/if}
 </div>
