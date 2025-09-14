@@ -221,35 +221,27 @@
 			clientX = event.clientX;
 			clientY = event.clientY;
 		}
-
 		// Get dashboard element and calculate grid cell dimensions
 		const dashboard = document.querySelector('.dashboard') as HTMLElement;
 		if (!dashboard) return;
-
 		const dashboardRect = dashboard.getBoundingClientRect();
 		const paddingLeft = parseFloat(getComputedStyle(dashboard).paddingLeft);
 		const paddingTop = parseFloat(getComputedStyle(dashboard).paddingTop);
 		const gap = parseFloat(getComputedStyle(dashboard).gap);
-
 		const gridCellWidth = (dashboardRect.width - 2 * paddingLeft - (gridCols - 1) * gap) / gridCols;
 		const gridCellHeight = (dashboardRect.height - 2 * paddingTop - (gridRows - 1) * gap) / gridRows;
-
 		// Calculate target position for widget's top-left corner (accounting for drag offset)
 		const targetX = clientX - dragOffsetX;
 		const targetY = clientY - dragOffsetY;
-
 		// Calculate relative position within grid
 		const relativeX = targetX - dashboardRect.left - paddingLeft;
 		const relativeY = targetY - dashboardRect.top - paddingTop;
-
 		// Calculate which grid cell the widget's top-left corner should be in
 		const mouseGridCol = Math.floor((relativeX + gap / 2) / (gridCellWidth + gap));
 		const mouseGridRow = Math.floor((relativeY + gap / 2) / (gridCellHeight + gap));
-
 		// Calculate new position ensuring widget stays within grid bounds
 		const newGridCol = Math.max(0, Math.min(gridCols - colSpan, mouseGridCol));
 		const newGridRow = Math.max(0, Math.min(gridRows - rowSpan, mouseGridRow));
-
 		onMove(newGridRow, newGridCol);
 	}
 
