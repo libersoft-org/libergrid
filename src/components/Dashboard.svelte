@@ -4,6 +4,7 @@
 	import Widget from './Widget.svelte';
 	import Button from './Button.svelte';
 	import WindowWidgetAdd from '../windows/WidgetAdd.svelte';
+	import WindowSettings from '../windows/Settings.svelte';
 	import WidgetTime from '../widgets/Time.svelte';
 	import WidgetTemp from '../widgets/Temp.svelte';
 	import WidgetDate from '../widgets/Date.svelte';
@@ -22,7 +23,8 @@
 	// Dashboard components
 	let dashboardItems: DashboardItem[] = [];
 	// Dialog state
-	let showAddDialog = false;
+	let showWindowWidgetAdd = false;
+	let showWindowSettings = false;
 	let selectedGridPosition = { row: 0, col: 0 };
 	// Mouse activity tracking for Field visibility
 	let showFields = false;
@@ -84,10 +86,10 @@
 		return occupiedCells.has(`${row}-${col}`);
 	}
 
-	function showAddComponentDialog(row: number, col: number) {
+	function showWindowWidgetAddDialog(row: number, col: number) {
 		if (isGridCellOccupied(row, col)) return;
 		selectedGridPosition = { row, col };
-		showAddDialog = true;
+		showWindowWidgetAdd = true;
 	}
 
 	function addComponent(type: IWidget['type']) {
@@ -103,8 +105,18 @@
 		dashboardItems = [...dashboardItems, newItem];
 	}
 
-	function closeAddDialog() {
-		showAddDialog = false;
+	function closeWindowWidgetAdd() {
+		showWindowWidgetAdd = false;
+	}
+
+	function openWindowSettings() {
+		console.log('Opening settings, showSettings:', showWindowSettings);
+		showWindowSettings = true;
+		console.log('After setting, showSettings:', showWindowSettings);
+	}
+
+	function closeWindowSettings() {
+		showWindowSettings = false;
 	}
 
 	function removeComponent(id: string) {
@@ -295,6 +307,32 @@
 		min-width: 0; /* Allow shrinking */
 		overflow: hidden; /* Clip overflowing content */
 	}
+
+	.settings-button {
+		position: fixed;
+		top: 2vw;
+		right: 2vw;
+		width: 48px;
+		height: 48px;
+		background: rgba(0, 0, 0, 0.7);
+		border: 2px solid rgba(255, 255, 255, 0.3);
+		border-radius: 50%;
+		color: white;
+		font-size: 24px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		z-index: 1000;
+		backdrop-filter: blur(10px);
+		transition: all 0.2s ease;
+	}
+
+	.settings-button:hover {
+		background: rgba(255, 255, 255, 0.2);
+		border-color: rgba(255, 255, 255, 0.8);
+		transform: scale(1.1);
+	}
 </style>
 
 <div class="dashboard {isVideoBackground ? 'video-background' : ''}" on:click={handleDashboardClick} on:keydown={e => (e.key === 'Enter' || e.key === ' ' ? handleDashboardClick() : null)} role="button" tabindex="0" aria-label="Dashboard">
@@ -302,7 +340,7 @@
 	{#if showFields}
 		{#each Array(gridConfig.rows) as _, row}
 			{#each Array(gridConfig.cols) as _, col}
-				<Field {row} {col} occupied={gridOccupancy[row][col]} onAddClick={showAddComponentDialog} />
+				<Field {row} {col} occupied={gridOccupancy[row][col]} onAddClick={showWindowWidgetAddDialog} />
 			{/each}
 		{/each}
 	{/if}
@@ -327,6 +365,9 @@
 			</div>
 		</div>
 	{/each}
+	<!-- Settings Button -->
+	<button class="settings-button" on:click={openWindowSettings}> ⚙️ </button>
 </div>
 <!-- Widget Add Dialog Component -->
-<WindowWidgetAdd show={showAddDialog} onAddComponent={addComponent} onClose={closeAddDialog} />
+<WindowWidgetAdd show={showWindowWidgetAdd} onAddComponent={addComponent} onClose={closeWindowWidgetAdd} />
+<WindowSettings show={showWindowSettings} onClose={closeWindowSettings} />

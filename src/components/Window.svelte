@@ -1,16 +1,18 @@
 <script lang="ts">
 	import Button from './Button.svelte';
+	interface Props {
+		show?: boolean;
+		title?: string;
+		onClose?: () => void;
+		maxWidth?: string;
+	}
+	let { show = false, title = '', onClose = () => {}, maxWidth = '400px' }: Props = $props();
 
-	export let show: boolean = false;
-	export let title: string = '';
-	export let onClose: () => void = () => {};
-	export let maxWidth: string = '400px';
-
-	function handleKeydown(event: KeyboardEvent) {
+	function handleKeydown(event: KeyboardEvent): void {
 		if (event.key === 'Escape') onClose();
 	}
 
-	function handleOverlayClick() {
+	function handleOverlayClick(): void {
 		onClose();
 	}
 </script>
@@ -49,8 +51,8 @@
 </style>
 
 {#if show}
-	<div class="overlay" onclick={handleOverlayClick} onkeydown={handleKeydown} role="dialog" tabindex="0" aria-modal="true" aria-label="Dialog window">
-		<div class="window" style="max-width: {maxWidth}" onclick={e => e.stopPropagation()} onkeydown={e => e.stopPropagation()} role="dialog" tabindex="0" aria-labelledby="title">
+	<div class="overlay" on:click={handleOverlayClick} on:keydown={handleKeydown} role="dialog" tabindex="0" aria-modal="true" aria-label="Dialog window">
+		<div class="window" style="max-width: {maxWidth}" on:click={e => e.stopPropagation()} on:keydown={e => e.stopPropagation()} role="dialog" tabindex="0" aria-labelledby="title">
 			<Button variant="close" onClick={onClose} ariaLabel="Close window">×</Button>
 			{#if title}
 				<div class="title" id="title">{title}</div>
