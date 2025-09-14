@@ -13,43 +13,56 @@
 	import WidgetWeather from '../widgets/Weather.svelte';
 	import WidgetVideo from '../widgets/Video.svelte';
 	import WidgetChart from '../widgets/Chart.svelte';
+
+	// Props interface
+	interface Props {
+		onDashboardClick?: () => void;
+	}
+
 	// Props from parent
-	export let onDashboardClick: () => void = () => {};
+	let { onDashboardClick = () => {} }: Props = $props();
+
 	// Background state - updated by listening to Background component events
 	let isVideoBackground: boolean = false;
 	// Dashboard components
-	let dashboardItems: IGridItem[] = [];
+	let dashboardItems: IGridItem[] = $state([]);
 	// Dialog state
-	let showWindowWidgetAdd = false;
-	let showWindowSettings = false;
+	let showWindowWidgetAdd = $state(false);
+	let showWindowSettings = $state(false);
 	let selectedGridPosition = { row: 0, col: 0 };
 	// Mouse activity tracking for Field visibility
-	let showFields = false;
-	let showSettingsButton = false;
+	let showFields = $state(false);
+	let showSettingsButton = $state(false);
 	let mouseTimeout: number;
 	// Flag to track if data has been loaded
 	let dataLoaded = false;
 	// Reactive grid configuration from settings
-	$: gridConfig = getSettingsValue('grid');
+	let gridConfig = $state(getSettingsValue('grid'));
 
 	// Reactive map of occupied cells for better performance and reactivity
-	$: occupiedCells = new Set(
-		dashboardItems.flatMap(item => {
-			const cells = [];
-			for (let r = item.gridRow; r < item.gridRow + item.rowSpan; r++) {
-				for (let c = item.gridCol; c < item.gridCol + item.colSpan; c++) {
-					cells.push(`${r}-${c}`);
+	const occupiedCells = $derived(
+		new Set(
+			dashboardItems.flatMap(item => {
+				const cells = [];
+				for (let r = item.gridRow; r < item.gridRow + item.rowSpan; r++) {
+					for (let c = item.gridCol; c < item.gridCol + item.colSpan; c++) {
+						cells.push(`${r}-${c}`);
+					}
 				}
-			}
-			return cells;
-		})
+				return cells;
+			})
+		)
 	);
 
 	// Reactive 2D array for display in template
-	$: gridOccupancy = Array.from({ length: gridConfig.rows }, (_, row) => Array.from({ length: gridConfig.cols }, (_, col) => occupiedCells.has(`${row}-${col}`)));
+	const gridOccupancy = $derived(Array.from({ length: gridConfig.rows }, (_, row) => Array.from({ length: gridConfig.cols }, (_, col) => occupiedCells.has(`${row}-${col}`))));
 
 	// Automatic saving when dashboardItems change (only after data is loaded)
-	$: if (dataLoaded && dashboardItems) saveDashboardToStorage();
+	$effect(() => {
+		if (dataLoaded && dashboardItems) {
+			saveDashboardToStorage();
+		}
+	});
 
 	// Function for saving to localStorage via settings
 	function saveDashboardToStorage() {
@@ -85,6 +98,7 @@
 	}
 
 	function addComponent(type: IGridItemType['type']) {
+		console.log(`Adding component: ${type} at position ${selectedGridPosition.row}, ${selectedGridPosition.col}`);
 		const newItem = {
 			id: `${type}-${Date.now()}`,
 			type,
@@ -94,7 +108,9 @@
 			rowSpan: 1,
 			border: true,
 		};
+		console.log('New item:', newItem);
 		dashboardItems = [...dashboardItems, newItem];
+		console.log('Dashboard items after add:', dashboardItems);
 	}
 
 	function closeWindowWidgetAdd() {
@@ -102,11 +118,9 @@
 	}
 
 	function openWindowSettings() {
-		console.log('Opening settings, showSettings:', showWindowSettings);
 		showWindowSettings = true;
 		showSettingsButton = true; // Keep button visible while dialog is open
 		clearTimeout(mouseTimeout); // Stop auto-hide timer
-		console.log('After setting, showSettings:', showWindowSettings);
 	}
 
 	function closeWindowSettings() {
@@ -251,12 +265,23 @@
 
 		document.addEventListener('backgroundChange', handleBackgroundChange);
 
+		// Listen for settings changes
+		const handleStorageChange = () => {
+			gridConfig = getSettingsValue('grid');
+		};
+
+		window.addEventListener('storage', handleStorageChange);
+		// Also listen for custom settings update events
+		window.addEventListener('settingsUpdate', handleStorageChange);
+
 		// Cleanup on component destroy
 		return () => {
 			clearTimeout(mouseTimeout);
 			document.removeEventListener('mousemove', handleMouseMove);
 			document.removeEventListener('mouseleave', handleMouseLeave);
 			document.removeEventListener('backgroundChange', handleBackgroundChange);
+			window.removeEventListener('storage', handleStorageChange);
+			window.removeEventListener('settingsUpdate', handleStorageChange);
 		};
 	});
 </script>
@@ -335,15 +360,7 @@
 	}
 </style>
 
-<div 
-	class="dashboard {isVideoBackground ? 'video-background' : ''}" 
-	style="grid-template-columns: repeat({gridConfig.cols}, 1fr); grid-template-rows: repeat({gridConfig.rows}, 1fr);"
-	onclick={handleDashboardClick} 
-	onkeydown={e => (e.key === 'Enter' || e.key === ' ' ? handleDashboardClick() : null)} 
-	role="button" 
-	tabindex="0" 
-	aria-label="Dashboard"
->
+<div class="dashboard {isVideoBackground ? 'video-background' : ''}" style="grid-template-columns: repeat({gridConfig.cols}, 1fr); grid-template-rows: repeat({gridConfig.rows}, 1fr);" onclick={handleDashboardClick} onkeydown={e => (e.key === 'Enter' || e.key === ' ' ? handleDashboardClick() : null)} role="button" tabindex="0" aria-label="Dashboard">
 	<!-- Generate empty grid cells -->
 	{#if showFields}
 		{#each Array(gridConfig.rows) as _, row}

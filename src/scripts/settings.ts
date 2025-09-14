@@ -61,6 +61,14 @@ export function setSettingsValue<K extends keyof IUserSettings>(key: K, value: N
 			[key]: value,
 		};
 		setSettings(newSettings);
+		// Dispatch custom event to notify components about settings change
+		if (typeof window !== 'undefined') {
+			window.dispatchEvent(
+				new CustomEvent('settingsUpdate', {
+					detail: { key, value },
+				})
+			);
+		}
 	} catch (error) {
 		console.warn(`Failed to update setting ${String(key)}:`, error);
 		// Fallback: save just the new setting
