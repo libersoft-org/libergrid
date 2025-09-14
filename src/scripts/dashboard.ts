@@ -23,6 +23,8 @@ export interface IGridItem {
 	border: boolean;
 }
 let dashboardItems: IGridItem[] = [];
+// Initialize dashboard items
+dashboardItems = loadDashboardItems();
 
 function loadDashboardItems(): IGridItem[] {
 	try {
@@ -52,9 +54,6 @@ function saveDashboardItems(items: IGridItem[]): void {
 		console.error('Failed to save dashboard to localStorage:', error);
 	}
 }
-
-// Initialize dashboard items
-dashboardItems = loadDashboardItems();
 
 // Dashboard manager object
 export const dashboard = {
@@ -103,7 +102,7 @@ export function validateGridResize(newCols: number, newRows: number, dashboardIt
 }
 
 // Grid logic functions
-export function getOccupiedCells(items: IGridItem[]): Set<string> {
+function getOccupiedCells(items: IGridItem[]): Set<string> {
 	return new Set(
 		items.flatMap(item => {
 			const cells = [];
@@ -124,11 +123,7 @@ export function isGridCellOccupied(row: number, col: number, items: IGridItem[])
 
 export function getGridOccupancy(rows: number, cols: number, items: IGridItem[]): boolean[][] {
 	const occupiedCells = getOccupiedCells(items);
-	return Array.from({ length: rows }, (_, row) => 
-		Array.from({ length: cols }, (_, col) => 
-			occupiedCells.has(`${row}-${col}`)
-		)
-	);
+	return Array.from({ length: rows }, (_, row) => Array.from({ length: cols }, (_, col) => occupiedCells.has(`${row}-${col}`)));
 }
 
 export function createNewItem(type: IGridItemType['type'], gridRow: number, gridCol: number): IGridItem {
@@ -153,72 +148,43 @@ export function getComponentProps(type: string, item?: any): any {
 }
 
 // Collision and validation logic
-export function checkCollision(
-	targetGridRow: number,
-	targetGridCol: number,
-	newRowSpan: number,
-	newColSpan: number,
-	excludeId: string,
-	items: IGridItem[]
-): boolean {
+export function checkCollision(targetGridRow: number, targetGridCol: number, newRowSpan: number, newColSpan: number, excludeId: string, items: IGridItem[]): boolean {
 	return items.some(otherItem => {
 		if (otherItem.id === excludeId) return false; // Ignore the item being moved/resized
-		
 		const newEndRow = targetGridRow + newRowSpan - 1;
 		const newEndCol = targetGridCol + newColSpan - 1;
 		const otherEndRow = otherItem.gridRow + otherItem.rowSpan - 1;
 		const otherEndCol = otherItem.gridCol + otherItem.colSpan - 1;
-		
 		// Overlap check
 		const rowOverlap = targetGridRow <= otherEndRow && newEndRow >= otherItem.gridRow;
 		const colOverlap = targetGridCol <= otherEndCol && newEndCol >= otherItem.gridCol;
-		
 		return rowOverlap && colOverlap;
 	});
 }
 
-export function checkBounds(
-	targetGridRow: number,
-	targetGridCol: number,
-	newRowSpan: number,
-	newColSpan: number,
-	gridRows: number,
-	gridCols: number
-): boolean {
-	return targetGridCol + newColSpan > gridCols || 
-		   targetGridRow + newRowSpan > gridRows || 
-		   targetGridCol < 0 || 
-		   targetGridRow < 0;
+export function checkBounds(targetGridRow: number, targetGridCol: number, newRowSpan: number, newColSpan: number, gridRows: number, gridCols: number): boolean {
+	return targetGridCol + newColSpan > gridCols || targetGridRow + newRowSpan > gridRows || targetGridCol < 0 || targetGridRow < 0;
 }
 
-export function validateComponentUpdate(
-	id: string,
-	items: IGridItem[],
-	gridRows: number,
-	gridCols: number,
-	newGridRow?: number,
-	newGridCol?: number,
-	newRowSpan?: number,
-	newColSpan?: number
-): { isValid: boolean; targetGridRow: number; targetGridCol: number; targetRowSpan: number; targetColSpan: number } {
+export function validateComponentUpdate(id: string, items: IGridItem[], gridRows: number, gridCols: number, newGridRow?: number, newGridCol?: number, newRowSpan?: number, newColSpan?: number): { isValid: boolean; targetGridRow: number; targetGridCol: number; targetRowSpan: number; targetColSpan: number } {
 	const item = items.find(i => i.id === id);
 	if (!item) {
 		return { isValid: false, targetGridRow: 0, targetGridCol: 0, targetRowSpan: 1, targetColSpan: 1 };
 	}
-	
+
 	// Use new values if specified, otherwise use original
 	const targetGridRow = newGridRow !== undefined ? newGridRow : item.gridRow;
 	const targetGridCol = newGridCol !== undefined ? newGridCol : item.gridCol;
 	const targetRowSpan = newRowSpan !== undefined ? newRowSpan : item.rowSpan;
 	const targetColSpan = newColSpan !== undefined ? newColSpan : item.colSpan;
-	
+
 	// Check for collisions with other widgets
 	const wouldCollide = checkCollision(targetGridRow, targetGridCol, targetRowSpan, targetColSpan, id, items);
-	
+
 	// Check grid bounds
 	const exceedsBounds = checkBounds(targetGridRow, targetGridCol, targetRowSpan, targetColSpan, gridRows, gridCols);
-	
+
 	const isValid = !wouldCollide && !exceedsBounds;
-	
+
 	return { isValid, targetGridRow, targetGridCol, targetRowSpan, targetColSpan };
 }

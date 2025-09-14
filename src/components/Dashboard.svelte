@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { type IGridItemType, dashboard, getOccupiedCells, isGridCellOccupied, getGridOccupancy, createNewItem, getComponentProps, validateComponentUpdate } from '../scripts/dashboard.ts';
+	import { type IGridItemType, dashboard, isGridCellOccupied, getGridOccupancy, createNewItem, getComponentProps, validateComponentUpdate } from '../scripts/dashboard.ts';
 	import { getSettingsValue } from '../scripts/settings.ts';
 	import Field from './DashboardField.svelte';
 	import Widget from './Widget.svelte';
@@ -29,9 +29,6 @@
 	let dataLoaded = false;
 	// Reactive grid configuration from settings
 	let gridConfig = $state(getSettingsValue('grid'));
-	// Reactive map of occupied cells for better performance and reactivity
-	const occupiedCells = $derived(getOccupiedCells(dashboardItems));
-
 	// Reactive 2D array for display in template
 	const gridOccupancy = $derived(getGridOccupancy(gridConfig.rows, gridConfig.cols, dashboardItems));
 
@@ -44,6 +41,7 @@
 		selectedGridPosition = { row, col };
 		showWindowWidgetAdd = true;
 	}
+
 	function addComponent(type: IGridItemType['type']) {
 		const newItem = createNewItem(type, selectedGridPosition.row, selectedGridPosition.col);
 		dashboard.addItem(newItem);
@@ -84,7 +82,6 @@
 
 	function updateComponentSize(id: string, newColSpan: number, newRowSpan: number, newGridRow?: number, newGridCol?: number) {
 		const validation = validateComponentUpdate(id, dashboardItems, gridConfig.rows, gridConfig.cols, newGridRow, newGridCol, newRowSpan, newColSpan);
-
 		if (validation.isValid) {
 			dashboard.updateItem(id, {
 				colSpan: validation.targetColSpan,
@@ -98,7 +95,6 @@
 
 	function updateComponentPosition(id: string, newGridRow: number, newGridCol: number) {
 		const validation = validateComponentUpdate(id, dashboardItems, gridConfig.rows, gridConfig.cols, newGridRow, newGridCol);
-
 		if (validation.isValid) {
 			dashboard.updateItem(id, {
 				gridRow: validation.targetGridRow,
@@ -150,28 +146,22 @@
 	onMount(() => {
 		dashboardItems = dashboard.reload(); // Reload from storage and update reactive reference
 		dataLoaded = true; // Activate automatic saving
-
 		// Add mouse event listeners for Field visibility
 		document.addEventListener('mousemove', handleMouseMove);
 		document.addEventListener('mouseleave', handleMouseLeave);
-
 		// Listen for background changes from Background component
 		const handleBackgroundChange = (event: Event) => {
 			const customEvent = event as CustomEvent;
 			isVideoBackground = customEvent.detail.isVideo;
 		};
-
 		document.addEventListener('backgroundChange', handleBackgroundChange);
-
 		// Listen for settings changes
 		const handleStorageChange = () => {
 			gridConfig = getSettingsValue('grid');
 		};
-
 		window.addEventListener('storage', handleStorageChange);
 		// Also listen for custom settings update events
 		window.addEventListener('settingsUpdate', handleStorageChange);
-
 		// Cleanup on component destroy
 		return () => {
 			clearTimeout(mouseTimeout);
