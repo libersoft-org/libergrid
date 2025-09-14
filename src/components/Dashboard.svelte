@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { type IGridItemType, type IGridItem, type IGrids } from '../scripts/dashboard.ts';
+	import { type IGridItemType, type IGridItem, type IGrids, validateGridResize, dashboard } from '../scripts/dashboard.ts';
 	import { getSettingsValue, setSettingsValue } from '../scripts/settings.ts';
 	import Field from './DashboardField.svelte';
 	import Widget from './Widget.svelte';
@@ -24,8 +24,8 @@
 
 	// Background state - updated by listening to Background component events
 	let isVideoBackground: boolean = false;
-	// Dashboard components
-	let dashboardItems: IGridItem[] = $state([]);
+	// Dashboard components - using reactive reference to dashboard.items
+	let dashboardItems = $state(dashboard.items);
 	// Dialog state
 	let showWindowWidgetAdd = $state(false);
 	let showWindowSettings = $state(false);
@@ -57,45 +57,6 @@
 	// Reactive 2D array for display in template
 	const gridOccupancy = $derived(Array.from({ length: gridConfig.rows }, (_, row) => Array.from({ length: gridConfig.cols }, (_, col) => occupiedCells.has(`${row}-${col}`))));
 
-	// Automatic saving when dashboardItems change (only after data is loaded)
-	$effect(() => {
-		console.log('$effect triggered - dataLoaded:', dataLoaded, 'dashboardItems length:', dashboardItems.length);
-		if (dataLoaded && dashboardItems.length >= 0) {
-			console.log('$effect: Calling saveDashboardToStorage');
-			saveDashboardToStorage();
-		} else {
-			console.log('$effect: Not saving - conditions not met');
-		}
-	});
-
-	// Function for saving to localStorage via settings
-	function saveDashboardToStorage() {
-		try {
-			console.log('saveDashboardToStorage: Saving items:', dashboardItems);
-			setSettingsValue('dashboardItems', dashboardItems);
-			console.log('saveDashboardToStorage: After setSettingsValue, checking what was actually saved:', getSettingsValue('dashboardItems'));
-		} catch (error) {
-			console.error('Failed to save dashboard to localStorage:', error);
-		}
-	}
-
-	// Function for loading from localStorage via settings
-	function loadDashboardFromStorage() {
-		try {
-			const loadedItems = getSettingsValue('dashboardItems');
-			console.log('loadDashboardFromStorage: loaded items:', loadedItems);
-			// Data validation
-			if (Array.isArray(loadedItems)) {
-				const validItems = loadedItems.filter(item => item && typeof item.id === 'string' && typeof item.type === 'string' && typeof item.gridRow === 'number' && typeof item.gridCol === 'number' && typeof item.colSpan === 'number' && typeof item.rowSpan === 'number' && typeof item.border === 'boolean');
-				console.log('Valid items after filtering:', validItems);
-				dashboardItems = validItems;
-				console.log('dashboardItems after assignment:', dashboardItems);
-			}
-		} catch (error) {
-			console.error('Failed to load dashboard from localStorage:', error);
-		}
-	}
-
 	function isGridCellOccupied(row: number, col: number): boolean {
 		return occupiedCells.has(`${row}-${col}`);
 	}
@@ -115,21 +76,12 @@
 			rowSpan: 1,
 			border: true,
 		};
-		dashboardItems.push(newItem);
-		dashboardItems = dashboardItems; // Trigger reactivity
+		dashboard.addItem(newItem);
+		dashboardItems = dashboard.items; // Update local reactive reference
 	}
 
 	function closeWindowWidgetAdd() {
 		showWindowWidgetAdd = false;
-	}
-
-	function validateGridResize(newCols: number, newRows: number): boolean {
-		// Check if any widget would be outside the new grid bounds
-		return dashboardItems.every(item => {
-			const maxCol = item.gridCol + item.colSpan - 1;
-			const maxRow = item.gridRow + item.rowSpan - 1;
-			return maxCol < newCols && maxRow < newRows;
-		});
 	}
 
 	function openWindowSettings() {
@@ -148,11 +100,16 @@
 	}
 
 	function removeComponent(id: string) {
-		dashboardItems = dashboardItems.filter(item => item.id !== id);
+		dashboard.removeItem(id);
+		dashboardItems = dashboard.items; // Update local reactive reference
 	}
 
 	function toggleComponentBorder(id: string) {
-		dashboardItems = dashboardItems.map(item => (item.id === id ? { ...item, border: !item.border } : item));
+		const item = dashboardItems.find(item => item.id === id);
+		if (item) {
+			dashboard.updateItem(id, { border: !item.border });
+			dashboardItems = dashboard.items; // Update local reactive reference
+		}
 	}
 
 	function updateComponentSize(id: string, newColSpan: number, newRowSpan: number, newGridRow?: number, newGridCol?: number) {
@@ -177,17 +134,13 @@
 		const exceedsBounds = targetGridCol + newColSpan > gridConfig.cols || targetGridRow + newRowSpan > gridConfig.rows || targetGridCol < 0 || targetGridRow < 0;
 		// Always update for live feedback, but only if valid
 		if (!wouldCollide && !exceedsBounds) {
-			dashboardItems = dashboardItems.map(item =>
-				item.id === id
-					? {
-							...item,
-							colSpan: newColSpan,
-							rowSpan: newRowSpan,
-							gridRow: targetGridRow,
-							gridCol: targetGridCol,
-						}
-					: item
-			);
+			dashboard.updateItem(id, {
+				colSpan: newColSpan,
+				rowSpan: newRowSpan,
+				gridRow: targetGridRow,
+				gridCol: targetGridCol,
+			});
+			dashboardItems = dashboard.items; // Update local reactive reference
 		}
 	}
 
@@ -209,7 +162,10 @@
 		// Grid bounds check
 		const exceedsBounds = newGridCol + item.colSpan > gridConfig.cols || newGridRow + item.rowSpan > gridConfig.rows || newGridCol < 0 || newGridRow < 0;
 		// Update position only if valid
-		if (!wouldCollide && !exceedsBounds) dashboardItems = dashboardItems.map(item => (item.id === id ? { ...item, gridRow: newGridRow, gridCol: newGridCol } : item));
+		if (!wouldCollide && !exceedsBounds) {
+			dashboard.updateItem(id, { gridRow: newGridRow, gridCol: newGridCol });
+			dashboardItems = dashboard.items; // Update local reactive reference
+		}
 	}
 
 	function getComponentByType(type: string, item?: any) {
@@ -265,15 +221,8 @@
 
 	// Load data from localStorage on startup
 	onMount(() => {
-		console.log('onMount: Loading dashboard data...');
-		console.log('Initial gridConfig:', gridConfig);
-		console.log('Initial dashboardItems:', dashboardItems);
-		
-		loadDashboardFromStorage();
+		dashboardItems = dashboard.reload(); // Reload from storage and update reactive reference
 		dataLoaded = true; // Activate automatic saving
-		
-		console.log('After loading - dashboardItems:', dashboardItems);
-		console.log('After loading - gridConfig:', gridConfig);
 
 		// Add mouse event listeners for Field visibility
 		document.addEventListener('mousemove', handleMouseMove);
@@ -417,4 +366,4 @@
 	{/if}
 </div>
 <WindowWidgetAdd show={showWindowWidgetAdd} onAddComponent={addComponent} onClose={closeWindowWidgetAdd} />
-<WindowSettings show={showWindowSettings} onClose={closeWindowSettings} {validateGridResize} />
+<WindowSettings show={showWindowSettings} onClose={closeWindowSettings} />

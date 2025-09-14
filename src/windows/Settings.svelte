@@ -3,14 +3,14 @@
 	import Window from '../components/Window.svelte';
 	import { backgroundStore, backgroundMedia, type BackgroundItem } from '../scripts/background.ts';
 	import { getSettingsValue, setSettingsValue } from '../scripts/settings.ts';
+	import { validateGridResize, dashboard } from '../scripts/dashboard.ts';
 
 	interface Props {
 		show?: boolean;
 		onClose?: () => void;
-		validateGridResize?: (newCols: number, newRows: number) => boolean;
 	}
 
-	let { show = false, onClose = () => {}, validateGridResize = () => true }: Props = $props();
+	let { show = false, onClose = () => {} }: Props = $props();
 	let currentBackground: BackgroundItem = $state(backgroundStore.current);
 	let inactivityTimeout: number = $state(getSettingsValue('inactivityTimeout') / 1000); // Convert to seconds
 	let grid = $state(getSettingsValue('grid'));
@@ -49,8 +49,9 @@
 		if (cols >= 5 && cols <= 20) {
 			// Get current grid state to ensure we have latest values
 			const currentGrid = getSettingsValue('grid');
+			const dashboardItems = getSettingsValue('dashboardItems');
 			// Validate if resize is possible without losing widgets
-			if (validateGridResize(cols, currentGrid.rows)) {
+			if (validateGridResize(cols, currentGrid.rows, dashboard.items)) {
 				grid = { ...grid, cols };
 				setSettingsValue('grid', grid);
 			} else {
@@ -74,8 +75,9 @@
 		if (rows >= 3 && rows <= 15) {
 			// Get current grid state to ensure we have latest values
 			const currentGrid = getSettingsValue('grid');
+			const dashboardItems = getSettingsValue('dashboardItems');
 			// Validate if resize is possible without losing widgets
-			if (validateGridResize(currentGrid.cols, rows)) {
+			if (validateGridResize(currentGrid.cols, rows, dashboard.items)) {
 				grid = { ...grid, rows };
 				setSettingsValue('grid', grid);
 			} else {
