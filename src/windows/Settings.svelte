@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Window from '../components/Window.svelte';
-	import { backgroundStore, backgroundMedia, type BackgroundItem } from '../scripts/background';
+	import { backgroundStore, backgroundMedia, type BackgroundItem } from '../scripts/background.ts';
+	import { getSettingsValue, setSettingsValue } from '../scripts/settings.ts';
 
 	interface Props {
 		show?: boolean;
@@ -10,6 +11,7 @@
 
 	let { show = false, onClose = () => {} }: Props = $props();
 	let currentBackground: BackgroundItem = $state(backgroundStore.current);
+	let inactivityTimeout: number = $state(getSettingsValue('inactivityTimeout') / 1000); // Convert to seconds
 
 	$effect(() => {
 		console.log('Settings component, show prop:', show);
@@ -28,6 +30,15 @@
 
 	function handleBackgroundSelect(index: number) {
 		backgroundStore.setBackground(index);
+	}
+
+	function handleInactivityTimeoutChange(event: Event) {
+		const target = event.target as HTMLInputElement;
+		const seconds = parseInt(target.value, 10);
+		if (seconds > 0) {
+			inactivityTimeout = seconds;
+			setSettingsValue('inactivityTimeout', seconds * 1000); // Convert to milliseconds
+		}
 	}
 
 	function handleKeydown(event: KeyboardEvent, index: number) {
@@ -99,11 +110,65 @@
 		padding: 8px 4px 4px;
 		text-align: center;
 	}
+
+	.settings-section {
+		margin-bottom: 20px;
+	}
+
+	.settings-section h3 {
+		margin-bottom: 10px;
+		font-size: 16px;
+		font-weight: bold;
+		color: white;
+	}
+
+	.settings-field {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		margin-bottom: 10px;
+	}
+
+	.settings-field label {
+		color: white;
+		font-size: 14px;
+		min-width: 150px;
+	}
+
+	.settings-field input {
+		background: rgba(255, 255, 255, 0.1);
+		border: 1px solid rgba(255, 255, 255, 0.3);
+		border-radius: 4px;
+		padding: 6px 10px;
+		color: white;
+		font-size: 14px;
+		width: 80px;
+	}
+
+	.settings-field input:focus {
+		outline: none;
+		border-color: #007acc;
+		box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.3);
+	}
+
+	.settings-field span {
+		color: rgba(255, 255, 255, 0.7);
+		font-size: 12px;
+	}
 </style>
 
 <Window {show} title="Settings" {onClose} maxWidth="600px">
-	<div class="background-selector">
-		<h3>Background Selection</h3>
+	<div class="settings-section">
+		<h3>Interface settings</h3>
+		<div class="settings-field">
+			<label for="inactivity-timeout">Auto-hide timeout:</label>
+			<input id="inactivity-timeout" type="number" min="1" max="30" bind:value={inactivityTimeout} onchange={handleInactivityTimeoutChange} />
+			<span>seconds</span>
+		</div>
+	</div>
+
+	<div class="settings-section">
+		<h3>Background selection</h3>
 		<div class="background-grid">
 			{#each backgroundMedia as background, index (background.url)}
 				<div class="background-item" class:active={currentBackground.url === background.url} role="button" tabindex="0" aria-label="Select {background.name} background" onclick={() => handleBackgroundSelect(index)} onkeydown={e => handleKeydown(e, index)}>

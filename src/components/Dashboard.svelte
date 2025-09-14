@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { type IWidget, type DashboardItem } from '../scripts/dashboard.ts';
-	import { gridConfig } from '../scripts/dashboard.ts';
-	import { getSettingsValue, setSettingsValue } from '../scripts/settings';
+	import { gridConfig, type IWidget, type DashboardItem } from '../scripts/dashboard.ts';
+	import { getSettingsValue, setSettingsValue } from '../scripts/settings.ts';
 	import Field from './DashboardField.svelte';
 	import Widget from './Widget.svelte';
 	import WindowWidgetAdd from '../windows/WidgetAdd.svelte';
