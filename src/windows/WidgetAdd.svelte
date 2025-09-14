@@ -2,7 +2,6 @@
 	import Button from '../components/Button.svelte';
 	import Window from '../components/Window.svelte';
 	import { gridItems, type IGridItemType } from '../scripts/dashboard.ts';
-
 	export let show: boolean = false;
 	export let onAddComponent: (type: IGridItemType['type']) => void;
 	export let onClose: () => void;

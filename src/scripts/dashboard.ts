@@ -1,13 +1,10 @@
 import { getSettingsValue, setSettingsValue } from './settings.ts';
-
-// Grid configuration constants
 export const gridLimits = {
 	minCols: 1,
 	maxCols: 30,
 	minRows: 1,
 	maxRows: 30,
 } as const;
-
 export interface IGridItemType {
 	type: string;
 	label: string;
@@ -25,10 +22,8 @@ export interface IGridItem {
 	rowSpan: number;
 	border: boolean;
 }
-// Dashboard items with reactive behavior
 let dashboardItems: IGridItem[] = [];
 
-// Load dashboard items from localStorage
 function loadDashboardItems(): IGridItem[] {
 	try {
 		console.log('Loading dashboard from storage...');
@@ -48,7 +43,6 @@ function loadDashboardItems(): IGridItem[] {
 	}
 }
 
-// Save dashboard items to localStorage
 function saveDashboardItems(items: IGridItem[]): void {
 	try {
 		console.log('Saving dashboard to storage:', items);

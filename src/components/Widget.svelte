@@ -134,40 +134,50 @@
 			clientX = event.clientX;
 			clientY = event.clientY;
 		}
-		const deltaX = clientX - startX;
-		const deltaY = clientY - startY;
-		// Calculation based on actual grid size
+
+		// Get dashboard element and calculate grid cell dimensions
 		const dashboard = document.querySelector('.dashboard') as HTMLElement;
 		if (!dashboard) return;
+
 		const dashboardRect = dashboard.getBoundingClientRect();
-		const gridCellWidth = (dashboardRect.width - 2 * parseFloat(getComputedStyle(dashboard).paddingLeft) - 9 * parseFloat(getComputedStyle(dashboard).gap)) / 10;
-		const gridCellHeight = (dashboardRect.height - 2 * parseFloat(getComputedStyle(dashboard).paddingTop) - 5 * parseFloat(getComputedStyle(dashboard).gap)) / 6;
+		const paddingLeft = parseFloat(getComputedStyle(dashboard).paddingLeft);
+		const paddingTop = parseFloat(getComputedStyle(dashboard).paddingTop);
+		const gap = parseFloat(getComputedStyle(dashboard).gap);
+
+		const gridCellWidth = (dashboardRect.width - 2 * paddingLeft - (gridCols - 1) * gap) / gridCols;
+		const gridCellHeight = (dashboardRect.height - 2 * paddingTop - (gridRows - 1) * gap) / gridRows;
+
+		// Calculate mouse position relative to grid
+		const relativeX = clientX - dashboardRect.left - paddingLeft;
+		const relativeY = clientY - dashboardRect.top - paddingTop;
+
+		// Calculate which grid cell the mouse is over (accounting for gaps)
+		const mouseGridCol = Math.floor((relativeX + gap / 2) / (gridCellWidth + gap));
+		const mouseGridRow = Math.floor((relativeY + gap / 2) / (gridCellHeight + gap));
+
 		let newColSpan = startColSpan;
 		let newRowSpan = startRowSpan;
 		let newGridRow = startGridRow;
 		let newGridCol = startGridCol;
-		// Horizontal changes
+
+		// Calculate new dimensions based on resize direction
 		if (resizeDirection.includes('right')) {
-			const colChange = Math.round(deltaX / gridCellWidth);
-			newColSpan = Math.max(1, Math.min(gridCols - startGridCol, startColSpan + colChange));
+			newColSpan = Math.max(1, Math.min(gridCols - startGridCol, mouseGridCol - startGridCol + 1));
 		}
 		if (resizeDirection.includes('left')) {
-			const colChange = Math.round(-deltaX / gridCellWidth);
-			const maxColChange = Math.min(colChange, startGridCol); // Can't go beyond left edge
-			newColSpan = Math.max(1, startColSpan + maxColChange);
-			newGridCol = startGridCol - (newColSpan - startColSpan);
+			const newLeft = Math.max(0, mouseGridCol);
+			newColSpan = Math.max(1, startGridCol + startColSpan - newLeft);
+			newGridCol = newLeft;
 		}
-		// Vertical changes
 		if (resizeDirection.includes('bottom')) {
-			const rowChange = Math.round(deltaY / gridCellHeight);
-			newRowSpan = Math.max(1, Math.min(gridRows - startGridRow, startRowSpan + rowChange));
+			newRowSpan = Math.max(1, Math.min(gridRows - startGridRow, mouseGridRow - startGridRow + 1));
 		}
 		if (resizeDirection.includes('top')) {
-			const rowChange = Math.round(-deltaY / gridCellHeight);
-			const maxRowChange = Math.min(rowChange, startGridRow); // Can't go beyond top edge
-			newRowSpan = Math.max(1, startRowSpan + maxRowChange);
-			newGridRow = startGridRow - (newRowSpan - startRowSpan);
+			const newTop = Math.max(0, mouseGridRow);
+			newRowSpan = Math.max(1, startGridRow + startRowSpan - newTop);
+			newGridRow = newTop;
 		}
+
 		// Update values in real-time for visual feedback
 		if (newColSpan !== colSpan || newRowSpan !== rowSpan || newGridRow !== startGridRow || newGridCol !== startGridCol) {
 			colSpan = newColSpan;
