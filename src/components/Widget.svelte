@@ -11,13 +11,8 @@
 		onMove?: (newGridRow: number, newGridCol: number) => void;
 		onToggleBorder?: () => void;
 		onRemove?: () => void;
-		onResizeStart?: () => void;
-		onResizeEnd?: () => void;
-		onMoveStart?: () => void;
-		onMoveEnd?: () => void;
 	}
-	let { border = true, colSpan = 1, rowSpan = 1, resizable = true, draggable = true, onResize = () => {}, onMove = () => {}, onToggleBorder = () => {}, onRemove = () => {}, onResizeStart = () => {}, onResizeEnd = () => {}, onMoveStart = () => {}, onMoveEnd = () => {} }: Props = $props();
-
+	let { border = true, colSpan = 1, rowSpan = 1, resizable = true, draggable = true, onResize = () => {}, onMove = () => {}, onToggleBorder = () => {}, onRemove = () => {} }: Props = $props();
 	// Get grid dimensions from settings
 	let gridConfig = $state(getSettingsValue('grid'));
 	const gridCols = $derived(gridConfig.cols);
@@ -42,15 +37,12 @@
 
 	onMount(() => {
 		detectTouchDevice();
-
 		// Listen for settings changes
 		const handleStorageChange = () => {
 			gridConfig = getSettingsValue('grid');
 		};
-
 		window.addEventListener('storage', handleStorageChange);
 		window.addEventListener('settingsUpdate', handleStorageChange);
-
 		return () => {
 			window.removeEventListener('storage', handleStorageChange);
 			window.removeEventListener('settingsUpdate', handleStorageChange);
@@ -84,7 +76,6 @@
 			startGridCol = gridColumnMatch ? parseInt(gridColumnMatch[1]) - 1 : 0;
 			startGridRow = gridRowMatch ? parseInt(gridRowMatch[1]) - 1 : 0;
 		}
-		onResizeStart();
 		document.addEventListener('mousemove', handleResizeMove);
 		document.addEventListener('mouseup', handleResizeEnd);
 		document.addEventListener('touchmove', handleResizeMove);
@@ -136,7 +127,6 @@
 				dragOffsetY = clientY - widgetTop;
 			}
 		}
-		onMoveStart();
 		document.addEventListener('mousemove', handleDragMove);
 		document.addEventListener('mouseup', handleDragEnd);
 		document.addEventListener('touchmove', handleDragMove);
@@ -160,46 +150,35 @@
 		// Get dashboard element and calculate grid cell dimensions
 		const dashboard = document.querySelector('.dashboard') as HTMLElement;
 		if (!dashboard) return;
-
 		const dashboardRect = dashboard.getBoundingClientRect();
 		const paddingLeft = parseFloat(getComputedStyle(dashboard).paddingLeft);
 		const paddingTop = parseFloat(getComputedStyle(dashboard).paddingTop);
 		const gap = parseFloat(getComputedStyle(dashboard).gap);
-
 		const gridCellWidth = (dashboardRect.width - 2 * paddingLeft - (gridCols - 1) * gap) / gridCols;
 		const gridCellHeight = (dashboardRect.height - 2 * paddingTop - (gridRows - 1) * gap) / gridRows;
-
 		// Calculate mouse position relative to grid
 		const relativeX = clientX - dashboardRect.left - paddingLeft;
 		const relativeY = clientY - dashboardRect.top - paddingTop;
-
 		// Calculate which grid cell the mouse is over (accounting for gaps)
 		const mouseGridCol = Math.floor((relativeX + gap / 2) / (gridCellWidth + gap));
 		const mouseGridRow = Math.floor((relativeY + gap / 2) / (gridCellHeight + gap));
-
 		let newColSpan = startColSpan;
 		let newRowSpan = startRowSpan;
 		let newGridRow = startGridRow;
 		let newGridCol = startGridCol;
-
 		// Calculate new dimensions based on resize direction
-		if (resizeDirection.includes('right')) {
-			newColSpan = Math.max(1, Math.min(gridCols - startGridCol, mouseGridCol - startGridCol + 1));
-		}
+		if (resizeDirection.includes('right')) newColSpan = Math.max(1, Math.min(gridCols - startGridCol, mouseGridCol - startGridCol + 1));
 		if (resizeDirection.includes('left')) {
 			const newLeft = Math.max(0, mouseGridCol);
 			newColSpan = Math.max(1, startGridCol + startColSpan - newLeft);
 			newGridCol = newLeft;
 		}
-		if (resizeDirection.includes('bottom')) {
-			newRowSpan = Math.max(1, Math.min(gridRows - startGridRow, mouseGridRow - startGridRow + 1));
-		}
+		if (resizeDirection.includes('bottom')) newRowSpan = Math.max(1, Math.min(gridRows - startGridRow, mouseGridRow - startGridRow + 1));
 		if (resizeDirection.includes('top')) {
 			const newTop = Math.max(0, mouseGridRow);
 			newRowSpan = Math.max(1, startGridRow + startRowSpan - newTop);
 			newGridRow = newTop;
 		}
-
 		// Update values in real-time for visual feedback
 		if (newColSpan !== colSpan || newRowSpan !== rowSpan || newGridRow !== startGridRow || newGridCol !== startGridCol) {
 			colSpan = newColSpan;
@@ -257,10 +236,7 @@
 				const currentGridCol = gridColumnMatch ? parseInt(gridColumnMatch[1]) - 1 : startGridCol;
 				const currentGridRow = gridRowMatch ? parseInt(gridRowMatch[1]) - 1 : startGridRow;
 				onResize(colSpan, rowSpan, currentGridRow, currentGridCol);
-			} else {
-				onResize(colSpan, rowSpan);
-			}
-			onResizeEnd();
+			} else onResize(colSpan, rowSpan);
 		}
 		document.removeEventListener('mousemove', handleResizeMove);
 		document.removeEventListener('mouseup', handleResizeEnd);
@@ -271,7 +247,6 @@
 	function handleDragEnd() {
 		if (isDragging) {
 			isDragging = false;
-			onMoveEnd();
 		}
 		document.removeEventListener('mousemove', handleDragMove);
 		document.removeEventListener('mouseup', handleDragEnd);
