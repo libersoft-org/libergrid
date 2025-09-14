@@ -3,16 +3,13 @@
 	import { autoFont } from '../scripts/font';
 	import { getAPI } from '../scripts/api';
 	import { Chart, registerables } from 'chart.js';
-
 	// Register Chart.js components
 	Chart.register(...registerables);
-
 	// Chart data
 	export let price: number = 0;
 	export let change24h: number = 0;
 	export let isLoading: boolean = true;
 	export let error: string = '';
-
 	// Chart data and elements
 	let chartData: number[] = [];
 	let chartLabels: string[] = [];
@@ -20,7 +17,6 @@
 	let priceElement: HTMLElement;
 	let changeElement: HTMLElement;
 	let chartInstance: Chart | null = null;
-
 	// Cleanup functions
 	let cleanupFunctions: (() => void)[] = [];
 
@@ -29,18 +25,14 @@
 		try {
 			isLoading = true;
 			error = '';
-
 			// Get current price from CoinGecko API
 			const priceData = await getAPI('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true');
-
 			if (priceData.bitcoin) {
 				price = priceData.bitcoin.usd;
 				change24h = priceData.bitcoin.usd_24h_change || 0;
 			}
-
 			// Get 7-day price history for chart
 			const historyData = await getAPI('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=7&interval=daily');
-
 			if (historyData.prices) {
 				chartData = historyData.prices.map((item: [number, number]) => item[1]);
 				// Create labels for the last 7 days
@@ -49,7 +41,6 @@
 					return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 				});
 			}
-
 			isLoading = false;
 			// Setup font managers and chart after data load
 			setTimeout(() => {
@@ -89,23 +80,16 @@
 	// Create Chart.js chart
 	function createChart() {
 		if (!chartContainer || chartData.length === 0) return;
-
 		const canvas = chartContainer.querySelector('canvas') as HTMLCanvasElement;
 		if (!canvas) return;
-
 		// Destroy existing chart
-		if (chartInstance) {
-			chartInstance.destroy();
-		}
-
+		if (chartInstance) chartInstance.destroy();
 		const ctx = canvas.getContext('2d');
 		if (!ctx) return;
-
 		const color = change24h >= 0 ? '#10b981' : '#ef4444';
 		const gradientFill = ctx.createLinearGradient(0, 0, 0, canvas.height);
 		gradientFill.addColorStop(0, change24h >= 0 ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)');
 		gradientFill.addColorStop(1, change24h >= 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)');
-
 		chartInstance = new Chart(ctx, {
 			type: 'line',
 			data: {
@@ -172,10 +156,8 @@
 	onMount(() => {
 		// Load chart data
 		loadChartData();
-
 		// Update data every 5 minutes
 		const interval = setInterval(loadChartData, 5 * 60 * 1000);
-
 		return () => {
 			clearInterval(interval);
 			if (chartInstance) {

@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { backgroundStore, backgroundMedia } from '../scripts/background';
-	import type { BackgroundItem } from '../scripts/background';
-
+	import { backgroundStore, backgroundMedia, type BackgroundItem } from '../scripts/background.ts';
+	import { getSettingsValue } from '../scripts/common.ts';
 	let panelElement: HTMLDivElement;
 	let currentBackground: BackgroundItem = backgroundStore.current;
 	let isDragging = false;
@@ -10,14 +9,15 @@
 	let startY = 0;
 	let currentY = 0;
 	let panelHeight = 0;
-	let maxHeight = 400; // Maximum panel height in pixels
+	let maxHeight = 400;
+	let panelHidden = false;
+	let inactivityTimeout: number | null = null; // Auto-hide functionality
 
 	onMount(() => {
 		// Subscribe to background changes
 		const unsubscribeBackground = backgroundStore.subscribe(background => {
 			currentBackground = background;
 		});
-
 		// Add global event listeners
 		document.addEventListener('touchstart', handleGlobalTouchStart, { passive: true });
 		document.addEventListener('touchmove', handleGlobalTouchMove, { passive: true });
@@ -25,19 +25,72 @@
 		document.addEventListener('mousedown', handleGlobalMouseDown);
 		document.addEventListener('mousemove', handleGlobalMouseMove);
 		document.addEventListener('mouseup', handleGlobalMouseUp);
+		// Add activity listeners for auto-hide functionality (only for non-expanded panel)
+		document.addEventListener('mousemove', handleMouseActivity, { passive: true });
+		document.addEventListener('click', handleClickActivity, { passive: true });
+		document.addEventListener('keydown', handleClickActivity, { passive: true });
 		return () => {
 			// Cleanup listeners
 			unsubscribeBackground();
+			clearInactivityTimer();
 			document.removeEventListener('touchstart', handleGlobalTouchStart);
 			document.removeEventListener('touchmove', handleGlobalTouchMove);
 			document.removeEventListener('touchend', handleGlobalTouchEnd);
 			document.removeEventListener('mousedown', handleGlobalMouseDown);
 			document.removeEventListener('mousemove', handleGlobalMouseMove);
 			document.removeEventListener('mouseup', handleGlobalMouseUp);
+			document.removeEventListener('mousemove', handleMouseActivity);
+			document.removeEventListener('click', handleClickActivity);
+			document.removeEventListener('keydown', handleClickActivity);
 		};
 	});
 
 	$: translateY = isExpanded ? 0 : -panelHeight + 20; // Show 20px when collapsed
+
+	// Watch for panel expansion changes
+	$: if (isExpanded) {
+		// When panel expands, stop auto-hide timer
+		clearInactivityTimer();
+	} else {
+		// When panel collapses, start auto-hide timer
+		resetInactivityTimer();
+	}
+
+	// Set panel height after component mounts
+	$: if (panelElement) {
+		panelHeight = panelElement.offsetHeight || maxHeight;
+	}
+
+	// Reset the inactivity timer - only for non-expanded panel
+	function resetInactivityTimer() {
+		clearInactivityTimer();
+		// Only start timer if panel is NOT expanded (minimized state should auto-hide)
+		if (!isExpanded) {
+			inactivityTimeout = setTimeout(() => {
+				if (!isExpanded && !isDragging) panelHidden = true;
+			}, getSettingsValue('inactivityTimeout'));
+		}
+	}
+
+	// Clear the inactivity timer
+	function clearInactivityTimer() {
+		if (inactivityTimeout) {
+			clearTimeout(inactivityTimeout);
+			inactivityTimeout = null;
+		}
+	}
+
+	// Handle mouse activity to reset timer
+	function handleMouseActivity() {
+		panelHidden = false; // Show panel on activity
+		resetInactivityTimer();
+	}
+
+	// Handle click activity to reset timer
+	function handleClickActivity() {
+		panelHidden = false; // Show panel on activity
+		resetInactivityTimer();
+	}
 
 	// Global mouse/touch handlers for detecting swipe from top
 	function handleGlobalTouchStart(e: TouchEvent) {
@@ -46,6 +99,8 @@
 		if ((touchY < 100 && !isExpanded) || (isExpanded && touchY < panelHeight + 20)) {
 			isDragging = true;
 			startY = touchY;
+			// Clear inactivity timer while dragging
+			clearInactivityTimer();
 			if (panelElement) {
 				panelElement.style.transition = 'none';
 			}
@@ -99,6 +154,8 @@
 		if ((mouseY < 100 && !isExpanded) || (isExpanded && mouseY < panelHeight + 20)) {
 			isDragging = true;
 			startY = mouseY;
+			// Clear inactivity timer while dragging
+			clearInactivityTimer();
 			if (panelElement) panelElement.style.transition = 'none';
 		}
 	}
@@ -136,11 +193,6 @@
 		}
 	}
 
-	// Set panel height after component mounts
-	$: if (panelElement) {
-		panelHeight = panelElement.offsetHeight || maxHeight;
-	}
-
 	function handleBackgroundSelect(index: number) {
 		backgroundStore.setBackground(index);
 	}
@@ -160,7 +212,8 @@
 		left: 0;
 		right: 0;
 		height: 400px;
-		background: linear-gradient(135deg, rgba(20, 20, 30, 0.95) 0%, rgba(10, 10, 20, 0.98) 100%);
+		/*background: linear-gradient(135deg, rgba(20, 20, 30, 0.95) 0%, rgba(10, 10, 20, 0.98) 100%);*/
+		background-color: red;
 		backdrop-filter: blur(20px);
 		border-radius: 0 0 20px 20px;
 		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -169,6 +222,10 @@
 		transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 		user-select: none;
 		overflow: hidden;
+	}
+
+	.panel.hidden {
+		display: none;
 	}
 
 	.panel-content {
@@ -259,22 +316,13 @@
 
 <!-- Drag hint area at top of screen -->
 <div class="drag-area" class:show={!isExpanded}></div>
-
-<div bind:this={panelElement} class="panel" style="transform: translateY({translateY}px)">
+<div bind:this={panelElement} class="panel" class:hidden={panelHidden} style="transform: translateY({translateY}px)">
 	<div class="panel-content">
 		<div class="background-selector">
 			<h3>Background Selection</h3>
 			<div class="background-grid">
 				{#each backgroundMedia as background, index (background.url)}
-					<div 
-						class="background-item" 
-						class:active={currentBackground.url === background.url}
-						role="button"
-						tabindex="0"
-						aria-label="Select {background.name} background"
-						onclick={() => handleBackgroundSelect(index)}
-						onkeydown={(e) => handleKeydown(e, index)}
-					>
+					<div class="background-item" class:active={currentBackground.url === background.url} role="button" tabindex="0" aria-label="Select {background.name} background" onclick={() => handleBackgroundSelect(index)} onkeydown={e => handleKeydown(e, index)}>
 						{#if background.type === 'image'}
 							<div class="background-thumbnail" style="background-image: url('{background.url}')"></div>
 						{:else}

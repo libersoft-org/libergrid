@@ -1,8 +1,16 @@
-export type WidgetType = 'time' | 'date' | 'temp' | 'weather' | 'nameday' | 'video' | 'chart';
+export interface IWidget {
+	type: string;
+	label: string;
+}
+
+interface IGridConfig {
+	cols: number;
+	rows: number;
+}
 
 export interface DashboardItem {
 	id: string;
-	type: WidgetType;
+	type: IWidget['type'];
 	gridRow: number;
 	gridCol: number;
 	colSpan: number;
@@ -10,12 +18,17 @@ export interface DashboardItem {
 	border: boolean;
 }
 
-export const AVAILABLE_WIDGETS: { type: WidgetType; label: string }[] = [
+export const widgets: IWidget[] = [
 	{ type: 'time', label: 'Time' },
 	{ type: 'date', label: 'Date' },
 	{ type: 'temp', label: 'Temperature' },
 	{ type: 'weather', label: 'Weather' },
 	{ type: 'nameday', label: 'Name day' },
 	{ type: 'video', label: 'Video' },
-	{ type: 'chart', label: 'Chart' }
+	{ type: 'chart', label: 'Chart' },
 ];
+
+export const gridConfig: IGridConfig = {
+	cols: 10,
+	rows: 6,
+};

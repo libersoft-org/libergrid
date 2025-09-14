@@ -1,13 +1,11 @@
 <script lang="ts">
 	import Button from '../components/Button.svelte';
-	import type { WidgetType } from '../scripts/dashboard';
-	import { AVAILABLE_WIDGETS } from '../scripts/dashboard';
-
+	import { widgets, type IWidget } from '../scripts/dashboard.ts';
 	export let show: boolean = false;
-	export let onAddComponent: (type: WidgetType) => void;
+	export let onAddComponent: (type: IWidget['type']) => void;
 	export let onClose: () => void;
 
-	function handleAddComponent(type: WidgetType) {
+	function handleAddComponent(type: IWidget['type']) {
 		onAddComponent(type);
 		onClose();
 	}
@@ -66,7 +64,7 @@
 			<Button variant="close" onClick={onClose} ariaLabel="Close window">×</Button>
 			<div class="title">Select component</div>
 			<div class="options">
-				{#each AVAILABLE_WIDGETS as widget (widget.type)}
+				{#each widgets as widget (widget.type)}
 					<Button variant="primary" onClick={() => handleAddComponent(widget.type)}>
 						{widget.label}
 					</Button>

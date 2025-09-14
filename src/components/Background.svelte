@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { backgroundStore, backgroundMedia } from '../scripts/background';
-	import type { BackgroundItem } from '../scripts/background';
+	import { type BackgroundItem } from '../scripts/background';
 
 	let backgroundVideoElement: HTMLVideoElement;
 	let currentBackground: BackgroundItem = backgroundStore.current;

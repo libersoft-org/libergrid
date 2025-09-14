@@ -11,16 +11,14 @@
 	import WidgetNameday from '../widgets/Nameday.svelte';
 	import WidgetVideo from '../widgets/Video.svelte';
 	import WidgetChart from '../widgets/Chart.svelte';
-	import type { WidgetType, DashboardItem } from '../scripts/dashboard';
+	import { type IWidget, type DashboardItem } from '../scripts/dashboard.ts';
+	import { gridConfig } from '../scripts/dashboard';
+	import { getSettingsValue } from '../scripts/common';
 	// Props from parent
 	export let onDashboardClick: () => void = () => {};
 	// Background state - updated by listening to Background component events
 	let isVideoBackground: boolean = false;
 	const dashboardStorageKey = 'libergrid';
-	const mouseTimeoutDelay = 2000; // 2 seconds
-	// Grid - FIXED dimensions
-	const gridCols = 10;
-	const gridRows = 6;
 	// Dashboard components
 	let dashboardItems: DashboardItem[] = [];
 	// Dialog state
@@ -44,7 +42,7 @@
 	);
 
 	// Reactive 2D array for display in template
-	$: gridOccupancy = Array.from({ length: gridRows }, (_, row) => Array.from({ length: gridCols }, (_, col) => occupiedCells.has(`${row}-${col}`)));
+	$: gridOccupancy = Array.from({ length: gridConfig.rows }, (_, row) => Array.from({ length: gridConfig.cols }, (_, col) => occupiedCells.has(`${row}-${col}`)));
 
 	// Flag to track if data has been loaded
 	let dataLoaded = false;
@@ -92,7 +90,7 @@
 		showAddDialog = true;
 	}
 
-	function addComponent(type: WidgetType) {
+	function addComponent(type: IWidget['type']) {
 		const newItem = {
 			id: `${type}-${Date.now()}`,
 			type,
@@ -136,7 +134,7 @@
 			return rowOverlap && colOverlap;
 		});
 		// Grid bounds check
-		const exceedsBounds = targetGridCol + newColSpan > gridCols || targetGridRow + newRowSpan > gridRows || targetGridCol < 0 || targetGridRow < 0;
+		const exceedsBounds = targetGridCol + newColSpan > gridConfig.cols || targetGridRow + newRowSpan > gridConfig.rows || targetGridCol < 0 || targetGridRow < 0;
 		// Always update for live feedback, but only if valid
 		if (!wouldCollide && !exceedsBounds) {
 			dashboardItems = dashboardItems.map(item =>
@@ -169,7 +167,7 @@
 			return rowOverlap && colOverlap;
 		});
 		// Grid bounds check
-		const exceedsBounds = newGridCol + item.colSpan > gridCols || newGridRow + item.rowSpan > gridRows || newGridCol < 0 || newGridRow < 0;
+		const exceedsBounds = newGridCol + item.colSpan > gridConfig.cols || newGridRow + item.rowSpan > gridConfig.rows || newGridCol < 0 || newGridRow < 0;
 		// Update position only if valid
 		if (!wouldCollide && !exceedsBounds) dashboardItems = dashboardItems.map(item => (item.id === id ? { ...item, gridRow: newGridRow, gridCol: newGridCol } : item));
 	}
@@ -210,7 +208,7 @@
 		clearTimeout(mouseTimeout);
 		mouseTimeout = setTimeout(() => {
 			showFields = false;
-		}, mouseTimeoutDelay);
+		}, getSettingsValue('inactivityTimeout'));
 	}
 
 	function handleMouseLeave() {
@@ -307,8 +305,8 @@
 <div class="dashboard {isVideoBackground ? 'video-background' : ''}" on:click={handleDashboardClick} on:keydown={e => (e.key === 'Enter' || e.key === ' ' ? handleDashboardClick() : null)} role="button" tabindex="0" aria-label="Dashboard">
 	<!-- Generate grid cells - only for empty fields -->
 	{#if showFields}
-		{#each Array(gridRows) as _, row}
-			{#each Array(gridCols) as _, col}
+		{#each Array(gridConfig.rows) as _, row}
+			{#each Array(gridConfig.cols) as _, col}
 				<Field {row} {col} occupied={gridOccupancy[row][col]} onAddClick={showAddComponentDialog} />
 			{/each}
 		{/each}
