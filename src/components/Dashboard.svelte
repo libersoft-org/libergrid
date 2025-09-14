@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { type IGridItemType, dashboard } from '../scripts/dashboard.ts';
+	import { type IGridItemType, dashboard, getOccupiedCells, isGridCellOccupied, getGridOccupancy, createNewItem, getComponentProps, validateComponentUpdate } from '../scripts/dashboard.ts';
 	import { getSettingsValue } from '../scripts/settings.ts';
 	import Field from './DashboardField.svelte';
 	import Widget from './Widget.svelte';
@@ -29,44 +29,23 @@
 	let dataLoaded = false;
 	// Reactive grid configuration from settings
 	let gridConfig = $state(getSettingsValue('grid'));
-
 	// Reactive map of occupied cells for better performance and reactivity
-	const occupiedCells = $derived(
-		new Set(
-			dashboardItems.flatMap(item => {
-				const cells = [];
-				for (let r = item.gridRow; r < item.gridRow + item.rowSpan; r++) {
-					for (let c = item.gridCol; c < item.gridCol + item.colSpan; c++) {
-						cells.push(`${r}-${c}`);
-					}
-				}
-				return cells;
-			})
-		)
-	);
+	const occupiedCells = $derived(getOccupiedCells(dashboardItems));
 
 	// Reactive 2D array for display in template
-	const gridOccupancy = $derived(Array.from({ length: gridConfig.rows }, (_, row) => Array.from({ length: gridConfig.cols }, (_, col) => occupiedCells.has(`${row}-${col}`))));
+	const gridOccupancy = $derived(getGridOccupancy(gridConfig.rows, gridConfig.cols, dashboardItems));
 
-	function isGridCellOccupied(row: number, col: number): boolean {
-		return occupiedCells.has(`${row}-${col}`);
+	function isOccupied(row: number, col: number): boolean {
+		return isGridCellOccupied(row, col, dashboardItems);
 	}
 
 	function showWindowWidgetAddDialog(row: number, col: number) {
-		if (isGridCellOccupied(row, col)) return;
+		if (isOccupied(row, col)) return;
 		selectedGridPosition = { row, col };
 		showWindowWidgetAdd = true;
 	}
 	function addComponent(type: IGridItemType['type']) {
-		const newItem = {
-			id: `${type}-${Date.now()}`,
-			type,
-			gridRow: selectedGridPosition.row,
-			gridCol: selectedGridPosition.col,
-			colSpan: 1,
-			rowSpan: 1,
-			border: true,
-		};
+		const newItem = createNewItem(type, selectedGridPosition.row, selectedGridPosition.col);
 		dashboard.addItem(newItem);
 		dashboardItems = dashboard.items; // Update local reactive reference
 	}
@@ -104,57 +83,27 @@
 	}
 
 	function updateComponentSize(id: string, newColSpan: number, newRowSpan: number, newGridRow?: number, newGridCol?: number) {
-		const item = dashboardItems.find(i => i.id === id);
-		if (!item) return;
-		// Use new positions if specified, otherwise use original
-		const targetGridRow = newGridRow !== undefined ? newGridRow : item.gridRow;
-		const targetGridCol = newGridCol !== undefined ? newGridCol : item.gridCol;
-		// Collision check - verify that new size and position don't collide with other widgets
-		const wouldCollide = dashboardItems.some(otherItem => {
-			if (otherItem.id === id) return false; // Ignore itself
-			const newEndRow = targetGridRow + newRowSpan - 1;
-			const newEndCol = targetGridCol + newColSpan - 1;
-			const otherEndRow = otherItem.gridRow + otherItem.rowSpan - 1;
-			const otherEndCol = otherItem.gridCol + otherItem.colSpan - 1;
-			// Overlap check
-			const rowOverlap = targetGridRow <= otherEndRow && newEndRow >= otherItem.gridRow;
-			const colOverlap = targetGridCol <= otherEndCol && newEndCol >= otherItem.gridCol;
-			return rowOverlap && colOverlap;
-		});
-		// Grid bounds check
-		const exceedsBounds = targetGridCol + newColSpan > gridConfig.cols || targetGridRow + newRowSpan > gridConfig.rows || targetGridCol < 0 || targetGridRow < 0;
-		// Always update for live feedback, but only if valid
-		if (!wouldCollide && !exceedsBounds) {
+		const validation = validateComponentUpdate(id, dashboardItems, gridConfig.rows, gridConfig.cols, newGridRow, newGridCol, newRowSpan, newColSpan);
+
+		if (validation.isValid) {
 			dashboard.updateItem(id, {
-				colSpan: newColSpan,
-				rowSpan: newRowSpan,
-				gridRow: targetGridRow,
-				gridCol: targetGridCol,
+				colSpan: validation.targetColSpan,
+				rowSpan: validation.targetRowSpan,
+				gridRow: validation.targetGridRow,
+				gridCol: validation.targetGridCol,
 			});
 			dashboardItems = dashboard.items; // Update local reactive reference
 		}
 	}
 
 	function updateComponentPosition(id: string, newGridRow: number, newGridCol: number) {
-		const item = dashboardItems.find(i => i.id === id);
-		if (!item) return;
-		// Collision check - verify that new position doesn't collide with other widgets
-		const wouldCollide = dashboardItems.some(otherItem => {
-			if (otherItem.id === id) return false; // Ignore itself
-			const newEndRow = newGridRow + item.rowSpan - 1;
-			const newEndCol = newGridCol + item.colSpan - 1;
-			const otherEndRow = otherItem.gridRow + otherItem.rowSpan - 1;
-			const otherEndCol = otherItem.gridCol + otherItem.colSpan - 1;
-			// Overlap check
-			const rowOverlap = newGridRow <= otherEndRow && newEndRow >= otherItem.gridRow;
-			const colOverlap = newGridCol <= otherEndCol && newEndCol >= otherItem.gridCol;
-			return rowOverlap && colOverlap;
-		});
-		// Grid bounds check
-		const exceedsBounds = newGridCol + item.colSpan > gridConfig.cols || newGridRow + item.rowSpan > gridConfig.rows || newGridCol < 0 || newGridRow < 0;
-		// Update position only if valid
-		if (!wouldCollide && !exceedsBounds) {
-			dashboard.updateItem(id, { gridRow: newGridRow, gridCol: newGridCol });
+		const validation = validateComponentUpdate(id, dashboardItems, gridConfig.rows, gridConfig.cols, newGridRow, newGridCol);
+
+		if (validation.isValid) {
+			dashboard.updateItem(id, {
+				gridRow: validation.targetGridRow,
+				gridCol: validation.targetGridCol,
+			});
 			dashboardItems = dashboard.items; // Update local reactive reference
 		}
 	}
@@ -177,15 +126,6 @@
 				return WidgetChart;
 			default:
 				return null;
-		}
-	}
-
-	function getComponentProps(type: string, item: any): any {
-		switch (type) {
-			case 'temp':
-				return { label: 'Indoor', temp: 24 };
-			default:
-				return {};
 		}
 	}
 
