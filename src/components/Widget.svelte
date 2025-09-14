@@ -31,6 +31,9 @@
 	let startRowSpan = rowSpan;
 	let startGridCol = 0;
 	let startGridRow = 0;
+	// Drag offset to maintain relative mouse position
+	let dragOffsetX = 0;
+	let dragOffsetY = 0;
 	// Mouse activity tracking for resize handles visibility
 	let showResizeHandles = $state(false);
 	let mouseTimeout: number;
@@ -98,13 +101,16 @@
 		event.stopPropagation();
 		isDragging = true;
 		// Handle both mouse and touch events
+		let clientX: number, clientY: number;
 		if (event instanceof TouchEvent) {
-			startX = event.touches[0].clientX;
-			startY = event.touches[0].clientY;
+			clientX = event.touches[0].clientX;
+			clientY = event.touches[0].clientY;
 		} else {
-			startX = event.clientX;
-			startY = event.clientY;
+			clientX = event.clientX;
+			clientY = event.clientY;
 		}
+		startX = clientX;
+		startY = clientY;
 		// Get current grid position from parent element
 		const dashboardItem = (event.target as HTMLElement).closest('.dashboard-item') as HTMLElement;
 		if (dashboardItem) {
@@ -113,6 +119,22 @@
 			const gridRowMatch = style.gridRow.match(/(\d+)/);
 			startGridCol = gridColumnMatch ? parseInt(gridColumnMatch[1]) - 1 : 0;
 			startGridRow = gridRowMatch ? parseInt(gridRowMatch[1]) - 1 : 0;
+			// Calculate offset from widget's top-left corner
+			const dashboard = document.querySelector('.dashboard') as HTMLElement;
+			if (dashboard) {
+				const dashboardRect = dashboard.getBoundingClientRect();
+				const paddingLeft = parseFloat(getComputedStyle(dashboard).paddingLeft);
+				const paddingTop = parseFloat(getComputedStyle(dashboard).paddingTop);
+				const gap = parseFloat(getComputedStyle(dashboard).gap);
+				const gridCellWidth = (dashboardRect.width - 2 * paddingLeft - (gridCols - 1) * gap) / gridCols;
+				const gridCellHeight = (dashboardRect.height - 2 * paddingTop - (gridRows - 1) * gap) / gridRows;
+				// Calculate widget's top-left corner position
+				const widgetLeft = dashboardRect.left + paddingLeft + startGridCol * (gridCellWidth + gap);
+				const widgetTop = dashboardRect.top + paddingTop + startGridRow * (gridCellHeight + gap);
+				// Store offset from mouse to widget's top-left corner
+				dragOffsetX = clientX - widgetLeft;
+				dragOffsetY = clientY - widgetTop;
+			}
 		}
 		onMoveStart();
 		document.addEventListener('mousemove', handleDragMove);
@@ -199,18 +221,35 @@
 			clientX = event.clientX;
 			clientY = event.clientY;
 		}
-		const deltaX = clientX - startX;
-		const deltaY = clientY - startY;
-		// Calculation based on actual grid size
+
+		// Get dashboard element and calculate grid cell dimensions
 		const dashboard = document.querySelector('.dashboard') as HTMLElement;
 		if (!dashboard) return;
+
 		const dashboardRect = dashboard.getBoundingClientRect();
-		const gridCellWidth = (dashboardRect.width - 2 * parseFloat(getComputedStyle(dashboard).paddingLeft) - (gridCols - 1) * parseFloat(getComputedStyle(dashboard).gap)) / gridCols;
-		const gridCellHeight = (dashboardRect.height - 2 * parseFloat(getComputedStyle(dashboard).paddingTop) - (gridRows - 1) * parseFloat(getComputedStyle(dashboard).gap)) / gridRows;
-		const colChange = Math.round(deltaX / gridCellWidth);
-		const rowChange = Math.round(deltaY / gridCellHeight);
-		const newGridCol = Math.max(0, Math.min(gridCols - colSpan, startGridCol + colChange));
-		const newGridRow = Math.max(0, Math.min(gridRows - rowSpan, startGridRow + rowChange));
+		const paddingLeft = parseFloat(getComputedStyle(dashboard).paddingLeft);
+		const paddingTop = parseFloat(getComputedStyle(dashboard).paddingTop);
+		const gap = parseFloat(getComputedStyle(dashboard).gap);
+
+		const gridCellWidth = (dashboardRect.width - 2 * paddingLeft - (gridCols - 1) * gap) / gridCols;
+		const gridCellHeight = (dashboardRect.height - 2 * paddingTop - (gridRows - 1) * gap) / gridRows;
+
+		// Calculate target position for widget's top-left corner (accounting for drag offset)
+		const targetX = clientX - dragOffsetX;
+		const targetY = clientY - dragOffsetY;
+
+		// Calculate relative position within grid
+		const relativeX = targetX - dashboardRect.left - paddingLeft;
+		const relativeY = targetY - dashboardRect.top - paddingTop;
+
+		// Calculate which grid cell the widget's top-left corner should be in
+		const mouseGridCol = Math.floor((relativeX + gap / 2) / (gridCellWidth + gap));
+		const mouseGridRow = Math.floor((relativeY + gap / 2) / (gridCellHeight + gap));
+
+		// Calculate new position ensuring widget stays within grid bounds
+		const newGridCol = Math.max(0, Math.min(gridCols - colSpan, mouseGridCol));
+		const newGridRow = Math.max(0, Math.min(gridRows - rowSpan, mouseGridRow));
+
 		onMove(newGridRow, newGridCol);
 	}
 
