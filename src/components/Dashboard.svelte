@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { type IWidget, type DashboardItem } from '../scripts/dashboard.ts';
 	import { gridConfig } from '../scripts/dashboard.ts';
-		import { getSettingsValue, setSettingsValue } from '../scripts/settings';
+	import { getSettingsValue, setSettingsValue } from '../scripts/settings';
 	import Field from './DashboardField.svelte';
 	import Widget from './Widget.svelte';
 	import WindowWidgetAdd from '../windows/WidgetAdd.svelte';
@@ -26,6 +26,7 @@
 	let selectedGridPosition = { row: 0, col: 0 };
 	// Mouse activity tracking for Field visibility
 	let showFields = false;
+	let showSettingsButton = false;
 	let mouseTimeout: number;
 
 	// Reactive map of occupied cells for better performance and reactivity
@@ -65,16 +66,7 @@
 			const loadedItems = getSettingsValue('dashboardItems');
 			// Data validation
 			if (Array.isArray(loadedItems)) {
-				const validItems = loadedItems.filter(item => 
-					item && 
-					typeof item.id === 'string' && 
-					typeof item.type === 'string' && 
-					typeof item.gridRow === 'number' && 
-					typeof item.gridCol === 'number' && 
-					typeof item.colSpan === 'number' && 
-					typeof item.rowSpan === 'number' && 
-					typeof item.border === 'boolean'
-				);
+				const validItems = loadedItems.filter(item => item && typeof item.id === 'string' && typeof item.type === 'string' && typeof item.gridRow === 'number' && typeof item.gridCol === 'number' && typeof item.colSpan === 'number' && typeof item.rowSpan === 'number' && typeof item.border === 'boolean');
 				dashboardItems = validItems;
 			}
 		} catch (error) {
@@ -112,11 +104,18 @@
 	function openWindowSettings() {
 		console.log('Opening settings, showSettings:', showWindowSettings);
 		showWindowSettings = true;
+		showSettingsButton = true; // Keep button visible while dialog is open
+		clearTimeout(mouseTimeout); // Stop auto-hide timer
 		console.log('After setting, showSettings:', showWindowSettings);
 	}
 
 	function closeWindowSettings() {
 		showWindowSettings = false;
+		// Restart auto-hide timer after dialog closes
+		mouseTimeout = setTimeout(() => {
+			showFields = false;
+			showSettingsButton = false;
+		}, getSettingsValue('inactivityTimeout'));
 	}
 
 	function removeComponent(id: string) {
@@ -214,17 +213,20 @@
 		}
 	}
 
-	// Mouse activity handlers for Field visibility
+	// Mouse activity handlers for Field visibility and settings button
 	function handleMouseMove() {
 		showFields = true;
+		showSettingsButton = true;
 		clearTimeout(mouseTimeout);
 		mouseTimeout = setTimeout(() => {
 			showFields = false;
+			showSettingsButton = false;
 		}, getSettingsValue('inactivityTimeout'));
 	}
 
 	function handleMouseLeave() {
 		showFields = false;
+		showSettingsButton = false;
 		clearTimeout(mouseTimeout);
 	}
 
@@ -336,7 +338,7 @@
 </style>
 
 <div class="dashboard {isVideoBackground ? 'video-background' : ''}" onclick={handleDashboardClick} onkeydown={e => (e.key === 'Enter' || e.key === ' ' ? handleDashboardClick() : null)} role="button" tabindex="0" aria-label="Dashboard">
-	<!-- Generate grid cells - only for empty fields -->
+	<!-- Generate empty grid cells -->
 	{#if showFields}
 		{#each Array(gridConfig.rows) as _, row}
 			{#each Array(gridConfig.cols) as _, col}
@@ -365,9 +367,9 @@
 			</div>
 		</div>
 	{/each}
-	<!-- Settings Button -->
-	<button class="settings-button" onclick={openWindowSettings}> ⚙️ </button>
+	{#if showSettingsButton}
+		<button class="settings-button" onclick={openWindowSettings}> ⚙️ </button>
+	{/if}
 </div>
-<!-- Widget Add Dialog Component -->
 <WindowWidgetAdd show={showWindowWidgetAdd} onAddComponent={addComponent} onClose={closeWindowWidgetAdd} />
 <WindowSettings show={showWindowSettings} onClose={closeWindowSettings} />
