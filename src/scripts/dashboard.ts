@@ -82,6 +82,7 @@ export const gridItems: IGridItemType[] = [
 	{ type: 'nameday', label: 'Name day' },
 	{ type: 'video', label: 'Video' },
 	{ type: 'chart', label: 'Chart' },
+	{ type: 'map', label: 'Heat Map' },
 ];
 
 export function validateGridResize(newCols: number, newRows: number, dashboardItems: IGridItem[]): boolean {
@@ -134,6 +135,8 @@ export function getComponentProps(type: string, item?: any): any {
 	switch (type) {
 		case 'temp':
 			return { label: 'Indoor', temp: 24 };
+		case 'map':
+			return { city: 'Prague', zoom: 10, showLegend: true };
 		default:
 			return {};
 	}

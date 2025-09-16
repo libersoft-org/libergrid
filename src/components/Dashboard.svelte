@@ -13,6 +13,7 @@
 	import WidgetWeather from '../widgets/Weather.svelte';
 	import WidgetVideo from '../widgets/Video.svelte';
 	import WidgetChart from '../widgets/Chart.svelte';
+	import WidgetMap from '../widgets/Map.svelte';
 	// Background state - updated by listening to Background component events
 	let isVideoBackground: boolean = $state(false);
 	// Dashboard components - using reactive reference to dashboard.items
@@ -108,6 +109,8 @@
 				return WidgetVideo;
 			case 'chart':
 				return WidgetChart;
+			case 'map':
+				return WidgetMap;
 			default:
 				return null;
 		}
