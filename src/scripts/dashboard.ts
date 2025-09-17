@@ -82,7 +82,7 @@ export const gridItems: IGridItemType[] = [
 	{ type: 'nameday', label: 'Name day' },
 	{ type: 'video', label: 'Video' },
 	{ type: 'chart', label: 'Chart' },
-	{ type: 'map', label: 'Heat Map' },
+	{ type: 'map', label: 'Weather Radar' },
 ];
 
 export function validateGridResize(newCols: number, newRows: number, dashboardItems: IGridItem[]): boolean {
@@ -136,7 +136,7 @@ export function getComponentProps(type: string, item?: any): any {
 		case 'temp':
 			return { label: 'Indoor', temp: 24 };
 		case 'map':
-			return { city: 'Prague', zoom: 10, showLegend: true };
+			return { latitude: 50.0755, longitude: 14.4378, zoom: 10 };
 		default:
 			return {};
 	}
