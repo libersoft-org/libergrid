@@ -521,9 +521,25 @@
 	{@render children()}
 	{#if showResizeHandles}
 		<!-- Remove button -->
-		<button class="remove-button" onclick={e => { e.stopPropagation(); onRemove(e); }} title="Remove widget"> × </button>
+		<button
+			class="remove-button"
+			onclick={e => {
+				e.stopPropagation();
+				onRemove(e);
+			}}
+			title="Remove widget"
+		>
+			×
+		</button>
 		<!-- Border toggle button -->
-		<button class="border-toggle" onclick={e => { e.stopPropagation(); onToggleBorder(e); }} title={border ? 'Turn off border' : 'Turn on border'}>
+		<button
+			class="border-toggle"
+			onclick={e => {
+				e.stopPropagation();
+				onToggleBorder(e);
+			}}
+			title={border ? 'Turn off border' : 'Turn on border'}
+		>
 			{border ? '🔲' : '⬜'}
 		</button>
 	{/if}

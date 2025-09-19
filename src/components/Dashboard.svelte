@@ -244,7 +244,9 @@
 	{#if showFields}
 		{#each Array(gridConfig.rows) as _, row}
 			{#each Array(gridConfig.cols) as _, col}
-				<Field {row} {col} occupied={gridOccupancy[row][col]} onAddClick={showWindowWidgetAddDialog} />
+				<div style="grid-column: {col + 1}; grid-row: {row + 1}; width: 100%; height: 100%;">
+					<Field occupied={gridOccupancy[row][col]} onAddClick={() => showWindowWidgetAddDialog(row, col)} />
+				</div>
 			{/each}
 		{/each}
 	{/if}

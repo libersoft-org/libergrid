@@ -1,11 +1,9 @@
 <script lang="ts">
 	interface Props {
-		row: number;
-		col: number;
 		occupied: boolean;
-		onAddClick: (row: number, col: number) => void;
+		onAddClick: () => void;
 	}
-	let { row, col, occupied: occupied, onAddClick }: Props = $props();
+	let { occupied, onAddClick }: Props = $props();
 </script>
 
 <style>
@@ -13,6 +11,8 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		width: 100%;
+		height: 100%;
 		min-height: 0;
 		min-width: 0;
 		container-type: size;
@@ -38,7 +38,7 @@
 </style>
 
 {#if !occupied}
-	<div class="field" style="grid-column: {col + 1}; grid-row: {row + 1};" onclick={(e) => {e.stopPropagation(); onAddClick(row, col);}} onkeydown={(e) => e.stopPropagation()} role="button" tabindex="0">
+	<div class="field" onclick={(e) => {e.stopPropagation(); onAddClick();}} onkeydown={(e) => e.stopPropagation()} role="button" tabindex="0">
 		<div class="plus">+</div>
 	</div>
 {/if}
