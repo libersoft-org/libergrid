@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { get } from 'svelte/store';
 	import Window from '../components/Window.svelte';
 	import { backgroundStore, backgroundMedia, type BackgroundItem } from '../scripts/background.ts';
 	import { getSettingsValue, setSettingsValue } from '../scripts/settings.ts';
@@ -46,9 +47,8 @@
 		if (cols >= gridLimits.minCols && cols <= gridLimits.maxCols) {
 			// Get current grid state to ensure we have latest values
 			const currentGrid = getSettingsValue('grid');
-			const dashboardItems = getSettingsValue('dashboardItems');
 			// Validate if resize is possible without losing widgets
-			if (validateGridResize(cols, currentGrid.rows, dashboard.items)) {
+			if (validateGridResize(cols, currentGrid.rows, get(dashboardItems))) {
 				grid = { ...grid, cols };
 				setSettingsValue('grid', grid);
 			} else {
@@ -72,9 +72,8 @@
 		if (rows >= gridLimits.minRows && rows <= gridLimits.maxRows) {
 			// Get current grid state to ensure we have latest values
 			const currentGrid = getSettingsValue('grid');
-			const dashboardItems = getSettingsValue('dashboardItems');
 			// Validate if resize is possible without losing widgets
-			if (validateGridResize(currentGrid.cols, rows, dashboard.items)) {
+			if (validateGridResize(currentGrid.cols, rows, get(dashboardItems))) {
 				grid = { ...grid, rows };
 				setSettingsValue('grid', grid);
 			} else {
