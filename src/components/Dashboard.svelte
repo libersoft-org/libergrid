@@ -232,7 +232,7 @@
 			{#each Array(gridConfig.cols) as _, col}
 				<div class="field-wrapper" style="grid-column: {col + 1}; grid-row: {row + 1}; width: 100%; height: 100%;">
 					{#if !gridOccupancy[row][col]}
-						<Field onAddClick={() => showWindowWidgetAddDialog(row, col)} />
+						<Field onClick={() => showWindowWidgetAddDialog(row, col)} />
 					{/if}
 				</div>
 			{/each}

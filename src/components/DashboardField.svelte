@@ -1,12 +1,12 @@
 <script lang="ts">
 	interface Props {
-		onAddClick: () => void;
+		onClick: () => void;
 	}
-	let { onAddClick }: Props = $props();
+	let { onClick }: Props = $props();
 
 	function handleClick(e: MouseEvent) {
 		e.stopPropagation();
-		onAddClick();
+		onClick();
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
