@@ -3,6 +3,15 @@
 		onAddClick: () => void;
 	}
 	let { onAddClick }: Props = $props();
+
+	function handleClick(e: MouseEvent) {
+		e.stopPropagation();
+		onAddClick();
+	}
+
+	function handleKeydown(e: KeyboardEvent) {
+		e.stopPropagation();
+	}
 </script>
 
 <style>
@@ -12,20 +21,19 @@
 		align-items: center;
 		width: 100%;
 		height: 100%;
-		min-height: 0;
-		min-width: 0;
 		container-type: size;
 		border: 0.2cqw dashed rgba(255, 255, 255, 0.5);
-		border-radius: 1vw;
+		border-radius: 1cqw;
 		background-color: rgba(255, 255, 255, 0.2);
 		transition: all 0.5s ease;
+		overflow: hidden;
 		cursor: pointer;
 	}
 
 	.field:hover {
-		border-color: rgba(255, 255, 255, 1);
-		color: rgba(255, 255, 255, 1);
-		background-color: rgba(255, 255, 255, 0.4);
+		border-color: #fff;
+		color: #fff;
+		background-color: rgba(255, 255, 255, 0.5);
 		backdrop-filter: blur(5px);
 	}
 
@@ -36,6 +44,6 @@
 	}
 </style>
 
-<div class="field" onclick={(e) => {e.stopPropagation(); onAddClick();}} onkeydown={(e) => e.stopPropagation()} role="button" tabindex="0">
+<div class="field" onclick={handleClick} onkeydown={handleKeydown} role="button" tabindex="0">
 	<div class="plus">+</div>
 </div>
