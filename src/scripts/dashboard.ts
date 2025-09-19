@@ -1,3 +1,4 @@
+import { writable } from 'svelte/store';
 import { getSettingsValue, setSettingsValue } from './settings.ts';
 export const gridLimits = {
 	minCols: 1,
@@ -22,7 +23,52 @@ export interface IGridItem {
 	rowSpan: number;
 	border: boolean;
 }
-let dashboardItems: IGridItem[] = loadDashboardItems();
+export const gridItems: IGridItemType[] = [
+	{ type: 'time', label: 'Time' },
+	{ type: 'date', label: 'Date' },
+	{ type: 'temp', label: 'Temperature' },
+	{ type: 'weather', label: 'Weather' },
+	{ type: 'nameday', label: 'Name day' },
+	{ type: 'video', label: 'Video' },
+	{ type: 'chart', label: 'Chart' },
+	{ type: 'map', label: 'Weather Radar' },
+];
+export const dashboardItems = writable<IGridItem[]>(loadDashboardItems());
+
+export function dashboardItemsSet(newItems: IGridItem[]) {
+	dashboardItems.set(newItems);
+	saveDashboardItems(newItems);
+}
+
+export function dashboardAddItem(item: IGridItem) {
+	dashboardItems.update(items => {
+		const newItems = [...items, item];
+		saveDashboardItems(newItems);
+		return newItems;
+	});
+}
+
+export function dashboardDelItem(id: string) {
+	dashboardItems.update(items => {
+		const newItems = items.filter(item => item.id !== id);
+		saveDashboardItems(newItems);
+		return newItems;
+	});
+}
+
+export function dashboardUpdateItem(id: string, updates: Partial<IGridItem>) {
+	dashboardItems.update(items => {
+		const newItems = items.map(item => (item.id === id ? { ...item, ...updates } : item));
+		saveDashboardItems(newItems);
+		return newItems;
+	});
+}
+
+export function dashboardReloadItems() {
+	const newItems = loadDashboardItems();
+	dashboardItems.set(newItems);
+	return newItems;
+}
 
 function loadDashboardItems(): IGridItem[] {
 	try {
@@ -46,44 +92,6 @@ function saveDashboardItems(items: IGridItem[]): void {
 		console.error('Failed to save dashboard to localStorage:', error);
 	}
 }
-
-// Dashboard manager object
-export const dashboard = {
-	get items() {
-		return dashboardItems;
-	},
-	set items(newItems: IGridItem[]) {
-		dashboardItems = newItems;
-		saveDashboardItems(newItems);
-	},
-	addItem(item: IGridItem) {
-		dashboardItems.push(item);
-		saveDashboardItems(dashboardItems);
-	},
-	removeItem(id: string) {
-		dashboardItems = dashboardItems.filter(item => item.id !== id);
-		saveDashboardItems(dashboardItems);
-	},
-	updateItem(id: string, updates: Partial<IGridItem>) {
-		dashboardItems = dashboardItems.map(item => (item.id === id ? { ...item, ...updates } : item));
-		saveDashboardItems(dashboardItems);
-	},
-	reload() {
-		dashboardItems = loadDashboardItems();
-		return dashboardItems;
-	},
-};
-
-export const gridItems: IGridItemType[] = [
-	{ type: 'time', label: 'Time' },
-	{ type: 'date', label: 'Date' },
-	{ type: 'temp', label: 'Temperature' },
-	{ type: 'weather', label: 'Weather' },
-	{ type: 'nameday', label: 'Name day' },
-	{ type: 'video', label: 'Video' },
-	{ type: 'chart', label: 'Chart' },
-	{ type: 'map', label: 'Weather Radar' },
-];
 
 export function validateGridResize(newCols: number, newRows: number, dashboardItems: IGridItem[]): boolean {
 	// Check if any widget would be outside the new grid bounds
@@ -180,7 +188,7 @@ export function validateComponentUpdate(id: string, items: IGridItem[], gridRows
 export function updateItemSize(id: string, newColSpan: number, newRowSpan: number, items: IGridItem[], gridRows: number, gridCols: number, newGridRow?: number, newGridCol?: number): boolean {
 	const validation = validateComponentUpdate(id, items, gridRows, gridCols, newGridRow, newGridCol, newRowSpan, newColSpan);
 	if (validation.isValid) {
-		dashboard.updateItem(id, {
+		dashboardUpdateItem(id, {
 			colSpan: validation.targetColSpan,
 			rowSpan: validation.targetRowSpan,
 			gridRow: validation.targetGridRow,
@@ -194,7 +202,7 @@ export function updateItemSize(id: string, newColSpan: number, newRowSpan: numbe
 export function updateItemPosition(id: string, newGridRow: number, newGridCol: number, items: IGridItem[], gridRows: number, gridCols: number): boolean {
 	const validation = validateComponentUpdate(id, items, gridRows, gridCols, newGridRow, newGridCol);
 	if (validation.isValid) {
-		dashboard.updateItem(id, {
+		dashboardUpdateItem(id, {
 			gridRow: validation.targetGridRow,
 			gridCol: validation.targetGridCol,
 		});

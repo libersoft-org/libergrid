@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { type IGridItemType, dashboard, isGridCellOccupied, getGridOccupancy, createNewItem, getComponentProps, updateItemSize, updateItemPosition } from '../scripts/dashboard.ts';
+	import { type IGridItemType, dashboardItems, dashboardAddItem, dashboardDelItem, dashboardUpdateItem, dashboardReloadItems, getGridOccupancy, createNewItem, getComponentProps, updateItemSize, updateItemPosition } from '../scripts/dashboard.ts';
 	import { getSettingsValue } from '../scripts/settings.ts';
 	import Field from './DashboardField.svelte';
 	import Widget from './Widget.svelte';
@@ -16,8 +16,6 @@
 	import WidgetMap from '../widgets/Map.svelte';
 	// Background state - updated by listening to Background component events
 	let isVideoBackground: boolean = $state(false);
-	// Dashboard components - using reactive reference to dashboard.items
-	let dashboardItems = $state(dashboard.items);
 	// Dialog state
 	let showWindowWidgetAdd = $state(false);
 	let showWindowSettings = $state(false);
@@ -31,7 +29,7 @@
 	// Reactive grid configuration from settings
 	let gridConfig = $state(getSettingsValue('grid'));
 	// Reactive 2D array for display in template
-	const gridOccupancy = $derived(getGridOccupancy(gridConfig.rows, gridConfig.cols, dashboardItems));
+	const gridOccupancy = $derived(getGridOccupancy(gridConfig.rows, gridConfig.cols, $dashboardItems));
 
 	function showWindowWidgetAddDialog(row: number, col: number) {
 		selectedGridPosition = { row, col };
@@ -40,8 +38,7 @@
 
 	function addComponent(type: IGridItemType['type']) {
 		const newItem = createNewItem(type, selectedGridPosition.row, selectedGridPosition.col);
-		dashboard.addItem(newItem);
-		dashboardItems = dashboard.items; // Update local reactive reference
+		dashboardAddItem(newItem);
 	}
 
 	function closeWindowWidgetAdd() {
@@ -64,28 +61,22 @@
 	}
 
 	function removeComponent(id: string) {
-		dashboard.removeItem(id);
-		dashboardItems = dashboard.items; // Update local reactive reference
+		dashboardDelItem(id);
 	}
 
 	function toggleComponentBorder(id: string) {
-		const item = dashboardItems.find(item => item.id === id);
+		const item = $dashboardItems.find(item => item.id === id);
 		if (item) {
-			dashboard.updateItem(id, { border: !item.border });
-			dashboardItems = dashboard.items; // Update local reactive reference
+			dashboardUpdateItem(id, { border: !item.border });
 		}
 	}
 
 	function updateComponentSize(id: string, newColSpan: number, newRowSpan: number, newGridRow?: number, newGridCol?: number) {
-		if (updateItemSize(id, newColSpan, newRowSpan, dashboardItems, gridConfig.rows, gridConfig.cols, newGridRow, newGridCol)) {
-			dashboardItems = dashboard.items; // Update local reactive reference
-		}
+		updateItemSize(id, newColSpan, newRowSpan, $dashboardItems, gridConfig.rows, gridConfig.cols, newGridRow, newGridCol);
 	}
 
 	function updateComponentPosition(id: string, newGridRow: number, newGridCol: number) {
-		if (updateItemPosition(id, newGridRow, newGridCol, dashboardItems, gridConfig.rows, gridConfig.cols)) {
-			dashboardItems = dashboard.items; // Update local reactive reference
-		}
+		updateItemPosition(id, newGridRow, newGridCol, $dashboardItems, gridConfig.rows, gridConfig.cols);
 	}
 
 	function getComponentByType(type: string, item?: any) {
@@ -130,7 +121,7 @@
 
 	// Load data from localStorage on startup
 	onMount(() => {
-		dashboardItems = dashboard.reload(); // Reload from storage and update reactive reference
+		dashboardReloadItems(); // Reload from storage
 		dataLoaded = true; // Activate automatic saving
 		// Add mouse event listeners for Field visibility
 		document.addEventListener('mousemove', handleMouseMove);
@@ -248,7 +239,7 @@
 		{/each}
 	{/if}
 	<!-- Render dashboard components -->
-	{#each dashboardItems as item (item.id)}
+	{#each $dashboardItems as item (item.id)}
 		<div
 			class="dashboard-item"
 			style="

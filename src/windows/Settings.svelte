@@ -3,7 +3,7 @@
 	import Window from '../components/Window.svelte';
 	import { backgroundStore, backgroundMedia, type BackgroundItem } from '../scripts/background.ts';
 	import { getSettingsValue, setSettingsValue } from '../scripts/settings.ts';
-	import { validateGridResize, dashboard, gridLimits } from '../scripts/dashboard.ts';
+	import { validateGridResize, dashboardItems, gridLimits } from '../scripts/dashboard.ts';
 	interface Props {
 		show?: boolean;
 		onClose?: () => void;
