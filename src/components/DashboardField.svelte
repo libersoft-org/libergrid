@@ -1,9 +1,8 @@
 <script lang="ts">
 	interface Props {
-		occupied: boolean;
 		onAddClick: () => void;
 	}
-	let { occupied, onAddClick }: Props = $props();
+	let { onAddClick }: Props = $props();
 </script>
 
 <style>
@@ -37,8 +36,6 @@
 	}
 </style>
 
-{#if !occupied}
-	<div class="field" onclick={(e) => {e.stopPropagation(); onAddClick();}} onkeydown={(e) => e.stopPropagation()} role="button" tabindex="0">
-		<div class="plus">+</div>
-	</div>
-{/if}
+<div class="field" onclick={(e) => {e.stopPropagation(); onAddClick();}} onkeydown={(e) => e.stopPropagation()} role="button" tabindex="0">
+	<div class="plus">+</div>
+</div>

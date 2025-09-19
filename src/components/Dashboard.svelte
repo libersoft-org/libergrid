@@ -33,12 +33,7 @@
 	// Reactive 2D array for display in template
 	const gridOccupancy = $derived(getGridOccupancy(gridConfig.rows, gridConfig.cols, dashboardItems));
 
-	function isOccupied(row: number, col: number): boolean {
-		return isGridCellOccupied(row, col, dashboardItems);
-	}
-
 	function showWindowWidgetAddDialog(row: number, col: number) {
-		if (isOccupied(row, col)) return;
 		selectedGridPosition = { row, col };
 		showWindowWidgetAdd = true;
 	}
