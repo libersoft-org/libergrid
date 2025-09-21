@@ -14,10 +14,9 @@
 	import WidgetMap from '../widgets/Map.svelte';
 	import WindowWidgetAdd from '../windows/WidgetAdd.svelte';
 	import WindowSettings from '../windows/Settings.svelte';
-	// Dialog state
 	let showWindowWidgetAdd = $state(false);
 	let showWindowSettings = $state(false);
-	let selectedGridPosition = { row: 0, col: 0 };
+	let selectedGridPosition: { row: number; col: number } | null = $state(null);
 	// Mouse activity tracking for Field visibility
 	let showFields = $state(false);
 	let showSettingsButton = $state(false);
@@ -34,13 +33,14 @@
 		showWindowWidgetAdd = true;
 	}
 
-	function addComponent(type: IGridItemType['type']) {
-		const newItem = createNewItem(type, selectedGridPosition.row, selectedGridPosition.col);
+	function addComponent(type: IGridItemType['type'], row: number, col: number) {
+		const newItem = createNewItem(type, row, col);
 		dashboardAddItem(newItem);
 	}
 
 	function closeWindowWidgetAdd() {
 		showWindowWidgetAdd = false;
+		selectedGridPosition = null;
 	}
 
 	function openWindowSettings() {
@@ -259,5 +259,5 @@
 		<button class="settings-button" onclick={openWindowSettings}> ⚙️ </button>
 	{/if}
 </div>
-<WindowWidgetAdd show={showWindowWidgetAdd} onAddComponent={addComponent} onClose={closeWindowWidgetAdd} />
+<WindowWidgetAdd show={showWindowWidgetAdd} gridPosition={selectedGridPosition} onAddComponent={addComponent} onClose={closeWindowWidgetAdd} />
 <WindowSettings show={showWindowSettings} onClose={closeWindowSettings} />

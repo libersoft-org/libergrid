@@ -3,12 +3,15 @@
 	import Window from '../components/Window.svelte';
 	import { gridItems, type IGridItemType } from '../scripts/dashboard.ts';
 	export let show: boolean = false;
-	export let onAddComponent: (type: IGridItemType['type']) => void;
+	export let gridPosition: { row: number; col: number } | null = null;
+	export let onAddComponent: (type: IGridItemType['type'], row: number, col: number) => void;
 	export let onClose: () => void;
 
 	function handleAddComponent(type: IGridItemType['type']) {
-		onAddComponent(type);
-		onClose();
+		if (gridPosition) {
+			onAddComponent(type, gridPosition.row, gridPosition.col);
+			onClose();
+		}
 	}
 </script>
 
