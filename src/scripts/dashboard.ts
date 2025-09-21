@@ -38,6 +38,7 @@ export const gridItems: IGridItemType[] = [
 	{ type: 'map', label: 'Weather map' },
 ];
 export const dashboardItems = writable<IGridItem[]>(loadDashboardItems());
+export const showFields = writable<boolean>(false);
 
 export function dashboardItemsSet(newItems: IGridItem[]) {
 	dashboardItems.set(newItems);

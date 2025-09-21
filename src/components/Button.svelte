@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import Clickable from './Clickable.svelte';
 	interface Props {
 		disabled?: boolean;
 		onClick?: () => void;
@@ -31,6 +32,8 @@
 	}
 </style>
 
-<div class="button" {disabled} onclick={onClick}>
-	{@render children()}
-</div>
+<Clickable {onClick}>
+	<div class="button" {disabled}>
+		{@render children()}
+	</div>
+</Clickable>

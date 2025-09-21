@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Background from '../components/Background.svelte';
 	import Dashboard from '../components/Dashboard.svelte';
+	import SettingsIcon from '../components/SettingsIcon.svelte';
 </script>
 
 <svelte:head>
@@ -8,3 +9,4 @@
 </svelte:head>
 <Background />
 <Dashboard />
+<SettingsIcon />

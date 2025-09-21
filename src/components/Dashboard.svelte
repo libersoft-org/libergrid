@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { type IGridItemType, type IGridPosition, dashboardItems, dashboardAddItem, dashboardDelItem, dashboardUpdateItem, dashboardReloadItems, getGridOccupancy, createNewItem, getComponentProps, updateItemSize, updateItemPosition } from '../scripts/dashboard.ts';
+	import { type IGridItemType, type IGridPosition, dashboardItems, dashboardAddItem, dashboardDelItem, dashboardUpdateItem, dashboardReloadItems, getGridOccupancy, createNewItem, getComponentProps, updateItemSize, updateItemPosition, showFields } from '../scripts/dashboard.ts';
 	import { getSettingsValue } from '../scripts/settings.ts';
 	import Field from './DashboardField.svelte';
 	import Widget from './Widget.svelte';
@@ -13,11 +13,8 @@
 	import WidgetChart from '../widgets/Chart.svelte';
 	import WidgetMap from '../widgets/Map.svelte';
 	import WindowWidgetAdd from '../windows/WidgetAdd.svelte';
-	import WindowSettings from '../windows/Settings.svelte';
 	let showWindowWidgetAdd: boolean = $state(false);
-	let showWindowSettings: boolean = $state(false);
 	let selectedGridPosition: IGridPosition | null = $state(null);
-	let showFields: boolean = $state(false);
 	let mouseTimeout: number;
 	let gridConfig = $state(getSettingsValue('grid'));
 	const gridOccupancy = $derived(getGridOccupancy(gridConfig.rows, gridConfig.cols, $dashboardItems));
@@ -35,18 +32,6 @@
 	function closeWindowWidgetAdd() {
 		showWindowWidgetAdd = false;
 		selectedGridPosition = null;
-	}
-
-	function openWindowSettings() {
-		showWindowSettings = true;
-		clearTimeout(mouseTimeout);
-	}
-
-	function closeWindowSettings() {
-		showWindowSettings = false;
-		mouseTimeout = setTimeout(() => {
-			showFields = false;
-		}, getSettingsValue('inactivityTimeout'));
 	}
 
 	function removeComponent(id: string) {
@@ -93,15 +78,15 @@
 
 	// Mouse activity handlers for Field visibility and settings button
 	function handleMouseMove() {
-		showFields = true;
+		showFields.set(true);
 		clearTimeout(mouseTimeout);
 		mouseTimeout = setTimeout(() => {
-			showFields = false;
+			showFields.set(false);
 		}, getSettingsValue('inactivityTimeout'));
 	}
 
 	function handleMouseLeave() {
-		showFields = false;
+		showFields.set(false);
 		clearTimeout(mouseTimeout);
 	}
 
@@ -175,37 +160,11 @@
 		min-width: 0; /* Allow shrinking */
 		overflow: hidden; /* Clip overflowing content */
 	}
-
-	.settings-button {
-		position: fixed;
-		top: 2vw;
-		right: 2vw;
-		width: 48px;
-		height: 48px;
-		background: rgba(0, 0, 0, 0.7);
-		border: 2px solid rgba(255, 255, 255, 0.3);
-		border-radius: 50%;
-		color: white;
-		font-size: 24px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		cursor: pointer;
-		z-index: 1000;
-		backdrop-filter: blur(10px);
-		transition: all 0.2s ease;
-	}
-
-	.settings-button:hover {
-		background: rgba(255, 255, 255, 0.2);
-		border-color: rgba(255, 255, 255, 0.8);
-		transform: scale(1.1);
-	}
 </style>
 
 <div class="dashboard" style="grid-template-columns: repeat({gridConfig.cols}, 1fr); grid-template-rows: repeat({gridConfig.rows}, 1fr);" role="button" tabindex="0" aria-label="Dashboard">
 	<!-- Generate empty grid cells -->
-	{#if showFields}
+	{#if $showFields}
 		{#each Array(gridConfig.rows) as _, row}
 			{#each Array(gridConfig.cols) as _, col}
 				<div class="field-wrapper" style="grid-column: {col + 1}; grid-row: {row + 1}; width: 100%; height: 100%;">
@@ -224,11 +183,6 @@
 				grid-column: {item.gridCol + 1} / span {item.colSpan}; 
 				grid-row: {item.gridRow + 1} / span {item.rowSpan};
 			"
-			onclick={e => e.stopPropagation()}
-			onkeydown={e => (e.key === 'Enter' || e.key === ' ' ? e.stopPropagation() : null)}
-			role="button"
-			tabindex="0"
-			aria-label="Dashboard item"
 		>
 			<div class="component-wrapper">
 				<Widget border={item.border} colSpan={item.colSpan} rowSpan={item.rowSpan} draggable={true} onResize={(newColSpan, newRowSpan, newGridRow, newGridCol) => updateComponentSize(item.id, newColSpan, newRowSpan, newGridRow, newGridCol)} onMove={(newGridRow, newGridCol) => updateComponentPosition(item.id, newGridRow, newGridCol)} onToggleBorder={() => toggleComponentBorder(item.id)} onRemove={() => removeComponent(item.id)}>
@@ -242,9 +196,5 @@
 			</div>
 		</div>
 	{/each}
-	{#if showFields}
-		<button class="settings-button" onclick={openWindowSettings}> ⚙️ </button>
-	{/if}
 </div>
 <WindowWidgetAdd show={showWindowWidgetAdd} gridPosition={selectedGridPosition} onAddComponent={addComponent} onClose={closeWindowWidgetAdd} />
-<WindowSettings show={showWindowSettings} onClose={closeWindowSettings} />
