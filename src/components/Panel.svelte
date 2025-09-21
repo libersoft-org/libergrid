@@ -3,7 +3,6 @@
 	import Icon from './Icon.svelte';
 	import WindowSettings from '../windows/Settings.svelte';
 	let showWindowSettings: boolean = $state(false);
-	let isHovered: boolean = $state(false);
 
 	function openWindowSettings() {
 		showWindowSettings = true;
