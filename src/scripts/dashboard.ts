@@ -10,6 +10,10 @@ export interface IGridItemType {
 	type: string;
 	label: string;
 }
+export interface IGridPosition {
+	row: number;
+	col: number;
+}
 export interface IGrids {
 	cols: number;
 	rows: number;

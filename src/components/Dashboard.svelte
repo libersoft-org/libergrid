@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { type IGridItemType, dashboardItems, dashboardAddItem, dashboardDelItem, dashboardUpdateItem, dashboardReloadItems, getGridOccupancy, createNewItem, getComponentProps, updateItemSize, updateItemPosition } from '../scripts/dashboard.ts';
+	import { type IGridItemType, type IGridPosition, dashboardItems, dashboardAddItem, dashboardDelItem, dashboardUpdateItem, dashboardReloadItems, getGridOccupancy, createNewItem, getComponentProps, updateItemSize, updateItemPosition } from '../scripts/dashboard.ts';
 	import { getSettingsValue } from '../scripts/settings.ts';
 	import Field from './DashboardField.svelte';
 	import Widget from './Widget.svelte';
@@ -16,9 +16,8 @@
 	import WindowSettings from '../windows/Settings.svelte';
 	let showWindowWidgetAdd: boolean = $state(false);
 	let showWindowSettings: boolean = $state(false);
-	let selectedGridPosition: { row: number; col: number } | null = $state(null);
+	let selectedGridPosition: IGridPosition | null = $state(null);
 	let showFields: boolean = $state(false);
-	let showSettingsButton: boolean = $state(false);
 	let mouseTimeout: number;
 	let gridConfig = $state(getSettingsValue('grid'));
 	const gridOccupancy = $derived(getGridOccupancy(gridConfig.rows, gridConfig.cols, $dashboardItems));
@@ -40,7 +39,6 @@
 
 	function openWindowSettings() {
 		showWindowSettings = true;
-		showSettingsButton = true;
 		clearTimeout(mouseTimeout);
 	}
 
@@ -48,7 +46,6 @@
 		showWindowSettings = false;
 		mouseTimeout = setTimeout(() => {
 			showFields = false;
-			showSettingsButton = false;
 		}, getSettingsValue('inactivityTimeout'));
 	}
 
@@ -97,17 +94,14 @@
 	// Mouse activity handlers for Field visibility and settings button
 	function handleMouseMove() {
 		showFields = true;
-		showSettingsButton = true;
 		clearTimeout(mouseTimeout);
 		mouseTimeout = setTimeout(() => {
 			showFields = false;
-			showSettingsButton = false;
 		}, getSettingsValue('inactivityTimeout'));
 	}
 
 	function handleMouseLeave() {
 		showFields = false;
-		showSettingsButton = false;
 		clearTimeout(mouseTimeout);
 	}
 
@@ -248,7 +242,7 @@
 			</div>
 		</div>
 	{/each}
-	{#if showSettingsButton}
+	{#if showFields}
 		<button class="settings-button" onclick={openWindowSettings}> ⚙️ </button>
 	{/if}
 </div>
