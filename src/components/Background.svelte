@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { backgroundItems, currentIndex } from '../scripts/background.ts';
-	let elBackgroundVideo: HTMLVideoElement;
 </script>
 
 <style>
@@ -24,7 +23,7 @@
 
 <div style="font-size: 30px; color: white;">{backgroundItems}</div>
 {#if backgroundItems[$currentIndex].isVideo}
-	<video class="background video" src={backgroundItems[$currentIndex].url} autoplay loop muted playsinline bind:this={elBackgroundVideo}>Your browser does not support video.</video>
+	<video class="background video" src={backgroundItems[$currentIndex].url} autoplay loop muted playsinline>Your browser does not support video.</video>
 {:else}
 	<div class="background image" style:background-image="url('{backgroundItems[$currentIndex].url}')"></div>
 {/if}
