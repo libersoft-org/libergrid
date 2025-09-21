@@ -1,92 +1,42 @@
+import { writable } from 'svelte/store';
 import { getSettingsValue, setSettingsValue } from './settings.ts';
-export interface BackgroundItem {
-	type: 'image' | 'video';
+export interface IBackgroundItem {
 	url: string;
 	name: string;
+	isVideo: boolean;
 }
-
-export const backgroundMedia: BackgroundItem[] = [
-	{ type: 'image', url: 'https://images.pexels.com/photos/440731/pexels-photo-440731.jpeg', name: 'Mountain Lake' },
-	{ type: 'image', url: 'https://images.pexels.com/photos/433155/pexels-photo-433155.jpeg', name: 'Forest Path' },
-	{ type: 'image', url: 'https://images.pexels.com/photos/250716/pexels-photo-250716.jpeg', name: 'Ocean Sunset' },
-	{ type: 'image', url: 'https://images.pexels.com/photos/169647/pexels-photo-169647.jpeg', name: 'City Lights' },
-	{ type: 'image', url: 'https://images.pexels.com/photos/2098428/pexels-photo-2098428.jpeg', name: 'Desert Stars' },
-	{ type: 'video', url: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_5MB.mp4', name: 'Sample Video' },
+export const backgroundItems: IBackgroundItem[] = [
+	{ url: 'https://images.pexels.com/photos/440731/pexels-photo-440731.jpeg', name: 'Mountain lake', isVideo: false },
+	{ url: 'https://images.pexels.com/photos/433155/pexels-photo-433155.jpeg', name: 'Forest path', isVideo: false },
+	{ url: 'https://images.pexels.com/photos/250716/pexels-photo-250716.jpeg', name: 'Ocean sunset', isVideo: false },
+	{ url: 'https://images.pexels.com/photos/169647/pexels-photo-169647.jpeg', name: 'City lights', isVideo: false },
+	{ url: 'https://images.pexels.com/photos/2098428/pexels-photo-2098428.jpeg', name: 'Desert stars', isVideo: false },
+	{ url: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_5MB.mp4', name: 'Sample video', isVideo: true },
 ];
+export let currentIndex = writable(0);
 
-// Simple reactive store without $state for now
-let currentIndex = 0;
-let listeners: Set<(background: BackgroundItem) => void> = new Set();
+loadBackground();
 
-// Load saved background index from settings
-function loadSavedBackground() {
+function loadBackground(): void {
 	try {
 		const savedIndex = getSettingsValue('backgroundIndex');
-		if (savedIndex >= 0 && savedIndex < backgroundMedia.length) {
-			currentIndex = savedIndex;
+		if (savedIndex >= 0 && savedIndex < backgroundItems.length) currentIndex.set(savedIndex);
+		else {
+			console.error('Saved background index is out of bounds, resetting to 0');
+			setBackground(0);
 		}
 	} catch (error) {
-		console.warn('Failed to load background index from settings:', error);
+		console.error('Failed to load background index from settings:', error);
 	}
 }
 
-// Save current background index to settings
-function saveCurrentBackground() {
-	try {
-		setSettingsValue('backgroundIndex', currentIndex);
-	} catch (error) {
-		console.warn('Failed to save background index to settings:', error);
-	}
+export function setBackground(index: number): void {
+	if (index >= 0 && index < backgroundItems.length) {
+		currentIndex.set(index);
+		try {
+			setSettingsValue('backgroundIndex', index);
+		} catch (error) {
+			console.error('Failed to save background index to settings:', error);
+		}
+	} else console.error('Attempted to set background index out of bounds:', index);
 }
-
-// Initialize with saved background
-loadSavedBackground();
-
-export const backgroundStore = {
-	get current(): BackgroundItem {
-		return backgroundMedia[currentIndex];
-	},
-
-	get currentIndex(): number {
-		return currentIndex;
-	},
-
-	setBackground(index: number) {
-		if (index >= 0 && index < backgroundMedia.length) {
-			currentIndex = index;
-			saveCurrentBackground();
-			this.notifyListeners();
-		}
-	},
-
-	nextBackground() {
-		currentIndex = (currentIndex + 1) % backgroundMedia.length;
-		saveCurrentBackground();
-		this.notifyListeners();
-	},
-
-	subscribe(listener: (background: BackgroundItem) => void) {
-		listeners.add(listener);
-		listener(this.current); // Immediately call with current value
-
-		return () => {
-			listeners.delete(listener);
-		};
-	},
-
-	notifyListeners() {
-		listeners.forEach(listener => listener(this.current));
-
-		// Dispatch global event for other components
-		if (typeof window !== 'undefined') {
-			document.dispatchEvent(
-				new CustomEvent('backgroundChange', {
-					detail: {
-						background: this.current,
-						isVideo: this.current.type === 'video',
-					},
-				})
-			);
-		}
-	},
-};

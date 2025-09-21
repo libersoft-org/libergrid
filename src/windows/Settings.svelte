@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { get } from 'svelte/store';
 	import Window from '../components/Window.svelte';
-	import { backgroundStore, backgroundMedia, type BackgroundItem } from '../scripts/background.ts';
+	import { backgroundItems, currentIndex, setBackground } from '../scripts/background.ts';
 	import { getSettingsValue, setSettingsValue } from '../scripts/settings.ts';
 	import { validateGridResize, dashboardItems, gridLimits } from '../scripts/dashboard.ts';
 	interface Props {
@@ -10,26 +9,11 @@
 		onClose?: () => void;
 	}
 	let { show = false, onClose = () => {} }: Props = $props();
-	let currentBackground: BackgroundItem = $state(backgroundStore.current);
 	let inactivityTimeout: number = $state(getSettingsValue('inactivityTimeout') / 1000); // Convert to seconds
 	let grid = $state(getSettingsValue('grid'));
 
-	$effect(() => {
-		console.log('Settings component, show prop:', show);
-	});
-
-	onMount(() => {
-		// Subscribe to background changes
-		const unsubscribeBackground = backgroundStore.subscribe(background => {
-			currentBackground = background;
-		});
-		return () => {
-			unsubscribeBackground();
-		};
-	});
-
 	function handleBackgroundSelect(index: number) {
-		backgroundStore.setBackground(index);
+		setBackground(index);
 	}
 
 	function handleInactivityTimeoutChange(event: Event) {
@@ -218,12 +202,12 @@
 	<div class="settings-section">
 		<h3>Background selection</h3>
 		<div class="background-grid">
-			{#each backgroundMedia as background, index (background.url)}
-				<div class="background-item" class:active={currentBackground.url === background.url} role="button" tabindex="0" aria-label="Select {background.name} background" onclick={() => handleBackgroundSelect(index)} onkeydown={e => handleKeydown(e, index)}>
-					{#if background.type === 'image'}
-						<div class="background-thumbnail" style="background-image: url('{background.url}')"></div>
+			{#each backgroundItems as background, index}
+				<div class="background-item" class:active={backgroundItems[$currentIndex].url === background.url} role="button" tabindex="0" aria-label="Select {background.name} background" onclick={() => handleBackgroundSelect(index)} onkeydown={e => handleKeydown(e, index)}>
+					{#if background.isVideo}
+						<div class="background-thumbnail" style="background-color: #222; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">▶ Video</div>
 					{:else}
-						<div class="background-thumbnail" style="background: linear-gradient(45deg, #333, #666); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">▶ Video</div>
+						<div class="background-thumbnail" style="background-image: url('{background.url}')"></div>
 					{/if}
 					<div class="background-name">{background.name}</div>
 				</div>
