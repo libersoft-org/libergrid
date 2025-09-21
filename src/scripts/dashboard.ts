@@ -31,7 +31,7 @@ export const gridItems: IGridItemType[] = [
 	{ type: 'nameday', label: 'Name day' },
 	{ type: 'video', label: 'Video' },
 	{ type: 'chart', label: 'Chart' },
-	{ type: 'map', label: 'Weather Radar' },
+	{ type: 'map', label: 'Weather map' },
 ];
 export const dashboardItems = writable<IGridItem[]>(loadDashboardItems());
 

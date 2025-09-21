@@ -4,18 +4,16 @@
 	import { getSettingsValue } from '../scripts/settings.ts';
 	import Field from './DashboardField.svelte';
 	import Widget from './Widget.svelte';
-	import WindowWidgetAdd from '../windows/WidgetAdd.svelte';
-	import WindowSettings from '../windows/Settings.svelte';
 	import WidgetTime from '../widgets/Time.svelte';
 	import WidgetDate from '../widgets/Date.svelte';
 	import WidgetTemp from '../widgets/Temp.svelte';
-	import WidgetNameday from '../widgets/Nameday.svelte';
 	import WidgetWeather from '../widgets/Weather.svelte';
+	import WidgetNameday from '../widgets/Nameday.svelte';
 	import WidgetVideo from '../widgets/Video.svelte';
 	import WidgetChart from '../widgets/Chart.svelte';
 	import WidgetMap from '../widgets/Map.svelte';
-	// Background state - updated by listening to Background component events
-	let isVideoBackground: boolean = $state(false);
+	import WindowWidgetAdd from '../windows/WidgetAdd.svelte';
+	import WindowSettings from '../windows/Settings.svelte';
 	// Dialog state
 	let showWindowWidgetAdd = $state(false);
 	let showWindowSettings = $state(false);
@@ -126,12 +124,6 @@
 		// Add mouse event listeners for Field visibility
 		document.addEventListener('mousemove', handleMouseMove);
 		document.addEventListener('mouseleave', handleMouseLeave);
-		// Listen for background changes from Background component
-		const handleBackgroundChange = (event: Event) => {
-			const customEvent = event as CustomEvent;
-			isVideoBackground = customEvent.detail.isVideo;
-		};
-		document.addEventListener('backgroundChange', handleBackgroundChange);
 		// Listen for settings changes
 		const handleStorageChange = () => {
 			gridConfig = getSettingsValue('grid');
@@ -144,7 +136,6 @@
 			clearTimeout(mouseTimeout);
 			document.removeEventListener('mousemove', handleMouseMove);
 			document.removeEventListener('mouseleave', handleMouseLeave);
-			document.removeEventListener('backgroundChange', handleBackgroundChange);
 			window.removeEventListener('storage', handleStorageChange);
 			window.removeEventListener('settingsUpdate', handleStorageChange);
 		};
@@ -225,7 +216,7 @@
 	}
 </style>
 
-<div class="dashboard {isVideoBackground ? 'video-background' : ''}" style="grid-template-columns: repeat({gridConfig.cols}, 1fr); grid-template-rows: repeat({gridConfig.rows}, 1fr);" role="button" tabindex="0" aria-label="Dashboard">
+<div class="dashboard" style="grid-template-columns: repeat({gridConfig.cols}, 1fr); grid-template-rows: repeat({gridConfig.rows}, 1fr);" role="button" tabindex="0" aria-label="Dashboard">
 	<!-- Generate empty grid cells -->
 	{#if showFields}
 		{#each Array(gridConfig.rows) as _, row}
