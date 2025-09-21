@@ -14,18 +14,13 @@
 	import WidgetMap from '../widgets/Map.svelte';
 	import WindowWidgetAdd from '../windows/WidgetAdd.svelte';
 	import WindowSettings from '../windows/Settings.svelte';
-	let showWindowWidgetAdd = $state(false);
-	let showWindowSettings = $state(false);
+	let showWindowWidgetAdd: boolean = $state(false);
+	let showWindowSettings: boolean = $state(false);
 	let selectedGridPosition: { row: number; col: number } | null = $state(null);
-	// Mouse activity tracking for Field visibility
-	let showFields = $state(false);
-	let showSettingsButton = $state(false);
+	let showFields: boolean = $state(false);
+	let showSettingsButton: boolean = $state(false);
 	let mouseTimeout: number;
-	// Flag to track if data has been loaded
-	let dataLoaded = false;
-	// Reactive grid configuration from settings
 	let gridConfig = $state(getSettingsValue('grid'));
-	// Reactive 2D array for display in template
 	const gridOccupancy = $derived(getGridOccupancy(gridConfig.rows, gridConfig.cols, $dashboardItems));
 
 	function showWindowWidgetAddDialog(row: number, col: number) {
@@ -45,13 +40,12 @@
 
 	function openWindowSettings() {
 		showWindowSettings = true;
-		showSettingsButton = true; // Keep button visible while dialog is open
-		clearTimeout(mouseTimeout); // Stop auto-hide timer
+		showSettingsButton = true;
+		clearTimeout(mouseTimeout);
 	}
 
 	function closeWindowSettings() {
 		showWindowSettings = false;
-		// Restart auto-hide timer after dialog closes
 		mouseTimeout = setTimeout(() => {
 			showFields = false;
 			showSettingsButton = false;
@@ -120,7 +114,6 @@
 	// Load data from localStorage on startup
 	onMount(() => {
 		dashboardReloadItems(); // Reload from storage
-		dataLoaded = true; // Activate automatic saving
 		// Add mouse event listeners for Field visibility
 		document.addEventListener('mousemove', handleMouseMove);
 		document.addEventListener('mouseleave', handleMouseLeave);
