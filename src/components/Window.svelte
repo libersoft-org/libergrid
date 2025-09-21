@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Button from './Button.svelte';
+	import Icon from './Icon.svelte';
 	import type { Snippet } from 'svelte';
 	interface Props {
 		show?: boolean;
@@ -37,35 +37,49 @@
 		background-color: rgba(0, 0, 0, 0.9);
 		border: 2px solid rgba(255, 255, 255, 0.3);
 		border-radius: 1vw;
-		padding: 2rem;
 		backdrop-filter: blur(10px);
 		width: 90%;
 		position: relative;
 	}
 
-	.title {
-		margin: 0 0 1rem 0;
+	.window .title-bar {
+		display: flex;
+	}
+
+	.window .title-bar .title {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex: 1;
 		text-align: center;
 		font-size: 24px;
 		font-weight: bold;
 		color: #fff;
+	}
+
+	.window .title-bar .close {
+		position: absolute;
+		top: 10px;
+		right: 10px;
+	}
+
+	.window .body {
+		padding: 1vw;
 	}
 </style>
 
 {#if show}
 	<div class="overlay" onclick={handleOverlayClick} onkeydown={handleKeydown} role="dialog" tabindex="0" aria-modal="true" aria-label="Dialog window">
 		<div class="window" style="max-width: {maxWidth}" onclick={e => e.stopPropagation()} onkeydown={e => e.stopPropagation()} role="dialog" tabindex="0" aria-labelledby="title">
-			<Button variant="close" onClick={onClose} ariaLabel="Close window">
-				{#snippet children()}
-					×
-				{/snippet}
-			</Button>
-			{#if title}
-				<div class="title" id="title">{title}</div>
-			{/if}
-			{#if children}
-				{@render children()}
-			{/if}
+			<div class="title-bar">
+				<div class="title">{title}</div>
+				<Icon img="img/cross.svg" alt="Close" padding="10px" onClick={onClose} />
+			</div>
+			<div class="body">
+				{#if children}
+					{@render children()}
+				{/if}
+			</div>
 		</div>
 	</div>
 {/if}
