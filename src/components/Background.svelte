@@ -21,7 +21,6 @@
 	}
 </style>
 
-<div style="font-size: 30px; color: white;">{backgroundItems}</div>
 {#if backgroundItems[$currentIndex].isVideo}
 	<video class="background video" src={backgroundItems[$currentIndex].url} autoplay loop muted playsinline>Your browser does not support video.</video>
 {:else}
