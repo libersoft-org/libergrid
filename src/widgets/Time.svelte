@@ -34,7 +34,7 @@
 		white-space: nowrap;
 		line-height: 1;
 		color: white;
-		-webkit-text-stroke: 0.1vw black;
+		-webkit-text-stroke: 0.02em black;
 	}
 </style>
 

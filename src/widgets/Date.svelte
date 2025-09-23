@@ -35,11 +35,11 @@
 <style>
 	.name {
 		font-weight: bold;
-		-webkit-text-stroke: 0.1vw black;
+		-webkit-text-stroke: 0.02em black;
 	}
 
 	.date {
-		-webkit-text-stroke: 0.1vw black;
+		-webkit-text-stroke: 0.02em black;
 	}
 </style>
 
