@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { get } from 'svelte/store';
 	import Window from '../components/Window.svelte';
-	import { backgroundItems, currentIndex, setBackground } from '../scripts/background.ts';
+	import Select from '../components/Select.svelte';
+	import Option from '../components/SelectOption.svelte';
+	import { currentIndex, setBackground, getCurrentBackgroundItems, setBackgroundType } from '../scripts/background.ts';
 	import { getSettingsValue, setSettingsValue } from '../scripts/settings.ts';
 	import { validateGridResize, dashboardItems, gridLimits } from '../scripts/dashboard.ts';
 	interface Props {
@@ -11,9 +13,28 @@
 	let { show = false, onClose = () => {} }: Props = $props();
 	let inactivityTimeout: number = $state(getSettingsValue('inactivityTimeout') / 1000); // Convert to seconds
 	let grid = $state(getSettingsValue('grid'));
+	let currentBackgroundItems = $state(getCurrentBackgroundItems());
+	let backgroundType = $state(getSettingsValue('backgroundType'));
+
+	// Update current items when background type changes
+	$effect(() => {
+		currentBackgroundItems = getCurrentBackgroundItems();
+	});
 
 	function handleBackgroundSelect(index: number) {
 		setBackground(index);
+	}
+
+	function handleBackgroundTypeChange(type: 'image' | 'video' | 'color') {
+		backgroundType = type;
+		setBackgroundType(type);
+		currentBackgroundItems = getCurrentBackgroundItems();
+	}
+
+	function handleBackgroundTypeSelect(event: Event) {
+		const target = event.target as HTMLSelectElement;
+		const type = target.value as 'image' | 'video' | 'color';
+		handleBackgroundTypeChange(type);
 	}
 
 	function handleInactivityTimeoutChange(event: Event) {
@@ -84,6 +105,21 @@
 </script>
 
 <style>
+	.settings {
+		display: flex;
+		flex-direction: column;
+		gap: 1vw;
+	}
+
+	.title {
+		padding: 0.5vw;
+		font-size: 1vw;
+		font-weight: bold;
+		color: #fff;
+		background-color: #444;
+		border-radius: 0.5vw;
+	}
+
 	.background-grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
@@ -180,9 +216,9 @@
 	}
 </style>
 
-<Window {show} title="Settings" {onClose} maxWidth="600px">
-	<div class="settings-section">
-		<h3>Interface settings</h3>
+<Window {show} title="Settings" {onClose} maxWidth="50vw">
+	<div class="settings">
+		<div class="title">Interface settings</div>
 		<div class="settings-field">
 			<label for="inactivity-timeout">Auto-hide timeout:</label>
 			<input id="inactivity-timeout" type="number" min="1" max="15" bind:value={inactivityTimeout} onchange={handleInactivityTimeoutChange} />
@@ -198,16 +234,23 @@
 			<input id="grid-rows" type="number" min={gridLimits.minRows} max={gridLimits.maxRows} value={grid.rows} onchange={handleGridRowsChange} />
 			<span>rows</span>
 		</div>
-	</div>
-	<div class="settings-section">
-		<h3>Background selection</h3>
+		<div class="title">Background type</div>
+		<Select value={backgroundType} onchange={handleBackgroundTypeSelect}>
+			<Option value="image" text="Image" selected={backgroundType === 'image'} />
+			<Option value="video" text="Video" selected={backgroundType === 'video'} />
+			<Option value="color" text="Color" selected={backgroundType === 'color'} />
+		</Select>
+		<div class="title">Background selection</div>
 		<div class="background-grid">
-			{#each backgroundItems as background, index}
-				<div class="background-item" class:active={backgroundItems[$currentIndex].url === background.url} role="button" tabindex="0" aria-label="Select {background.name} background" onclick={() => handleBackgroundSelect(index)} onkeydown={e => handleKeydown(e, index)}>
-					{#if background.isVideo}
+			{#each currentBackgroundItems as background, index}
+				{@const isCurrentSelected = $currentIndex === index}
+				<div class="background-item" class:active={isCurrentSelected} role="button" tabindex="0" aria-label="Select {background.name} background" onclick={() => handleBackgroundSelect(index)} onkeydown={e => handleKeydown(e, index)}>
+					{#if backgroundType === 'video'}
 						<div class="background-thumbnail" style="background-color: #222; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">▶ Video</div>
+					{:else if backgroundType === 'color'}
+						<div class="background-thumbnail" style="background-color: {'color' in background ? background.color : '#222'}; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; text-shadow: 1px 1px 2px rgba(0,0,0,0.7);">{'color' in background ? background.color : ''}</div>
 					{:else}
-						<div class="background-thumbnail" style="background-image: url('{background.url}')"></div>
+						<div class="background-thumbnail" style="background-image: url('{'url' in background ? background.url : ''}')"></div>
 					{/if}
 					<div class="background-name">{background.name}</div>
 				</div>

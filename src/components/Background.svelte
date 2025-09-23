@@ -1,5 +1,15 @@
 <script lang="ts">
-	import { backgroundItems, currentIndex } from '../scripts/background.ts';
+	import { getCurrentBackground } from '../scripts/background.ts';
+	import { getSettingsValue } from '../scripts/settings.ts';
+
+	let backgroundType = $state(getSettingsValue('backgroundType'));
+	let currentBackground = $state(getCurrentBackground());
+
+	// Update background when index or type changes
+	$effect(() => {
+		backgroundType = getSettingsValue('backgroundType');
+		currentBackground = getCurrentBackground();
+	});
 </script>
 
 <style>
@@ -19,10 +29,17 @@
 		background-size: cover;
 		background-position: center;
 	}
+
+	.background.color {
+		background-size: cover;
+		background-position: center;
+	}
 </style>
 
-{#if backgroundItems[$currentIndex].isVideo}
-	<video class="background video" src={backgroundItems[$currentIndex].url} autoplay loop muted playsinline>Your browser does not support video.</video>
-{:else}
-	<div class="background image" style:background-image="url('{backgroundItems[$currentIndex].url}')"></div>
+{#if backgroundType === 'video' && 'url' in currentBackground}
+	<video class="background video" src={currentBackground.url} autoplay loop muted playsinline>Your browser does not support video.</video>
+{:else if backgroundType === 'color' && 'color' in currentBackground}
+	<div class="background color" style:background-color={currentBackground.color}></div>
+{:else if backgroundType === 'image' && 'url' in currentBackground}
+	<div class="background image" style:background-image="url('{currentBackground.url}')"></div>
 {/if}

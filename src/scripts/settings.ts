@@ -2,12 +2,14 @@ import type { IGridItem, IGrids } from './dashboard.ts';
 interface IUserSettings {
 	inactivityTimeout?: number;
 	backgroundIndex?: number;
+	backgroundType?: 'image' | 'video' | 'color';
 	dashboardItems?: IGridItem[];
 	grid?: IGrids;
 }
 const defaultSettings: IUserSettings = {
 	inactivityTimeout: 2000,
 	backgroundIndex: 0,
+	backgroundType: 'image',
 	dashboardItems: [],
 	grid: { cols: 10, rows: 6 },
 };
@@ -22,6 +24,7 @@ function getSettings(): IUserSettings {
 		return {
 			inactivityTimeout: userSettings.inactivityTimeout ?? defaultSettings.inactivityTimeout,
 			backgroundIndex: userSettings.backgroundIndex ?? defaultSettings.backgroundIndex,
+			backgroundType: userSettings.backgroundType ?? defaultSettings.backgroundType,
 			dashboardItems: userSettings.dashboardItems ?? defaultSettings.dashboardItems,
 			grid: userSettings.grid ?? defaultSettings.grid,
 		};
@@ -31,6 +34,7 @@ function getSettings(): IUserSettings {
 		return {
 			inactivityTimeout: defaultSettings.inactivityTimeout,
 			backgroundIndex: defaultSettings.backgroundIndex,
+			backgroundType: defaultSettings.backgroundType,
 			dashboardItems: defaultSettings.dashboardItems,
 			grid: defaultSettings.grid,
 		};
