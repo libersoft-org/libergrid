@@ -12,6 +12,10 @@ export interface IBackgroundColor {
 
 export type BackgroundType = 'image' | 'video' | 'color';
 
+// Reactive stores
+export const backgroundType = writable<BackgroundType>('image');
+export const currentBackground = writable<IBackgroundItem | IBackgroundColor | null>(null);
+
 export const backgroundImages: IBackgroundItem[] = [
 	{ url: 'https://images.pexels.com/photos/440731/pexels-photo-440731.jpeg', name: 'Mountain lake' },
 	{ url: 'https://images.pexels.com/photos/433155/pexels-photo-433155.jpeg', name: 'Forest path' },
@@ -62,10 +66,17 @@ export function getCurrentBackgroundItems(): IBackgroundItem[] | IBackgroundColo
 
 function loadBackground(): void {
 	try {
+		const savedBackgroundType = getSettingsValue('backgroundType');
 		const savedIndex = getSettingsValue('backgroundIndex');
+		
+		// Update stores
+		backgroundType.set(savedBackgroundType);
+		
 		const currentItems = getCurrentBackgroundItems();
-		if (savedIndex >= 0 && savedIndex < currentItems.length) currentIndex.set(savedIndex);
-		else {
+		if (savedIndex >= 0 && savedIndex < currentItems.length) {
+			currentIndex.set(savedIndex);
+			currentBackground.set(currentItems[savedIndex]);
+		} else {
 			console.error('Saved background index is out of bounds, resetting to 0');
 			setBackground(0);
 		}
@@ -78,6 +89,7 @@ export function setBackground(index: number): void {
 	const currentItems = getCurrentBackgroundItems();
 	if (index >= 0 && index < currentItems.length) {
 		currentIndex.set(index);
+		currentBackground.set(currentItems[index]);
 		try {
 			setSettingsValue('backgroundIndex', index);
 		} catch (error) {
@@ -95,6 +107,7 @@ export function getCurrentBackground(): IBackgroundItem | IBackgroundColor {
 }
 
 export function setBackgroundType(type: 'image' | 'video' | 'color'): void {
+	backgroundType.set(type);
 	setSettingsValue('backgroundType', type);
 	// Reset index when changing type to avoid out of bounds
 	setBackground(0);
