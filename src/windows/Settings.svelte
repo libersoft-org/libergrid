@@ -211,7 +211,7 @@
 
 	.settings-field label {
 		color: white;
-		font-size: 14px;
+		font-size: 1vw;
 		min-width: 150px;
 	}
 

@@ -31,9 +31,9 @@
 		appearance: none;
 		padding: 10px 30px 10px 10px; /* Increased right padding for icon */
 		font-family: inherit;
-		font-size: inherit;
+		font-size: 1vw;
 		border: 1px solid #888;
-		border-radius: 10px;
+		border-radius: 0.5vw;
 		background-color: #222;
 		color: #fff;
 		cursor: pointer;
@@ -41,7 +41,7 @@
 	}
 
 	select:focus {
-		outline: 2px solid var(--primary-harder-background);
+		outline: 2px solid #33a;
 	}
 
 	select.expand {
