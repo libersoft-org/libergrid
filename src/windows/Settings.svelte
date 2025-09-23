@@ -132,13 +132,17 @@
 
 	.background-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+		grid-template-columns: repeat(5, 1fr);
+		grid-auto-rows: 12vh;
 		gap: 8px;
+		max-height: 20vh;
+		overflow-y: auto;
 	}
 
 	.background-item {
 		position: relative;
-		aspect-ratio: 16/9;
+		width: 100%;
+		height: 100%;
 		border-radius: 4px;
 		overflow: hidden;
 		cursor: pointer;
@@ -261,16 +265,7 @@
 				{@const isCurrentSelected = $currentIndex === index}
 				<div class="background-item" class:active={isCurrentSelected} role="button" tabindex="0" aria-label="Select {background.name} background" onclick={() => handleBackgroundSelect(index)} onkeydown={e => handleKeydown(e, index)}>
 					{#if $backgroundType === 'video' && 'url' in background}
-						<video 
-							class="background-thumbnail video-thumbnail" 
-							src={background.url} 
-							muted 
-							loop
-							onmouseenter={(e) => handleVideoHover(e, true)}
-							onmouseleave={(e) => handleVideoHover(e, false)}
-						>
-							Your browser does not support video.
-						</video>
+						<video class="background-thumbnail video-thumbnail" src={background.url} muted loop onmouseenter={e => handleVideoHover(e, true)} onmouseleave={e => handleVideoHover(e, false)}> Your browser does not support video. </video>
 					{:else if $backgroundType === 'color'}
 						<div class="background-thumbnail" style="background-color: {'color' in background ? background.color : '#222'}; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; text-shadow: 1px 1px 2px rgba(0,0,0,0.7);">{'color' in background ? background.color : ''}</div>
 					{:else}
