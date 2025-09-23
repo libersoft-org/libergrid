@@ -134,7 +134,7 @@
 		display: grid;
 		grid-template-columns: repeat(5, 1fr);
 		grid-auto-rows: 12vh;
-		gap: 8px;
+		gap: 0.2vw;
 		max-height: 20vh;
 		overflow-y: auto;
 	}
@@ -143,10 +143,10 @@
 		position: relative;
 		width: 100%;
 		height: 100%;
-		border-radius: 4px;
+		border-radius: 0.5vw;
 		overflow: hidden;
 		cursor: pointer;
-		border: 2px solid transparent;
+		border: 0.2vw solid transparent;
 		transition: border-color 0.2s ease;
 	}
 
@@ -182,10 +182,11 @@
 		bottom: 0;
 		left: 0;
 		right: 0;
-		background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+		background: rgba(0, 0, 0, 0.6);
 		color: white;
-		font-size: 10px;
-		padding: 8px 4px 4px;
+		font-size: 0.7vw;
+		font-weight: bold;
+		padding: 0.3vw 0.3vw;
 		text-align: center;
 	}
 
