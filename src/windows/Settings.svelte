@@ -100,6 +100,18 @@
 			handleBackgroundSelect(index);
 		}
 	}
+
+	function handleVideoHover(event: Event, isHovering: boolean) {
+		const videoElement = event.target as HTMLVideoElement;
+		if (videoElement && videoElement.tagName === 'VIDEO') {
+			if (isHovering) {
+				videoElement.play().catch(console.error);
+			} else {
+				videoElement.pause();
+				videoElement.currentTime = 0;
+			}
+		}
+	}
 </script>
 
 <style>
@@ -154,6 +166,11 @@
 		object-fit: cover;
 		background-size: cover;
 		background-position: center;
+	}
+
+	.video-thumbnail {
+		object-fit: cover;
+		cursor: pointer;
 	}
 
 	.background-name {
@@ -243,8 +260,17 @@
 			{#each currentBackgroundItems as background, index}
 				{@const isCurrentSelected = $currentIndex === index}
 				<div class="background-item" class:active={isCurrentSelected} role="button" tabindex="0" aria-label="Select {background.name} background" onclick={() => handleBackgroundSelect(index)} onkeydown={e => handleKeydown(e, index)}>
-					{#if $backgroundType === 'video'}
-						<div class="background-thumbnail" style="background-color: #222; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">▶ Video</div>
+					{#if $backgroundType === 'video' && 'url' in background}
+						<video 
+							class="background-thumbnail video-thumbnail" 
+							src={background.url} 
+							muted 
+							loop
+							onmouseenter={(e) => handleVideoHover(e, true)}
+							onmouseleave={(e) => handleVideoHover(e, false)}
+						>
+							Your browser does not support video.
+						</video>
 					{:else if $backgroundType === 'color'}
 						<div class="background-thumbnail" style="background-color: {'color' in background ? background.color : '#222'}; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; text-shadow: 1px 1px 2px rgba(0,0,0,0.7);">{'color' in background ? background.color : ''}</div>
 					{:else}

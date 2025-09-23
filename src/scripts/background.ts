@@ -26,10 +26,13 @@ export const backgroundImages: IBackgroundItem[] = [
 
 export const backgroundVideos: IBackgroundItem[] = [
 	{ url: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_5MB.mp4', name: 'Sample video' },
-	{ url: 'https://www.pexels.com/download/video/3089895/?h=1080&w=1920', name: 'Sea waves' },
-	{ url: 'https://www.pexels.com/download/video/7513671/?h=1080&w=1920', name: 'Ocean waves' },
-	{ url: 'https://www.pexels.com/download/video/7710243/?h=1080&w=1920', name: 'Ocean plant' },
+	{ url: 'https://www.pexels.com/download/video/3089895/', name: 'Sea waves' },
+	{ url: 'https://www.pexels.com/download/video/7513671/', name: 'Ocean waves' },
+	{ url: 'https://www.pexels.com/download/video/7710243/', name: 'Ocean plant' },
 	{ url: 'https://www.pexels.com/download/video/5453622/', name: 'Purple universe' },
+	{ url: 'https://www.pexels.com/download/video/31084223/', name: 'Rotating universe' },
+	{ url: 'https://www.pexels.com/download/video/7075988/', name: 'Water ink' },
+	{ url: 'https://www.pexels.com/download/video/3130284/', name: 'Digital space' },
 ];
 
 export const backgroundColors: IBackgroundColor[] = [
@@ -68,10 +71,10 @@ function loadBackground(): void {
 	try {
 		const savedBackgroundType = getSettingsValue('backgroundType');
 		const savedIndex = getSettingsValue('backgroundIndex');
-		
+
 		// Update stores
 		backgroundType.set(savedBackgroundType);
-		
+
 		const currentItems = getCurrentBackgroundItems();
 		if (savedIndex >= 0 && savedIndex < currentItems.length) {
 			currentIndex.set(savedIndex);
