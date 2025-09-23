@@ -33,6 +33,8 @@
 		font-family: 'Ubuntu Mono', monospace;
 		white-space: nowrap;
 		line-height: 1;
+		color: white;
+		-webkit-text-stroke: 0.1vw black;
 	}
 </style>
 
