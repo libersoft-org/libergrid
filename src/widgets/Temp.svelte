@@ -44,13 +44,11 @@
 	.label {
 		margin-bottom: 5px;
 		opacity: 0.8;
-		color: white;
 		-webkit-text-stroke: 0.02em black;
 	}
 
 	.temp {
 		font-weight: bold;
-		color: white;
 		-webkit-text-stroke: 0.02em black;
 	}
 </style>

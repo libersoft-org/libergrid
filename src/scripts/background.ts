@@ -2,12 +2,10 @@ import { writable } from 'svelte/store';
 import { getSettingsValue, setSettingsValue } from './settings.ts';
 export interface IBackgroundItem {
 	url: string;
-	name: string;
 }
 
 export interface IBackgroundColor {
 	color: string;
-	name: string;
 }
 
 export type BackgroundType = 'image' | 'video' | 'color';
@@ -16,78 +14,11 @@ export type BackgroundType = 'image' | 'video' | 'color';
 export const backgroundType = writable<BackgroundType>('image');
 export const currentBackground = writable<IBackgroundItem | IBackgroundColor | null>(null);
 
-export const backgroundImages: IBackgroundItem[] = [
-	{ url: 'https://images.pexels.com/photos/440731/pexels-photo-440731.jpeg', name: 'Mountain lake' },
-	{ url: 'https://images.pexels.com/photos/433155/pexels-photo-433155.jpeg', name: 'Forest path' },
-	{ url: 'https://images.pexels.com/photos/250716/pexels-photo-250716.jpeg', name: 'Ocean sunset' },
-	{ url: 'https://images.pexels.com/photos/169647/pexels-photo-169647.jpeg', name: 'City lights' },
-	{ url: 'https://images.pexels.com/photos/2098428/pexels-photo-2098428.jpeg', name: 'Desert stars' },
-];
+export const backgroundImages: IBackgroundItem[] = [{ url: 'https://images.pexels.com/photos/440731/pexels-photo-440731.jpeg' }, { url: 'https://images.pexels.com/photos/433155/pexels-photo-433155.jpeg' }, { url: 'https://images.pexels.com/photos/250716/pexels-photo-250716.jpeg' }, { url: 'https://images.pexels.com/photos/169647/pexels-photo-169647.jpeg' }, { url: 'https://images.pexels.com/photos/2098428/pexels-photo-2098428.jpeg' }, { url: 'https://images.pexels.com/photos/243971/pexels-photo-243971.jpeg' }, { url: 'https://images.pexels.com/photos/352096/pexels-photo-352096.jpeg' }, { url: 'https://images.pexels.com/photos/1408221/pexels-photo-1408221.jpeg' }, { url: 'https://images.pexels.com/photos/1379636/pexels-photo-1379636.jpeg' }, { url: 'https://images.pexels.com/photos/3121286/pexels-photo-3121286.jpeg' }, { url: 'https://images.pexels.com/photos/457878/pexels-photo-457878.jpeg' }, { url: 'https://images.pexels.com/photos/1450353/pexels-photo-1450353.jpeg' }, { url: 'https://images.pexels.com/photos/2594992/pexels-photo-2594992.jpeg' }, { url: 'https://images.pexels.com/photos/1168764/pexels-photo-1168764.jpeg' }, { url: 'https://images.pexels.com/photos/268976/pexels-photo-268976.jpeg' }, { url: 'https://images.pexels.com/photos/172505/pexels-photo-172505.jpeg' }, { url: 'https://images.pexels.com/photos/235525/pexels-photo-235525.jpeg' }, { url: 'https://images.pexels.com/photos/3310691/pexels-photo-3310691.jpeg' }];
 
-export const backgroundVideos: IBackgroundItem[] = [
-	{ url: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_5MB.mp4', name: 'Sample video' },
-	{ url: 'https://www.pexels.com/download/video/3089895/', name: 'Sea waves' },
-	{ url: 'https://www.pexels.com/download/video/7513671/', name: 'Ocean waves' },
-	{ url: 'https://www.pexels.com/download/video/7710243/', name: 'Ocean plant' },
-	{ url: 'https://www.pexels.com/download/video/5453622/', name: 'Purple universe' },
-	{ url: 'https://www.pexels.com/download/video/31084223/', name: 'Rotating universe' },
-	{ url: 'https://www.pexels.com/download/video/7075988/', name: 'Water ink' },
-	{ url: 'https://www.pexels.com/download/video/3130284/', name: 'Digital space' },
-	{ url: 'https://www.pexels.com/download/video/856281/', name: 'Rain' },
-	{ url: 'https://cdn.pixabay.com/video/2023/10/02/183279-870457579_large.mp4', name: 'Stars' },
-	{ url: 'https://cdn.pixabay.com/video/2020/06/24/43027-434334088_large.mp4', name: 'Stars 2' },
-	{ url: 'https://cdn.pixabay.com/video/2023/05/30/165160-832090880_large.mp4', name: 'Love' },
-	{ url: 'https://cdn.pixabay.com/video/2023/02/28/152522-803189119_large.mp4', name: 'Love 2' },
-	{ url: 'https://cdn.pixabay.com/video/2022/11/27/140669-775595968_large.mp4', name: 'Love 3' },
-	{ url: 'https://cdn.pixabay.com/video/2024/02/02/198921-909336000_large.mp4', name: 'Love 4' },
-	{ url: 'https://cdn.pixabay.com/video/2023/08/05/174731-852025141_large.mp4', name: 'Triangles' },
-	{ url: 'https://cdn.pixabay.com/video/2021/08/06/84086-584871133_large.mp4', name: '3D circuit' },
-	{ url: 'https://cdn.pixabay.com/video/2022/11/11/138553-769988105_large.mp4', name: 'Rose leaves' },
-	{ url: 'https://cdn.pixabay.com/video/2023/12/01/191573-890522311_large.mp4', name: 'Light' },
-	{ url: 'https://cdn.pixabay.com/video/2023/10/17/185365-875417518_large.mp4', name: 'Blue air waves' },
-	{ url: 'https://cdn.pixabay.com/video/2023/10/17/185367-875417528_large.mp4', name: 'Red air waves' },
-	{ url: 'https://cdn.pixabay.com/video/2023/10/17/185366-875417525_large.mp4', name: 'Colourful air waves' },
-	{ url: 'https://cdn.pixabay.com/video/2024/05/27/213923_large.mp4', name: 'Forest hut' },
-	{ url: 'https://cdn.pixabay.com/video/2024/02/25/201947-916877801_large.mp4', name: 'Rainy day in restaurant' },
-	{ url: 'https://cdn.pixabay.com/video/2023/08/06/174944-852206099_large.mp4', name: 'DNA' },
-	{ url: 'https://cdn.pixabay.com/video/2023/10/17/185369-875417531_large.mp4', name: 'Red squares' },
-	{ url: 'https://cdn.pixabay.com/video/2021/07/20/82170-577893740_large.mp4', name: 'Wavy polygons' },
-	{ url: 'https://cdn.pixabay.com/video/2021/12/07/99973-658725823_large.mp4', name: 'Winter' },
-	{ url: 'https://cdn.pixabay.com/video/2023/08/17/176434-855480487_large.mp4', name: 'Purple waves' },
-	{ url: 'https://cdn.pixabay.com/video/2017/10/20/12528-239934661_large.mp4', name: 'Shapes and particles' },
-	{ url: 'https://cdn.pixabay.com/video/2024/03/10/203662-921832586_large.mp4', name: 'Magical forest' },
-	{ url: 'https://cdn.pixabay.com/video/2022/02/17/107976-678971242_large.mp4', name: 'Waterfall' },
-	{ url: 'https://cdn.pixabay.com/video/2022/02/21/108420-680178323_large.mp4', name: 'Flight over desert' },
-	{ url: 'https://cdn.pixabay.com/video/2021/02/28/66575-518836605_large.mp4', name: 'Amapola' },
-	{ url: 'https://cdn.pixabay.com/video/2019/08/28/26344-357839084_large.mp4', name: 'Lights on curtain' },
-	{ url: 'https://cdn.pixabay.com/video/2024/03/10/203645-921832577_large.mp4', name: 'Cafe and rain' },
-	{ url: 'https://cdn.pixabay.com/video/2020/08/29/48501-454713916_large.mp4', name: 'Clouds' },
-	{ url: 'https://cdn.pixabay.com/video/2020/07/30/45959-447087605_large.mp4', name: 'Clouds 2' },
-	{ url: 'https://cdn.pixabay.com/video/2020/03/11/33542-397143915_large.mp4', name: 'Animated clouds' },
-	{ url: 'https://cdn.pixabay.com/video/2020/07/10/44335-438661935_large.mp4', name: 'Moon' },
-	{ url: 'https://cdn.pixabay.com/video/2022/12/03/141512-777708212_large.mp4', name: 'Christmas forest' },
-	{ url: 'https://cdn.pixabay.com/video/2022/08/10/127433-738466676_large.mp4', name: 'Forest cave' },
-	{ url: 'https://cdn.pixabay.com/video/2023/02/11/150150-797999302_large.mp4', name: 'Night snow' },
-	{ url: 'https://cdn.pixabay.com/video/2022/02/10/107311-676158777_large.mp4', name: 'Hexagons' },
-	{ url: 'https://cdn.pixabay.com/video/2019/09/12/26796-359604154_large.mp4', name: 'Cartoon meadow' },
-	{ url: 'https://cdn.pixabay.com/video/2019/09/19/27018-361798566_large.mp4', name: 'Dark purple shapes' },
-	{ url: 'https://cdn.pixabay.com/video/2023/02/14/150725-798877546_large.mp4', name: 'Colorful nature' },
-];
+export const backgroundVideos: IBackgroundItem[] = [{ url: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_5MB.mp4' }, { url: 'https://www.pexels.com/download/video/3089895/' }, { url: 'https://www.pexels.com/download/video/7513671/' }, { url: 'https://www.pexels.com/download/video/7710243/' }, { url: 'https://www.pexels.com/download/video/5453622/' }, { url: 'https://www.pexels.com/download/video/31084223/' }, { url: 'https://www.pexels.com/download/video/7075988/' }, { url: 'https://www.pexels.com/download/video/3130284/' }, { url: 'https://www.pexels.com/download/video/856281/' }, { url: 'https://cdn.pixabay.com/video/2023/10/02/183279-870457579_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2020/06/24/43027-434334088_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2023/05/30/165160-832090880_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2023/02/28/152522-803189119_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2022/11/27/140669-775595968_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2024/02/02/198921-909336000_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2023/08/05/174731-852025141_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2021/08/06/84086-584871133_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2022/11/11/138553-769988105_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2023/12/01/191573-890522311_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2023/10/17/185365-875417518_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2023/10/17/185367-875417528_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2023/10/17/185366-875417525_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2024/05/27/213923_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2024/02/25/201947-916877801_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2023/08/06/174944-852206099_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2023/10/17/185369-875417531_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2021/07/20/82170-577893740_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2021/12/07/99973-658725823_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2023/08/17/176434-855480487_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2017/10/20/12528-239934661_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2024/03/10/203662-921832586_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2022/02/17/107976-678971242_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2022/02/21/108420-680178323_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2021/02/28/66575-518836605_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2019/08/28/26344-357839084_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2024/03/10/203645-921832577_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2020/08/29/48501-454713916_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2020/07/30/45959-447087605_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2020/03/11/33542-397143915_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2020/07/10/44335-438661935_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2022/12/03/141512-777708212_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2022/08/10/127433-738466676_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2023/02/11/150150-797999302_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2022/02/10/107311-676158777_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2019/09/12/26796-359604154_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2019/09/19/27018-361798566_large.mp4' }, { url: 'https://cdn.pixabay.com/video/2023/02/14/150725-798877546_large.mp4' }];
 
-export const backgroundColors: IBackgroundColor[] = [
-	{ color: '#1a1a2e', name: 'Dark Navy' },
-	{ color: '#16213e', name: 'Deep Blue' },
-	{ color: '#0f3460', name: 'Ocean Blue' },
-	{ color: '#533483', name: 'Purple' },
-	{ color: '#2c1810', name: 'Dark Brown' },
-	{ color: '#1e3c72', name: 'Royal Blue' },
-	{ color: '#2a5298', name: 'Steel Blue' },
-	{ color: '#134e5e', name: 'Teal' },
-	{ color: '#71b280', name: 'Forest Green' },
-	{ color: '#ff6b6b', name: 'Coral Red' },
-	{ color: '#4ecdc4', name: 'Turquoise' },
-	{ color: '#45b7d1', name: 'Sky Blue' },
-];
+export const backgroundColors: IBackgroundColor[] = [{ color: '#1a1a2e' }, { color: '#16213e' }, { color: '#0f3460' }, { color: '#533483' }, { color: '#2c1810' }, { color: '#1e3c72' }, { color: '#2a5298' }, { color: '#134e5e' }, { color: '#71b280' }, { color: '#ff6b6b' }, { color: '#4ecdc4' }, { color: '#45b7d1' }];
 export let currentIndex = writable(0);
 
 loadBackground();

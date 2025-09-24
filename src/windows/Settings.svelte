@@ -178,19 +178,6 @@
 		cursor: pointer;
 	}
 
-	.background-name {
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		background: rgba(0, 0, 0, 0.6);
-		color: white;
-		font-size: 0.7vw;
-		font-weight: bold;
-		padding: 0.3vw 0.3vw;
-		text-align: center;
-	}
-
 	.settings-section {
 		margin-bottom: 20px;
 	}
@@ -265,7 +252,7 @@
 		<div class="background-grid">
 			{#each currentBackgroundItems as background, index}
 				{@const isCurrentSelected = $currentIndex === index}
-				<div class="background-item" class:active={isCurrentSelected} role="button" tabindex="0" aria-label="Select {background.name} background" onclick={() => handleBackgroundSelect(index)} onkeydown={e => handleKeydown(e, index)}>
+				<div class="background-item" class:active={isCurrentSelected} role="button" tabindex="0" aria-label="Select background" onclick={() => handleBackgroundSelect(index)} onkeydown={e => handleKeydown(e, index)}>
 					{#if $backgroundType === 'video' && 'url' in background}
 						<video class="background-thumbnail video-thumbnail" src={background.url} muted loop onmouseenter={e => handleVideoHover(e, true)} onmouseleave={e => handleVideoHover(e, false)}> Your browser does not support video. </video>
 					{:else if $backgroundType === 'color'}
@@ -273,7 +260,6 @@
 					{:else}
 						<div class="background-thumbnail" style="background-image: url('{'url' in background ? background.url : ''}')"></div>
 					{/if}
-					<div class="background-name">{background.name}</div>
 				</div>
 			{/each}
 		</div>
