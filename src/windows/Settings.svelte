@@ -3,7 +3,7 @@
 	import Window from '../components/Window.svelte';
 	import Select from '../components/Select.svelte';
 	import Option from '../components/SelectOption.svelte';
-	import { currentIndex, setBackground, getCurrentBackgroundItems, setBackgroundType, backgroundType } from '../scripts/background.ts';
+	import { currentIndex, setBackground, setBackgroundType, backgroundType, backgroundImages, backgroundVideos, backgroundColors } from '../scripts/background.ts';
 	import { getSettingsValue, setSettingsValue } from '../scripts/settings.ts';
 	import { validateGridResize, dashboardItems, gridLimits } from '../scripts/dashboard.ts';
 	interface Props {
@@ -13,11 +13,20 @@
 	let { show = false, onClose = () => {} }: Props = $props();
 	let inactivityTimeout: number = $state(getSettingsValue('inactivityTimeout') / 1000); // Convert to seconds
 	let grid = $state(getSettingsValue('grid'));
-	let currentBackgroundItems = $state(getCurrentBackgroundItems());
 
-	// Update current items when background type changes
-	$effect(() => {
-		currentBackgroundItems = getCurrentBackgroundItems();
+	// Derive current background items from background type reactively
+	const currentBackgroundItems = $derived.by(() => {
+		const type = $backgroundType;
+		switch (type) {
+			case 'image':
+				return backgroundImages;
+			case 'video':
+				return backgroundVideos;
+			case 'color':
+				return backgroundColors;
+			default:
+				return backgroundImages;
+		}
 	});
 
 	function handleBackgroundSelect(index: number) {
@@ -26,7 +35,6 @@
 
 	function handleBackgroundTypeChange(type: 'image' | 'video' | 'color') {
 		setBackgroundType(type);
-		currentBackgroundItems = getCurrentBackgroundItems();
 	}
 
 	function handleBackgroundTypeSelect(event: Event) {
