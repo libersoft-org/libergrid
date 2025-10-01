@@ -6,15 +6,13 @@
 		border?: boolean;
 		colSpan?: number;
 		rowSpan?: number;
-		resizable?: boolean;
-		draggable?: boolean;
 		onResize?: (newColSpan: number, newRowSpan: number, newGridRow?: number, newGridCol?: number) => void;
 		onMove?: (newGridRow: number, newGridCol: number) => void;
 		onToggleBorder?: () => void;
 		onRemove?: () => void;
 		children: Snippet;
 	}
-	let { border = true, colSpan = 1, rowSpan = 1, resizable = true, draggable = true, onResize = () => {}, onMove = () => {}, onToggleBorder = () => {}, onRemove = () => {}, children }: Props = $props();
+	let { border = true, colSpan = 1, rowSpan = 1, onResize = () => {}, onMove = () => {}, onToggleBorder = () => {}, onRemove = () => {}, children }: Props = $props();
 	// Get grid dimensions from settings
 	let gridConfig = $state(getSettingsValue('grid'));
 	const gridCols = $derived(gridConfig.cols);
@@ -54,7 +52,6 @@
 	}
 
 	function handleResizeStart(event: MouseEvent | TouchEvent, direction: string) {
-		if (!resizable) return;
 		event.stopPropagation();
 		isResizing = true;
 		resizeDirection = direction;
@@ -84,10 +81,10 @@
 	}
 
 	function handleDragStart(event: MouseEvent | TouchEvent) {
-		if (!draggable || isResizing) return;
+		if (isResizing) return;
 		// Check if we're not clicking on resize handle
 		const target = event.target as HTMLElement;
-		if (target.classList.contains('resize-handle') || target.classList.contains('remove-button') || target.classList.contains('border-toggle')) {
+		if (target.classList.contains('resizer') || target.classList.contains('remove-button') || target.classList.contains('border-toggle')) {
 			return; // Don't allow drag on resize handles, remove button or border toggle
 		}
 		event.stopPropagation();
@@ -297,6 +294,16 @@
 			}, 1000);
 		}
 	}
+
+	function handleToggleBorder(event: MouseEvent) {
+		event.stopPropagation();
+		onToggleBorder();
+	}
+
+	function handleRemove(event: MouseEvent) {
+		event.stopPropagation();
+		onRemove();
+	}
 </script>
 
 <style>
@@ -331,109 +338,100 @@
 		backdrop-filter: blur(5px);
 	}
 
-	.resize-handle {
+	.resizer {
+		z-index: 10;
 		position: absolute;
 		background: rgba(255, 255, 255, 0.2);
-		transition: all 0.2s ease;
-		z-index: 10;
-		cursor: default;
 		min-width: 0.5vw;
 		min-height: 0.5vw;
+		transition: all 0.5s linear;
 	}
 
-	.resize-handle:hover {
+	.resizer:hover {
 		background: rgba(255, 255, 255, 0.8);
 	}
 
-	.resize-top {
+	.resizer.top {
 		top: 0;
-		left: 0.5vw;
-		right: 0.5vw;
-		height: 0.5vw;
-		cursor: ns-resize;
 	}
 
-	.resize-right {
-		top: 0.5vw;
-		bottom: 0.5vw;
-		right: 0;
-		width: 0.5vw;
-		cursor: ew-resize;
-	}
-
-	.resize-bottom {
+	.resizer.bottom {
 		bottom: 0;
+	}
+
+	.resizer.top,
+	.resizer.bottom {
 		left: 0.5vw;
 		right: 0.5vw;
 		height: 0.5vw;
 		cursor: ns-resize;
 	}
 
-	.resize-left {
+	.resizer.left {
 		left: 0;
+	}
+
+	.resizer.right {
+		right: 0;
+	}
+
+	.resizer.left,
+	.resizer.right {
 		top: 0.5vw;
 		bottom: 0.5vw;
 		width: 0.5vw;
 		cursor: ew-resize;
 	}
 
-	.resize-corner-tl {
-		top: 0;
+	.resizer.ctl {
 		left: 0;
-		width: 0.5vw;
-		height: 0.5vw;
 		cursor: nw-resize;
 	}
 
-	.resize-corner-tr {
-		top: 0;
+	.resizer.ctr {
 		right: 0;
-		width: 0.5vw;
-		height: 0.5vw;
 		cursor: ne-resize;
 	}
 
-	.resize-corner-bl {
-		bottom: 0;
+	.resizer.ctl,
+	.resizer.ctr {
+		top: 0;
+	}
+
+	.resizer.cbl {
 		left: 0;
-		width: 0.5vw;
-		height: 0.5vw;
 		cursor: sw-resize;
 	}
 
-	.resize-corner-br {
-		bottom: 0;
+	.resizer.cbr {
 		right: 0;
-		width: 0.5vw;
-		height: 0.5vw;
 		cursor: se-resize;
 	}
 
-	.resize-corner-tl:hover,
-	.resize-corner-tr:hover,
-	.resize-corner-bl:hover,
-	.resize-corner-br:hover {
-		background: rgba(255, 255, 255, 0.9);
+	.resizer.cbl,
+	.resizer.cbr {
+		bottom: 0;
 	}
 
-	.widget:hover .resize-handle {
+	.resizer.ctl,
+	.resizer.ctr,
+	.resizer.cbl,
+	.resizer.cbr {
+		width: 0.5vw;
+		height: 0.5vw;
+	}
+
+	.widget:hover .resizer {
 		opacity: 1;
-	}
-
-	.resize-handle {
-		opacity: 0;
-		transition:
-			opacity 0.2s ease,
-			background 0.2s ease;
 	}
 
 	/* Show resize handles on touch devices when widget is touched */
 	@media (hover: none) and (pointer: coarse) {
-		.resize-handle {
+		.resizer {
 			opacity: 0.6;
 		}
 
-		.widget:active .resize-handle {
+		.widget:active .resizer {
 			opacity: 1;
 		}
 	}
@@ -478,42 +476,20 @@
 	}
 </style>
 
-<div class="widget" class:with-border={border} class:dragging={isDragging} onmousedown={handleDragStart} ontouchstart={handleDragStart} onmouseenter={handleMouseEnter} onmousemove={handleMouseMove} onmouseleave={handleMouseLeave} ontouchend={handleTouchEnd} role="button" tabindex="0" aria-label="Draggable widget">
+<div class="widget" class:with-border={border} class:dragging={isDragging} onmousedown={handleDragStart} ontouchstart={handleDragStart} onmouseenter={handleMouseEnter} onmousemove={handleMouseMove} onmouseleave={handleMouseLeave} ontouchend={handleTouchEnd} role="button" tabindex="0">
 	{@render children()}
 	{#if showResizeHandles}
-		<!-- Remove button -->
-		<button
-			class="remove-button"
-			onclick={e => {
-				e.stopPropagation();
-				onRemove();
-			}}
-			title="Remove widget"
-		>
-			×
-		</button>
-		<!-- Border toggle button -->
-		<button
-			class="border-toggle"
-			onclick={e => {
-				e.stopPropagation();
-				onToggleBorder();
-			}}
-			title={border ? 'Turn off border' : 'Turn on border'}
-		>
-			{border ? '🔲' : '⬜'}
-		</button>
+		<button class="border-toggle" onclick={handleToggleBorder} title={border ? 'Turn off border' : 'Turn on border'}>⬜</button>
+		<button class="remove-button" onclick={handleRemove} title="Remove widget">×</button>
 	{/if}
-	{#if resizable && showResizeHandles}
-		<!-- Sides -->
-		<div class="resize-handle resize-top" onmousedown={e => handleResizeStart(e, 'top')} ontouchstart={e => handleResizeStart(e, 'top')} onkeydown={e => handleResizeKeydown(e, 'top')} role="button" tabindex="0" aria-label="Resize top"></div>
-		<div class="resize-handle resize-right" onmousedown={e => handleResizeStart(e, 'right')} ontouchstart={e => handleResizeStart(e, 'right')} onkeydown={e => handleResizeKeydown(e, 'right')} role="button" tabindex="0" aria-label="Resize right"></div>
-		<div class="resize-handle resize-bottom" onmousedown={e => handleResizeStart(e, 'bottom')} ontouchstart={e => handleResizeStart(e, 'bottom')} onkeydown={e => handleResizeKeydown(e, 'bottom')} role="button" tabindex="0" aria-label="Resize bottom"></div>
-		<div class="resize-handle resize-left" onmousedown={e => handleResizeStart(e, 'left')} ontouchstart={e => handleResizeStart(e, 'left')} onkeydown={e => handleResizeKeydown(e, 'left')} role="button" tabindex="0" aria-label="Resize left"></div>
-		<!-- Corners -->
-		<div class="resize-handle resize-corner-tl" onmousedown={e => handleResizeStart(e, 'top-left')} ontouchstart={e => handleResizeStart(e, 'top-left')} onkeydown={e => handleResizeKeydown(e, 'top-left')} role="button" tabindex="0" aria-label="Resize top-left corner"></div>
-		<div class="resize-handle resize-corner-tr" onmousedown={e => handleResizeStart(e, 'top-right')} ontouchstart={e => handleResizeStart(e, 'top-right')} onkeydown={e => handleResizeKeydown(e, 'top-right')} role="button" tabindex="0" aria-label="Resize top-right corner"></div>
-		<div class="resize-handle resize-corner-bl" onmousedown={e => handleResizeStart(e, 'bottom-left')} ontouchstart={e => handleResizeStart(e, 'bottom-left')} onkeydown={e => handleResizeKeydown(e, 'bottom-left')} role="button" tabindex="0" aria-label="Resize bottom-left corner"></div>
-		<div class="resize-handle resize-corner-br" onmousedown={e => handleResizeStart(e, 'bottom-right')} ontouchstart={e => handleResizeStart(e, 'bottom-right')} onkeydown={e => handleResizeKeydown(e, 'bottom-right')} role="button" tabindex="0" aria-label="Resize bottom-right corner"></div>
+	{#if showResizeHandles}
+		<div class="resizer top" onmousedown={e => handleResizeStart(e, 'top')} ontouchstart={e => handleResizeStart(e, 'top')} onkeydown={e => handleResizeKeydown(e, 'top')} role="button" tabindex="0" aria-label="Resize top"></div>
+		<div class="resizer right" onmousedown={e => handleResizeStart(e, 'right')} ontouchstart={e => handleResizeStart(e, 'right')} onkeydown={e => handleResizeKeydown(e, 'right')} role="button" tabindex="0" aria-label="Resize right"></div>
+		<div class="resizer bottom" onmousedown={e => handleResizeStart(e, 'bottom')} ontouchstart={e => handleResizeStart(e, 'bottom')} onkeydown={e => handleResizeKeydown(e, 'bottom')} role="button" tabindex="0" aria-label="Resize bottom"></div>
+		<div class="resizer left" onmousedown={e => handleResizeStart(e, 'left')} ontouchstart={e => handleResizeStart(e, 'left')} onkeydown={e => handleResizeKeydown(e, 'left')} role="button" tabindex="0" aria-label="Resize left"></div>
+		<div class="resizer ctl" onmousedown={e => handleResizeStart(e, 'top-left')} ontouchstart={e => handleResizeStart(e, 'top-left')} onkeydown={e => handleResizeKeydown(e, 'top-left')} role="button" tabindex="0" aria-label="Resize top-left corner"></div>
+		<div class="resizer ctr" onmousedown={e => handleResizeStart(e, 'top-right')} ontouchstart={e => handleResizeStart(e, 'top-right')} onkeydown={e => handleResizeKeydown(e, 'top-right')} role="button" tabindex="0" aria-label="Resize top-right corner"></div>
+		<div class="resizer cbl" onmousedown={e => handleResizeStart(e, 'bottom-left')} ontouchstart={e => handleResizeStart(e, 'bottom-left')} onkeydown={e => handleResizeKeydown(e, 'bottom-left')} role="button" tabindex="0" aria-label="Resize bottom-left corner"></div>
+		<div class="resizer cbr" onmousedown={e => handleResizeStart(e, 'bottom-right')} ontouchstart={e => handleResizeStart(e, 'bottom-right')} onkeydown={e => handleResizeKeydown(e, 'bottom-right')} role="button" tabindex="0" aria-label="Resize bottom-right corner"></div>
 	{/if}
 </div>
