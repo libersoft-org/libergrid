@@ -5,7 +5,6 @@
 		'data-testid'?: string;
 	}
 	let { size = 3, checked = $bindable(), ...restProps }: Props = $props();
-	let mounted = $state(false);
 	let inputId = Math.random().toString(36);
 	const switchWidth = size + 'vw';
 	const switchHeight = size * 0.6 + 'vw';
@@ -20,12 +19,6 @@
 			checked = !checked;
 		}
 	}
-
-	$effect(() => {
-		requestAnimationFrame(() => {
-			mounted = true;
-		});
-	});
 </script>
 
 <style>
@@ -57,16 +50,11 @@
 		border: solid #fff;
 		cursor: pointer;
 		pointer-events: none;
+		transition: background-color 0.4s ease;
 	}
 
-	.transition {
-		-webkit-transition: 0.4s;
-		transition: 0.4s;
-	}
-
-	.transition:before {
-		-webkit-transition: 0.4s;
-		transition: 0.4s;
+	.switch .slider:before {
+		transition: transform 0.4s ease;
 	}
 
 	.switch .slider:before {
@@ -96,6 +84,6 @@
 <div class="switch">
 	<div class="switch-wrapper" style:width={switchWidth} style:height={switchHeight}>
 		<input {...restProps} id={inputId} type="checkbox" bind:checked onkeydown={keyPress} style:width={switchWidth} style:height={switchHeight} />
-		<span class="slider {mounted ? 'transition' : ''}" style:border-radius={switchHeight} style:border-width={borderWidth} style:--slider-size={sliderSize} style:--slider-offset={sliderOffset} style:--slider-translate={sliderTranslate}></span>
+		<span class="slider" style:border-radius={switchHeight} style:border-width={borderWidth} style:--slider-size={sliderSize} style:--slider-offset={sliderOffset} style:--slider-translate={sliderTranslate}></span>
 	</div>
 </div>
