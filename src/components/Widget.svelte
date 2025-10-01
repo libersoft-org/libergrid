@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { getSettingsValue } from '../scripts/settings.ts';
+	import WidgetButton from './WidgetButton.svelte';
 	import type { Snippet } from 'svelte';
 	interface Props {
 		border?: boolean;
@@ -82,10 +83,10 @@
 
 	function handleDragStart(event: MouseEvent | TouchEvent) {
 		if (isResizing) return;
-		// Check if we're not clicking on resize handle
+		// Check if we're not clicking on resize handle or widget buttons
 		const target = event.target as HTMLElement;
-		if (target.classList.contains('resizer') || target.classList.contains('remove-button') || target.classList.contains('border-toggle')) {
-			return; // Don't allow drag on resize handles, remove button or border toggle
+		if (target.classList.contains('resizer') || target.classList.contains('widget-button') || target.closest('.widget-button')) {
+			return; // Don't allow drag on resize handles or widget buttons
 		}
 		event.stopPropagation();
 		isDragging = true;
@@ -295,6 +296,11 @@
 		}
 	}
 
+	function handleSettings(event: MouseEvent) {
+		event.stopPropagation();
+		// TODO
+	}
+
 	function handleToggleBorder(event: MouseEvent) {
 		event.stopPropagation();
 		onToggleBorder();
@@ -425,6 +431,14 @@
 		opacity: 1;
 	}
 
+	.buttons {
+		position: absolute;
+		display: flex;
+		gap: 0.25vw;
+		top: 0.5vw;
+		right: 0.5vw;
+	}
+
 	/* Show resize handles on touch devices when widget is touched */
 	@media (hover: none) and (pointer: coarse) {
 		.resizer {
@@ -435,52 +449,16 @@
 			opacity: 1;
 		}
 	}
-
-	.border-toggle {
-		position: absolute;
-		top: 0.8vw;
-		right: 2vw;
-		width: 1vw;
-		height: 1vw;
-		background: rgba(0, 0, 0, 0.7);
-		border: 1px solid rgba(255, 255, 255, 0.3);
-		border-radius: 4px;
-		color: white;
-		font-size: 12px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		cursor: pointer;
-		z-index: 15;
-		backdrop-filter: blur(5px);
-	}
-
-	.remove-button {
-		position: absolute;
-		top: 0.8vw;
-		right: 0.8vw;
-		width: 1vw;
-		height: 1vw;
-		background: #f00;
-		border: 0.1vw solid #000;
-		border-radius: 0.25vw;
-		color: white;
-		font-size: 14px;
-		font-weight: bold;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		cursor: pointer;
-		z-index: 15;
-		backdrop-filter: blur(5px);
-	}
 </style>
 
 <div class="widget" class:with-border={border} class:dragging={isDragging} onmousedown={handleDragStart} ontouchstart={handleDragStart} onmouseenter={handleMouseEnter} onmousemove={handleMouseMove} onmouseleave={handleMouseLeave} ontouchend={handleTouchEnd} role="button" tabindex="0">
 	{@render children()}
 	{#if showResizeHandles}
-		<button class="border-toggle" onclick={handleToggleBorder} title={border ? 'Turn off border' : 'Turn on border'}>⬜</button>
-		<button class="remove-button" onclick={handleRemove} title="Remove widget">×</button>
+		<div class="buttons">
+			<WidgetButton img="img/settings.svg" bgColor="#0f0" borderColor="#080" onClick={handleSettings} />
+			<WidgetButton img="img/power.svg" onClick={handleToggleBorder} />
+			<WidgetButton img="img/cross.svg" bgColor="#f00" borderColor="#800" onClick={handleRemove} />
+		</div>
 	{/if}
 	{#if showResizeHandles}
 		<div class="resizer top" onmousedown={e => handleResizeStart(e, 'top')} ontouchstart={e => handleResizeStart(e, 'top')} onkeydown={e => handleResizeKeydown(e, 'top')} role="button" tabindex="0" aria-label="Resize top"></div>

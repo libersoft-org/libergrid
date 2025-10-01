@@ -9,7 +9,7 @@
 		enabled?: boolean;
 		testId?: string;
 	}
-	let { img, alt = '', size = '24px', padding = '10px', onClick, enabled = true, testId }: Props = $props();
+	let { img, alt = '', size = '1vw', padding = '0.25vw', onClick, enabled = true, testId }: Props = $props();
 </script>
 
 <style>
