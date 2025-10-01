@@ -34,7 +34,6 @@
 	// Mouse activity tracking for resize handles visibility
 	let showResizeHandles = $state(false);
 	let mouseTimeout: number;
-	const mouseTimeoutDelay = 2000; // 2 seconds
 	let isTouchDevice = false;
 
 	onMount(() => {
@@ -280,7 +279,7 @@
 		clearTimeout(mouseTimeout);
 		mouseTimeout = setTimeout(() => {
 			showResizeHandles = false;
-		}, mouseTimeoutDelay);
+		}, getSettingsValue('inactivityTimeout'));
 	}
 
 	function handleMouseLeave() {
@@ -525,7 +524,7 @@
 			class="remove-button"
 			onclick={e => {
 				e.stopPropagation();
-				onRemove(e);
+				onRemove();
 			}}
 			title="Remove widget"
 		>
@@ -536,7 +535,7 @@
 			class="border-toggle"
 			onclick={e => {
 				e.stopPropagation();
-				onToggleBorder(e);
+				onToggleBorder();
 			}}
 			title={border ? 'Turn off border' : 'Turn on border'}
 		>
