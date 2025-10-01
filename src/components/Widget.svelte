@@ -289,18 +289,6 @@
 		}, 300); // Short delay when leaving to avoid flickering
 	}
 
-	// Touch handlers for resize handles visibility
-	function handleTouchStart() {
-		detectTouchDevice();
-		if (isTouchDevice) {
-			showResizeHandles = true;
-			clearTimeout(mouseTimeout);
-			mouseTimeout = setTimeout(() => {
-				showResizeHandles = false;
-			}, 3000); // Show longer on touch devices
-		}
-	}
-
 	function handleTouchEnd() {
 		if (isTouchDevice && !isResizing && !isDragging) {
 			clearTimeout(mouseTimeout);
@@ -322,15 +310,14 @@
 		align-items: center;
 		text-align: center;
 		box-sizing: border-box;
-		overflow: hidden; /* Ořízne přetékající obsah */
+		overflow: hidden;
 		height: 100%;
 		width: 100%;
 		position: relative;
-		min-height: 0; /* Umožní zmenšení */
-		min-width: 0; /* Umožní zmenšení */
-		cursor: move; /* Indikuje, že je možné přesouvat */
+		min-height: 0;
+		min-width: 0;
+		cursor: move;
 		transition: opacity 0.2s ease;
-		/* Odstraníme grid positioning - to řeší parent */
 	}
 
 	.widget.dragging {
@@ -349,92 +336,77 @@
 		background: rgba(255, 255, 255, 0.2);
 		transition: all 0.2s ease;
 		z-index: 10;
-		cursor: default; /* Override parent cursor */
-		/* Make resize handles larger on touch devices */
-		min-width: 20px;
-		min-height: 20px;
+		cursor: default;
+		min-width: 0.5vw;
+		min-height: 0.5vw;
 	}
 
 	.resize-handle:hover {
 		background: rgba(255, 255, 255, 0.8);
 	}
 
-	/* Strany */
 	.resize-top {
 		top: 0;
-		left: 10px;
-		right: 10px;
-		height: 12px;
+		left: 0.5vw;
+		right: 0.5vw;
+		height: 0.5vw;
 		cursor: ns-resize;
-		border-radius: 1vh 1vh 0 0;
 	}
 
 	.resize-right {
+		top: 0.5vw;
+		bottom: 0.5vw;
 		right: 0;
-		top: 10px;
-		bottom: 10px;
-		width: 12px;
+		width: 0.5vw;
 		cursor: ew-resize;
-		border-radius: 0 1vh 1vh 0;
 	}
 
 	.resize-bottom {
 		bottom: 0;
-		left: 10px;
-		right: 10px;
-		height: 12px;
+		left: 0.5vw;
+		right: 0.5vw;
+		height: 0.5vw;
 		cursor: ns-resize;
-		border-radius: 0 0 1vh 1vh;
 	}
 
 	.resize-left {
 		left: 0;
-		top: 10px;
-		bottom: 10px;
-		width: 12px;
+		top: 0.5vw;
+		bottom: 0.5vw;
+		width: 0.5vw;
 		cursor: ew-resize;
-		border-radius: 1vh 0 0 1vh;
 	}
 
-	/* Rohy - make them larger for touch */
 	.resize-corner-tl {
 		top: 0;
 		left: 0;
-		width: 24px;
-		height: 24px;
+		width: 0.5vw;
+		height: 0.5vw;
 		cursor: nw-resize;
-		border-radius: 1vh 0 0 0;
-		background: rgba(255, 255, 255, 0.4);
 	}
 
 	.resize-corner-tr {
 		top: 0;
 		right: 0;
-		width: 24px;
-		height: 24px;
+		width: 0.5vw;
+		height: 0.5vw;
 		cursor: ne-resize;
-		border-radius: 0 1vh 0 0;
-		background: rgba(255, 255, 255, 0.4);
 	}
 
 	.resize-corner-bl {
 		bottom: 0;
 		left: 0;
-		width: 24px;
-		height: 24px;
+		width: 0.5vw;
+		height: 0.5vw;
 		cursor: sw-resize;
-		border-radius: 0 0 0 1vh;
-		background: rgba(255, 255, 255, 0.4);
 	}
 
 	.resize-corner-br {
 		bottom: 0;
 		right: 0;
-		width: 24px;
-		height: 24px;
+		width: 0.5vw;
+		height: 0.5vw;
 		cursor: se-resize;
-		border-radius: 0 0 1vh 0;
-		background: rgba(255, 255, 255, 0.4);
 	}
 
 	.resize-corner-tl:hover,
@@ -468,10 +440,10 @@
 
 	.border-toggle {
 		position: absolute;
-		top: 5px;
-		right: 35px;
-		width: 24px;
-		height: 24px;
+		top: 0.8vw;
+		right: 2vw;
+		width: 1vw;
+		height: 1vw;
 		background: rgba(0, 0, 0, 0.7);
 		border: 1px solid rgba(255, 255, 255, 0.3);
 		border-radius: 4px;
@@ -485,20 +457,15 @@
 		backdrop-filter: blur(5px);
 	}
 
-	.border-toggle:hover {
-		background: rgba(255, 255, 255, 0.2);
-		border-color: rgba(255, 255, 255, 0.8);
-	}
-
 	.remove-button {
 		position: absolute;
-		top: 5px;
-		right: 5px;
-		width: 24px;
-		height: 24px;
-		background: rgba(255, 0, 0, 0.7);
-		border: 1px solid rgba(255, 255, 255, 0.3);
-		border-radius: 4px;
+		top: 0.8vw;
+		right: 0.8vw;
+		width: 1vw;
+		height: 1vw;
+		background: #f00;
+		border: 0.1vw solid #000;
+		border-radius: 0.25vw;
 		color: white;
 		font-size: 14px;
 		font-weight: bold;
@@ -508,11 +475,6 @@
 		cursor: pointer;
 		z-index: 15;
 		backdrop-filter: blur(5px);
-	}
-
-	.remove-button:hover {
-		background: rgba(255, 0, 0, 0.9);
-		border-color: rgba(255, 255, 255, 0.8);
 	}
 </style>
 
