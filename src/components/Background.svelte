@@ -15,11 +15,7 @@
 		object-fit: cover;
 	}
 
-	.background.image {
-		background-size: cover;
-		background-position: center;
-	}
-
+	.background.image,
 	.background.color {
 		background-size: cover;
 		background-position: center;

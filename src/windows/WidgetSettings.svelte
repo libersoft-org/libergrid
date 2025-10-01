@@ -9,7 +9,7 @@
 		onTransparencyChange?: (newTransparency: boolean) => void;
 	}
 
-	let { show = false, transparency = $bindable(true), onClose = () => {}, onTransparencyChange = () => {} }: Props = $props();
+	let { show = false, transparency = $bindable(false), onClose = () => {}, onTransparencyChange = () => {} }: Props = $props();
 </script>
 
 <style>

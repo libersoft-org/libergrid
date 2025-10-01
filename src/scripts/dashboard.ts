@@ -25,7 +25,7 @@ export interface IGridItem {
 	gridCol: number;
 	colSpan: number;
 	rowSpan: number;
-	border: boolean;
+	transparency: boolean;
 }
 export const gridItems: IGridItemType[] = [
 	{ type: 'time', label: 'Time' },
@@ -72,10 +72,8 @@ export function dashboardUpdateItem(id: string, updates: Partial<IGridItem>) {
 export function updateItemTransparency(id: string, newTransparency: boolean) {
 	dashboardItems.update(items => {
 		const item = items.find(item => item.id === id);
-		if (item && item.border !== newTransparency) {
-			const newItems = items.map(item => 
-				item.id === id ? { ...item, border: newTransparency } : item
-			);
+		if (item && item.transparency !== newTransparency) {
+			const newItems = items.map(item => (item.id === id ? { ...item, transparency: newTransparency } : item));
 			saveDashboardItems(newItems);
 			return newItems;
 		}
@@ -93,7 +91,15 @@ function loadDashboardItems(): IGridItem[] {
 	try {
 		const loadedItems = getSettingsValue('dashboardItems');
 		if (Array.isArray(loadedItems)) {
-			const validItems = loadedItems.filter(item => item && typeof item.id === 'string' && typeof item.type === 'string' && typeof item.gridRow === 'number' && typeof item.gridCol === 'number' && typeof item.colSpan === 'number' && typeof item.rowSpan === 'number' && typeof item.border === 'boolean');
+			const validItems = loadedItems
+				.filter(item => item && typeof item.id === 'string' && typeof item.type === 'string' && typeof item.gridRow === 'number' && typeof item.gridCol === 'number' && typeof item.colSpan === 'number' && typeof item.rowSpan === 'number')
+				.map(item => ({
+					...item,
+					// Ensure transparency property exists (default to false for new widgets)
+					transparency: typeof item.transparency === 'boolean' ? item.transparency : false,
+					// Ensure border property exists
+					border: typeof item.border === 'boolean' ? item.border : true,
+				}));
 			return validItems;
 		} else {
 			return [];
@@ -155,6 +161,7 @@ export function createNewItem(type: IGridItemType['type'], gridRow: number, grid
 		colSpan: 1,
 		rowSpan: 1,
 		border: true,
+		transparency: false,
 	};
 }
 
