@@ -5,7 +5,7 @@
 	import WidgetSettings from '../windows/WidgetSettings.svelte';
 	import type { Snippet } from 'svelte';
 	interface Props {
-		border?: boolean;
+		transparency?: boolean;
 		colSpan?: number;
 		rowSpan?: number;
 		onResize?: (newColSpan: number, newRowSpan: number, newGridRow?: number, newGridCol?: number) => void;
@@ -14,16 +14,8 @@
 		onRemove?: () => void;
 		children: Snippet;
 	}
-	let { border = true, colSpan = 1, rowSpan = 1, onResize = () => {}, onMove = () => {}, onToggleBorder = () => {}, onRemove = () => {}, children }: Props = $props();
+	let { transparency = true, colSpan = 1, rowSpan = 1, onResize = () => {}, onMove = () => {}, onToggleBorder = () => {}, onRemove = () => {}, children }: Props = $props();
 	let showSettings = $state(false);
-	let transparency = $state(border);
-
-	// Watch for transparency changes and update border accordingly
-	$effect(() => {
-		if (transparency !== border) {
-			onToggleBorder();
-		}
-	});
 	// Get grid dimensions from settings
 	let gridConfig = $state(getSettingsValue('grid'));
 	const gridCols = $derived(gridConfig.cols);
