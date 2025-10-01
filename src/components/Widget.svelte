@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { getSettingsValue } from '../scripts/settings.ts';
 	import WidgetButton from './WidgetButton.svelte';
+	import WidgetSettings from '../windows/WidgetSettings.svelte';
 	import type { Snippet } from 'svelte';
 	interface Props {
 		border?: boolean;
@@ -14,6 +15,15 @@
 		children: Snippet;
 	}
 	let { border = true, colSpan = 1, rowSpan = 1, onResize = () => {}, onMove = () => {}, onToggleBorder = () => {}, onRemove = () => {}, children }: Props = $props();
+	let showSettings = $state(false);
+	let transparency = $state(border);
+
+	// Watch for transparency changes and update border accordingly
+	$effect(() => {
+		if (transparency !== border) {
+			onToggleBorder();
+		}
+	});
 	// Get grid dimensions from settings
 	let gridConfig = $state(getSettingsValue('grid'));
 	const gridCols = $derived(gridConfig.cols);
@@ -298,12 +308,11 @@
 
 	function handleSettings(event: MouseEvent) {
 		event.stopPropagation();
-		// TODO
+		showSettings = true;
 	}
 
-	function handleToggleBorder(event: MouseEvent) {
-		event.stopPropagation();
-		onToggleBorder();
+	function handleCloseSettings() {
+		showSettings = false;
 	}
 
 	function handleRemove(event: MouseEvent) {
@@ -451,12 +460,12 @@
 	}
 </style>
 
-<div class="widget" class:with-border={border} class:dragging={isDragging} onmousedown={handleDragStart} ontouchstart={handleDragStart} onmouseenter={handleMouseEnter} onmousemove={handleMouseMove} onmouseleave={handleMouseLeave} ontouchend={handleTouchEnd} role="button" tabindex="0">
+<div class="widget" class:with-border={transparency} class:dragging={isDragging} onmousedown={handleDragStart} ontouchstart={handleDragStart} onmouseenter={handleMouseEnter} onmousemove={handleMouseMove} onmouseleave={handleMouseLeave} ontouchend={handleTouchEnd} role="button" tabindex="0">
 	{@render children()}
 	{#if showResizeHandles}
 		<div class="buttons">
 			<WidgetButton img="img/settings.svg" bgColor="#0f0" borderColor="#080" onClick={handleSettings} />
-			<WidgetButton img="img/power.svg" onClick={handleToggleBorder} />
+			<!--<WidgetButton img="img/power.svg" onClick={handleToggleBorder} />-->
 			<WidgetButton img="img/cross.svg" bgColor="#f00" borderColor="#800" onClick={handleRemove} />
 		</div>
 	{/if}
@@ -471,3 +480,4 @@
 		<div class="resizer cbr" onmousedown={e => handleResizeStart(e, 'bottom-right')} ontouchstart={e => handleResizeStart(e, 'bottom-right')} onkeydown={e => handleResizeKeydown(e, 'bottom-right')} role="button" tabindex="0" aria-label="Resize bottom-right corner"></div>
 	{/if}
 </div>
+<WidgetSettings show={showSettings} bind:transparency onClose={handleCloseSettings} />
