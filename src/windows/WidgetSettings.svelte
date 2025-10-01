@@ -10,11 +10,6 @@
 	}
 
 	let { show = false, transparency = $bindable(true), onClose = () => {}, onTransparencyChange = () => {} }: Props = $props();
-	
-	// Watch for transparency changes and notify parent
-	$effect(() => {
-		onTransparencyChange(transparency);
-	});
 </script>
 
 <style>
@@ -50,6 +45,6 @@
 			<div class="setting-description">Enable transparent background with blur effect</div>
 			<div style="font-size: 12px; color: #999;">Current value: {transparency}</div>
 		</div>
-		<Switch bind:checked={transparency} />
+		<Switch bind:checked={transparency} onChange={onTransparencyChange} />
 	</div>
 </Window>

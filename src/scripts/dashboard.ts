@@ -69,6 +69,20 @@ export function dashboardUpdateItem(id: string, updates: Partial<IGridItem>) {
 	});
 }
 
+export function updateItemTransparency(id: string, newTransparency: boolean) {
+	dashboardItems.update(items => {
+		const item = items.find(item => item.id === id);
+		if (item && item.border !== newTransparency) {
+			const newItems = items.map(item => 
+				item.id === id ? { ...item, border: newTransparency } : item
+			);
+			saveDashboardItems(newItems);
+			return newItems;
+		}
+		return items;
+	});
+}
+
 export function dashboardReloadItems() {
 	const newItems = loadDashboardItems();
 	dashboardItems.set(newItems);

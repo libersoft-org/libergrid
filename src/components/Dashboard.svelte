@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { type IGridItemType, type IGridPosition, dashboardItems, dashboardAddItem, dashboardDelItem, dashboardUpdateItem, dashboardReloadItems, getGridOccupancy, createNewItem, getComponentProps, updateItemSize, updateItemPosition, showFields } from '../scripts/dashboard.ts';
+	import { type IGridItemType, type IGridPosition, dashboardItems, dashboardAddItem, dashboardDelItem, dashboardUpdateItem, dashboardReloadItems, getGridOccupancy, createNewItem, getComponentProps, updateItemSize, updateItemPosition, updateItemTransparency, showFields } from '../scripts/dashboard.ts';
 	import { getSettingsValue } from '../scripts/settings.ts';
 	import Field from './DashboardField.svelte';
 	import Widget from './Widget.svelte';
@@ -42,13 +42,6 @@
 		const item = $dashboardItems.find(item => item.id === id);
 		if (item) {
 			dashboardUpdateItem(id, { border: !item.border });
-		}
-	}
-
-	function updateComponentTransparency(id: string, newTransparency: boolean) {
-		const item = $dashboardItems.find(item => item.id === id);
-		if (item && item.border !== newTransparency) {
-			dashboardUpdateItem(id, { border: newTransparency });
 		}
 	}
 
@@ -192,7 +185,7 @@
 			"
 		>
 			<div class="component-wrapper">
-				<Widget transparency={item.border} colSpan={item.colSpan} rowSpan={item.rowSpan} onResize={(newColSpan, newRowSpan, newGridRow, newGridCol) => updateComponentSize(item.id, newColSpan, newRowSpan, newGridRow, newGridCol)} onMove={(newGridRow, newGridCol) => updateComponentPosition(item.id, newGridRow, newGridCol)} onToggleBorder={() => toggleComponentBorder(item.id)} onTransparencyChange={(newTransparency) => updateComponentTransparency(item.id, newTransparency)} onRemove={() => removeComponent(item.id)}>
+				<Widget transparency={item.border} colSpan={item.colSpan} rowSpan={item.rowSpan} onResize={(newColSpan, newRowSpan, newGridRow, newGridCol) => updateComponentSize(item.id, newColSpan, newRowSpan, newGridRow, newGridCol)} onMove={(newGridRow, newGridCol) => updateComponentPosition(item.id, newGridRow, newGridCol)} onToggleBorder={() => toggleComponentBorder(item.id)} onTransparencyChange={(newTransparency) => updateItemTransparency(item.id, newTransparency)} onRemove={() => removeComponent(item.id)}>
 					{#snippet children()}
 						{@const Component = getComponentByType(item.type)}
 						{#if Component}

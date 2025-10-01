@@ -3,8 +3,9 @@
 		size?: number;
 		checked?: boolean;
 		'data-testid'?: string;
+		onChange?: (newValue: boolean) => void;
 	}
-	let { size = 3, checked = $bindable(), ...restProps }: Props = $props();
+	let { size = 3, checked = $bindable(), onChange = () => {}, ...restProps }: Props = $props();
 	let inputId = Math.random().toString(36);
 	const switchWidth = size + 'vw';
 	const switchHeight = size * 0.6 + 'vw';
@@ -17,7 +18,12 @@
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
 			checked = !checked;
+			onChange(checked);
 		}
+	}
+
+	function handleChange() {
+		onChange(checked);
 	}
 </script>
 
@@ -83,7 +89,7 @@
 
 <div class="switch">
 	<div class="switch-wrapper" style:width={switchWidth} style:height={switchHeight}>
-		<input {...restProps} id={inputId} type="checkbox" bind:checked onkeydown={keyPress} style:width={switchWidth} style:height={switchHeight} />
+		<input {...restProps} id={inputId} type="checkbox" bind:checked onchange={handleChange} onkeydown={keyPress} style:width={switchWidth} style:height={switchHeight} />
 		<span class="slider" style:border-radius={switchHeight} style:border-width={borderWidth} style:--slider-size={sliderSize} style:--slider-offset={sliderOffset} style:--slider-translate={sliderTranslate}></span>
 	</div>
 </div>
