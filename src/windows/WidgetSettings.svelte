@@ -6,9 +6,15 @@
 		show?: boolean;
 		transparency?: boolean;
 		onClose?: () => void;
+		onTransparencyChange?: (newTransparency: boolean) => void;
 	}
 
-	let { show = false, transparency = $bindable(true), onClose = () => {} }: Props = $props();
+	let { show = false, transparency = $bindable(true), onClose = () => {}, onTransparencyChange = () => {} }: Props = $props();
+	
+	// Watch for transparency changes and notify parent
+	$effect(() => {
+		onTransparencyChange(transparency);
+	});
 </script>
 
 <style>

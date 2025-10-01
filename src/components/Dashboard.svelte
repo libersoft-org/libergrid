@@ -45,6 +45,13 @@
 		}
 	}
 
+	function updateComponentTransparency(id: string, newTransparency: boolean) {
+		const item = $dashboardItems.find(item => item.id === id);
+		if (item && item.border !== newTransparency) {
+			dashboardUpdateItem(id, { border: newTransparency });
+		}
+	}
+
 	function updateComponentSize(id: string, newColSpan: number, newRowSpan: number, newGridRow?: number, newGridCol?: number) {
 		updateItemSize(id, newColSpan, newRowSpan, $dashboardItems, gridConfig.rows, gridConfig.cols, newGridRow, newGridCol);
 	}
@@ -185,7 +192,7 @@
 			"
 		>
 			<div class="component-wrapper">
-				<Widget transparency={item.border} colSpan={item.colSpan} rowSpan={item.rowSpan} onResize={(newColSpan, newRowSpan, newGridRow, newGridCol) => updateComponentSize(item.id, newColSpan, newRowSpan, newGridRow, newGridCol)} onMove={(newGridRow, newGridCol) => updateComponentPosition(item.id, newGridRow, newGridCol)} onToggleBorder={() => toggleComponentBorder(item.id)} onRemove={() => removeComponent(item.id)}>
+				<Widget transparency={item.border} colSpan={item.colSpan} rowSpan={item.rowSpan} onResize={(newColSpan, newRowSpan, newGridRow, newGridCol) => updateComponentSize(item.id, newColSpan, newRowSpan, newGridRow, newGridCol)} onMove={(newGridRow, newGridCol) => updateComponentPosition(item.id, newGridRow, newGridCol)} onToggleBorder={() => toggleComponentBorder(item.id)} onTransparencyChange={(newTransparency) => updateComponentTransparency(item.id, newTransparency)} onRemove={() => removeComponent(item.id)}>
 					{#snippet children()}
 						{@const Component = getComponentByType(item.type)}
 						{#if Component}

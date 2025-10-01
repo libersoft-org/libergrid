@@ -11,10 +11,11 @@
 		onResize?: (newColSpan: number, newRowSpan: number, newGridRow?: number, newGridCol?: number) => void;
 		onMove?: (newGridRow: number, newGridCol: number) => void;
 		onToggleBorder?: () => void;
+		onTransparencyChange?: (newTransparency: boolean) => void;
 		onRemove?: () => void;
 		children: Snippet;
 	}
-	let { transparency = true, colSpan = 1, rowSpan = 1, onResize = () => {}, onMove = () => {}, onToggleBorder = () => {}, onRemove = () => {}, children }: Props = $props();
+	let { transparency = true, colSpan = 1, rowSpan = 1, onResize = () => {}, onMove = () => {}, onToggleBorder = () => {}, onTransparencyChange = () => {}, onRemove = () => {}, children }: Props = $props();
 	let showSettings = $state(false);
 	// Get grid dimensions from settings
 	let gridConfig = $state(getSettingsValue('grid'));
@@ -472,4 +473,4 @@
 		<div class="resizer cbr" onmousedown={e => handleResizeStart(e, 'bottom-right')} ontouchstart={e => handleResizeStart(e, 'bottom-right')} onkeydown={e => handleResizeKeydown(e, 'bottom-right')} role="button" tabindex="0" aria-label="Resize bottom-right corner"></div>
 	{/if}
 </div>
-<WidgetSettings show={showSettings} bind:transparency onClose={handleCloseSettings} />
+<WidgetSettings show={showSettings} bind:transparency onTransparencyChange={onTransparencyChange} onClose={handleCloseSettings} />
