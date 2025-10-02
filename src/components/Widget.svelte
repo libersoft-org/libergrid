@@ -6,16 +6,18 @@
 	import type { Snippet } from 'svelte';
 	interface Props {
 		transparency?: boolean;
+		blur?: boolean;
 		colSpan?: number;
 		rowSpan?: number;
 		onResize?: (newColSpan: number, newRowSpan: number, newGridRow?: number, newGridCol?: number) => void;
 		onMove?: (newGridRow: number, newGridCol: number) => void;
 		onToggleBorder?: () => void;
 		onTransparencyChange?: (newTransparency: boolean) => void;
+		onBlurChange?: (newBlur: boolean) => void;
 		onRemove?: () => void;
 		children: Snippet;
 	}
-	let { transparency = false, colSpan = 1, rowSpan = 1, onResize = () => {}, onMove = () => {}, onToggleBorder = () => {}, onTransparencyChange = () => {}, onRemove = () => {}, children }: Props = $props();
+	let { transparency = false, blur = true, colSpan = 1, rowSpan = 1, onResize = () => {}, onMove = () => {}, onToggleBorder = () => {}, onTransparencyChange = () => {}, onBlurChange = () => {}, onRemove = () => {}, children }: Props = $props();
 	let showSettings = $state(false);
 	// Get grid dimensions from settings
 	let gridConfig = $state(getSettingsValue('grid'));
@@ -343,6 +345,9 @@
 	.widget.with-border {
 		background: rgba(0, 0, 0, 0.7);
 		border: 0.2vh solid rgba(0, 0, 0, 0.5);
+	}
+
+	.widget.with-blur {
 		backdrop-filter: blur(5px);
 	}
 
@@ -453,7 +458,7 @@
 	}
 </style>
 
-<div class="widget" class:with-border={!transparency} class:dragging={isDragging} onmousedown={handleDragStart} ontouchstart={handleDragStart} onmouseenter={handleMouseEnter} onmousemove={handleMouseMove} onmouseleave={handleMouseLeave} ontouchend={handleTouchEnd} role="button" tabindex="0">
+<div class="widget" class:with-border={!transparency} class:with-blur={blur} class:dragging={isDragging} onmousedown={handleDragStart} ontouchstart={handleDragStart} onmouseenter={handleMouseEnter} onmousemove={handleMouseMove} onmouseleave={handleMouseLeave} ontouchend={handleTouchEnd} role="button" tabindex="0">
 	{@render children()}
 	{#if showResizeHandles}
 		<div class="buttons">
@@ -473,4 +478,4 @@
 		<div class="resizer cbr" onmousedown={e => handleResizeStart(e, 'bottom-right')} ontouchstart={e => handleResizeStart(e, 'bottom-right')} onkeydown={e => handleResizeKeydown(e, 'bottom-right')} role="button" tabindex="0" aria-label="Resize bottom-right corner"></div>
 	{/if}
 </div>
-<WidgetSettings show={showSettings} bind:transparency {onTransparencyChange} onClose={handleCloseSettings} />
+<WidgetSettings show={showSettings} bind:transparency bind:blur {onTransparencyChange} {onBlurChange} onClose={handleCloseSettings} />

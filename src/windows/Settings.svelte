@@ -3,6 +3,7 @@
 	import Window from '../components/Window.svelte';
 	import Select from '../components/Select.svelte';
 	import Option from '../components/SelectOption.svelte';
+	import WindowTitle from '../components/WindowTitle.svelte';
 	import { currentIndex, setBackground, setBackgroundType, backgroundType, backgroundImages, backgroundVideos, backgroundColors } from '../scripts/background.ts';
 	import { getSettingsValue, setSettingsValue } from '../scripts/settings.ts';
 	import { validateGridResize, dashboardItems, gridLimits } from '../scripts/dashboard.ts';
@@ -129,15 +130,6 @@
 		gap: 1vw;
 	}
 
-	.title {
-		padding: 0.5vw;
-		font-size: 1vw;
-		font-weight: bold;
-		color: #fff;
-		background-color: #444;
-		border-radius: 0.5vw;
-	}
-
 	.background-grid {
 		display: grid;
 		grid-template-columns: repeat(5, 1fr);
@@ -234,7 +226,7 @@
 
 <Window {show} title="Settings" {onClose} maxWidth="50vw">
 	<div class="settings">
-		<div class="title">Interface settings</div>
+		<WindowTitle text="Interface settings" />
 		<div class="settings-field">
 			<label for="inactivity-timeout">Auto-hide timeout:</label>
 			<input id="inactivity-timeout" type="number" min="1" max="15" bind:value={inactivityTimeout} onchange={handleInactivityTimeoutChange} />
@@ -250,13 +242,13 @@
 			<input id="grid-rows" type="number" min={gridLimits.minRows} max={gridLimits.maxRows} value={grid.rows} onchange={handleGridRowsChange} />
 			<span>rows</span>
 		</div>
-		<div class="title">Background type</div>
+		<WindowTitle text="Background type" />
 		<Select value={$backgroundType} onchange={handleBackgroundTypeSelect}>
 			<Option value="image" text="Image" selected={$backgroundType === 'image'} />
 			<Option value="video" text="Video" selected={$backgroundType === 'video'} />
 			<Option value="color" text="Color" selected={$backgroundType === 'color'} />
 		</Select>
-		<div class="title">Background selection</div>
+		<WindowTitle text="Background selection" />
 		<div class="background-grid">
 			{#each currentBackgroundItems as background, index}
 				{@const isCurrentSelected = $currentIndex === index}
