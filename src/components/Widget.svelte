@@ -8,18 +8,16 @@
 		transparency?: boolean;
 		blur?: boolean;
 		blurIntensity?: number;
+		widgetId: string; // Required for reactive updates
 		colSpan?: number;
 		rowSpan?: number;
 		onResize?: (newColSpan: number, newRowSpan: number, newGridRow?: number, newGridCol?: number) => void;
 		onMove?: (newGridRow: number, newGridCol: number) => void;
 		onToggleBorder?: () => void;
-		onTransparencyChange?: (newTransparency: boolean) => void;
-		onBlurChange?: (newBlur: boolean) => void;
-		onBlurIntensityChange?: (newBlurIntensity: number) => void;
 		onRemove?: () => void;
 		children: Snippet;
 	}
-	let { transparency = false, blur = true, blurIntensity = 5, colSpan = 1, rowSpan = 1, onResize = () => {}, onMove = () => {}, onToggleBorder = () => {}, onTransparencyChange = () => {}, onBlurChange = () => {}, onBlurIntensityChange = () => {}, onRemove = () => {}, children }: Props = $props();
+	let { transparency = false, blur = true, blurIntensity = 5, widgetId, colSpan = 1, rowSpan = 1, onResize = () => {}, onMove = () => {}, onToggleBorder = () => {}, onRemove = () => {}, children }: Props = $props();
 	let showSettings = $state(false);
 	// Get grid dimensions from settings
 	let gridConfig = $state(getSettingsValue('grid'));
@@ -349,8 +347,6 @@
 		border: 0.2vh solid rgba(0, 0, 0, 0.5);
 	}
 
-
-
 	.resizer {
 		z-index: 10;
 		position: absolute;
@@ -478,4 +474,4 @@
 		<div class="resizer cbr" onmousedown={e => handleResizeStart(e, 'bottom-right')} ontouchstart={e => handleResizeStart(e, 'bottom-right')} onkeydown={e => handleResizeKeydown(e, 'bottom-right')} role="button" tabindex="0" aria-label="Resize bottom-right corner"></div>
 	{/if}
 </div>
-<WidgetSettings show={showSettings} bind:transparency bind:blur bind:blurIntensity {onTransparencyChange} {onBlurChange} {onBlurIntensityChange} onClose={handleCloseSettings} />
+<WidgetSettings show={showSettings} bind:transparency bind:blur bind:blurIntensity {widgetId} onClose={handleCloseSettings} />

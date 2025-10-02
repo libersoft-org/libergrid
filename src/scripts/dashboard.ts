@@ -42,6 +42,9 @@ export const gridItems: IGridItemType[] = [
 export const dashboardItems = writable<IGridItem[]>(loadDashboardItems());
 export const showFields = writable<boolean>(false);
 
+// Store for widget settings - allows reactive updates without prop drilling
+export const widgetSettings = writable<Record<string, Partial<Pick<IGridItem, 'transparency' | 'blur' | 'blurIntensity'>>>>({});
+
 export function dashboardItemsSet(newItems: IGridItem[]) {
 	dashboardItems.set(newItems);
 	saveDashboardItems(newItems);
@@ -96,19 +99,52 @@ export function updateItemBlur(id: string, newBlur: boolean) {
 }
 
 export function updateItemBlurIntensity(id: string, newBlurIntensity: number) {
-	console.log('updateItemBlurIntensity called:', id, newBlurIntensity);
 	dashboardItems.update(items => {
 		const item = items.find(item => item.id === id);
-		console.log('Found item:', item);
 		if (item && item.blurIntensity !== newBlurIntensity) {
-			console.log('Updating blur intensity from', item.blurIntensity, 'to', newBlurIntensity);
 			const newItems = items.map(item => (item.id === id ? { ...item, blurIntensity: newBlurIntensity } : item));
 			saveDashboardItems(newItems);
 			return newItems;
 		}
-		console.log('No update needed or item not found');
 		return items;
 	});
+}
+
+// New reactive approach - update widget settings through store
+export function updateWidgetSetting<K extends keyof Pick<IGridItem, 'transparency' | 'blur' | 'blurIntensity'>>(id: string, key: K, value: Pick<IGridItem, 'transparency' | 'blur' | 'blurIntensity'>[K]) {
+	// Update the main dashboardItems store
+	dashboardItems.update(items => {
+		const item = items.find(item => item.id === id);
+		if (item && item[key] !== value) {
+			const newItems = items.map(item => (item.id === id ? { ...item, [key]: value } : item));
+			saveDashboardItems(newItems);
+			return newItems;
+		}
+		return items;
+	});
+	// Also update the reactive settings store for immediate UI updates
+	widgetSettings.update(settings => ({
+		...settings,
+		[id]: {
+			...settings[id],
+			[key]: value,
+		},
+	}));
+}
+
+// Get current widget settings (with fallback to main item data)
+export function getWidgetSettings(id: string) {
+	let settings: Partial<Pick<IGridItem, 'transparency' | 'blur' | 'blurIntensity'>> = {};
+	// Get current settings from store
+	widgetSettings.subscribe(ws => (settings = ws[id] || {}))();
+	// Get fallback from main dashboard items
+	let item: IGridItem | undefined;
+	dashboardItems.subscribe(items => (item = items.find(i => i.id === id)))();
+	return {
+		transparency: settings.transparency ?? item?.transparency ?? false,
+		blur: settings.blur ?? item?.blur ?? true,
+		blurIntensity: settings.blurIntensity ?? item?.blurIntensity ?? 5,
+	};
 }
 
 export function dashboardReloadItems() {
