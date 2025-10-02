@@ -26,6 +26,8 @@ export interface IGridItem {
 	colSpan: number;
 	rowSpan: number;
 	transparency: boolean;
+	blur?: boolean;
+	blurIntensity?: number;
 }
 export const gridItems: IGridItemType[] = [
 	{ type: 'time', label: 'Time' },
@@ -81,6 +83,34 @@ export function updateItemTransparency(id: string, newTransparency: boolean) {
 	});
 }
 
+export function updateItemBlur(id: string, newBlur: boolean) {
+	dashboardItems.update(items => {
+		const item = items.find(item => item.id === id);
+		if (item && item.blur !== newBlur) {
+			const newItems = items.map(item => (item.id === id ? { ...item, blur: newBlur } : item));
+			saveDashboardItems(newItems);
+			return newItems;
+		}
+		return items;
+	});
+}
+
+export function updateItemBlurIntensity(id: string, newBlurIntensity: number) {
+	console.log('updateItemBlurIntensity called:', id, newBlurIntensity);
+	dashboardItems.update(items => {
+		const item = items.find(item => item.id === id);
+		console.log('Found item:', item);
+		if (item && item.blurIntensity !== newBlurIntensity) {
+			console.log('Updating blur intensity from', item.blurIntensity, 'to', newBlurIntensity);
+			const newItems = items.map(item => (item.id === id ? { ...item, blurIntensity: newBlurIntensity } : item));
+			saveDashboardItems(newItems);
+			return newItems;
+		}
+		console.log('No update needed or item not found');
+		return items;
+	});
+}
+
 export function dashboardReloadItems() {
 	const newItems = loadDashboardItems();
 	dashboardItems.set(newItems);
@@ -90,16 +120,23 @@ export function dashboardReloadItems() {
 function loadDashboardItems(): IGridItem[] {
 	try {
 		const loadedItems = getSettingsValue('dashboardItems');
+		console.log('Loading dashboard items from storage:', loadedItems);
 		if (Array.isArray(loadedItems)) {
 			const validItems = loadedItems
 				.filter(item => item && typeof item.id === 'string' && typeof item.type === 'string' && typeof item.gridRow === 'number' && typeof item.gridCol === 'number' && typeof item.colSpan === 'number' && typeof item.rowSpan === 'number')
-				.map(item => ({
-					...item,
-					// Ensure transparency property exists (default to false for new widgets)
-					transparency: typeof item.transparency === 'boolean' ? item.transparency : false,
-					// Ensure border property exists
-					border: typeof item.border === 'boolean' ? item.border : true,
-				}));
+				.map(item => {
+					const processedItem = {
+						...item,
+						// Ensure transparency property exists (default to false for new widgets)
+						transparency: typeof item.transparency === 'boolean' ? item.transparency : false,
+						// Ensure blur property exists (default to true for new widgets)
+						blur: typeof item.blur === 'boolean' ? item.blur : true,
+						// Ensure blurIntensity property exists (default to 5px for new widgets)
+						blurIntensity: typeof item.blurIntensity === 'number' ? item.blurIntensity : 5,
+					};
+					console.log('Processed item:', processedItem);
+					return processedItem;
+				});
 			return validItems;
 		} else {
 			return [];
@@ -160,8 +197,9 @@ export function createNewItem(type: IGridItemType['type'], gridRow: number, grid
 		gridCol,
 		colSpan: 1,
 		rowSpan: 1,
-		border: true,
 		transparency: false,
+		blur: true,
+		blurIntensity: 5,
 	};
 }
 

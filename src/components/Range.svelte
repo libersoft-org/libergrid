@@ -16,4 +16,4 @@
 	}
 </style>
 
-<input type="range" {min} {max} {step} bind:value {...restProps} />
+<input type="range" {min} {max} {step} bind:value {onchange} {...restProps} />

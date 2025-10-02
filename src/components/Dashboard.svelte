@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { type IGridItemType, type IGridPosition, dashboardItems, dashboardAddItem, dashboardDelItem, dashboardUpdateItem, dashboardReloadItems, getGridOccupancy, createNewItem, getComponentProps, updateItemSize, updateItemPosition, updateItemTransparency, showFields } from '../scripts/dashboard.ts';
+	import { type IGridItemType, type IGridPosition, dashboardItems, dashboardAddItem, dashboardDelItem, dashboardUpdateItem, dashboardReloadItems, getGridOccupancy, createNewItem, getComponentProps, updateItemSize, updateItemPosition, updateItemTransparency, updateItemBlur, updateItemBlurIntensity, showFields } from '../scripts/dashboard.ts';
 	import { getSettingsValue } from '../scripts/settings.ts';
 	import Field from './DashboardField.svelte';
 	import Widget from './Widget.svelte';
@@ -185,7 +185,7 @@
 			"
 		>
 			<div class="component-wrapper">
-				<Widget transparency={item.transparency} colSpan={item.colSpan} rowSpan={item.rowSpan} onResize={(newColSpan, newRowSpan, newGridRow, newGridCol) => updateComponentSize(item.id, newColSpan, newRowSpan, newGridRow, newGridCol)} onMove={(newGridRow, newGridCol) => updateComponentPosition(item.id, newGridRow, newGridCol)} onToggleBorder={() => toggleComponentBorder(item.id)} onTransparencyChange={newTransparency => updateItemTransparency(item.id, newTransparency)} onRemove={() => removeComponent(item.id)}>
+				<Widget transparency={item.transparency} blur={item.blur ?? true} blurIntensity={item.blurIntensity ?? 5} colSpan={item.colSpan} rowSpan={item.rowSpan} onResize={(newColSpan, newRowSpan, newGridRow, newGridCol) => updateComponentSize(item.id, newColSpan, newRowSpan, newGridRow, newGridCol)} onMove={(newGridRow, newGridCol) => updateComponentPosition(item.id, newGridRow, newGridCol)} onToggleBorder={() => toggleComponentBorder(item.id)} onTransparencyChange={newTransparency => updateItemTransparency(item.id, newTransparency)} onBlurChange={newBlur => updateItemBlur(item.id, newBlur)} onBlurIntensityChange={newBlurIntensity => updateItemBlurIntensity(item.id, newBlurIntensity)} onRemove={() => removeComponent(item.id)}>
 					{#snippet children()}
 						{@const Component = getComponentByType(item.type)}
 						{#if Component}
