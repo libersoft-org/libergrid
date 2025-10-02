@@ -74,42 +74,6 @@ export function dashboardUpdateItem(id: string, updates: Partial<IGridItem>) {
 	});
 }
 
-export function updateItemTransparency(id: string, newTransparency: boolean) {
-	dashboardItems.update(items => {
-		const item = items.find(item => item.id === id);
-		if (item && item.transparency !== newTransparency) {
-			const newItems = items.map(item => (item.id === id ? { ...item, transparency: newTransparency } : item));
-			saveDashboardItems(newItems);
-			return newItems;
-		}
-		return items;
-	});
-}
-
-export function updateItemBlur(id: string, newBlur: boolean) {
-	dashboardItems.update(items => {
-		const item = items.find(item => item.id === id);
-		if (item && item.blur !== newBlur) {
-			const newItems = items.map(item => (item.id === id ? { ...item, blur: newBlur } : item));
-			saveDashboardItems(newItems);
-			return newItems;
-		}
-		return items;
-	});
-}
-
-export function updateItemBlurIntensity(id: string, newBlurIntensity: number) {
-	dashboardItems.update(items => {
-		const item = items.find(item => item.id === id);
-		if (item && item.blurIntensity !== newBlurIntensity) {
-			const newItems = items.map(item => (item.id === id ? { ...item, blurIntensity: newBlurIntensity } : item));
-			saveDashboardItems(newItems);
-			return newItems;
-		}
-		return items;
-	});
-}
-
 // New reactive approach - update widget settings through store
 export function updateWidgetSetting<K extends keyof Pick<IGridItem, 'transparency' | 'blur' | 'blurIntensity'>>(id: string, key: K, value: Pick<IGridItem, 'transparency' | 'blur' | 'blurIntensity'>[K]) {
 	// Update the main dashboardItems store
@@ -156,23 +120,18 @@ export function dashboardReloadItems() {
 function loadDashboardItems(): IGridItem[] {
 	try {
 		const loadedItems = getSettingsValue('dashboardItems');
-		console.log('Loading dashboard items from storage:', loadedItems);
 		if (Array.isArray(loadedItems)) {
 			const validItems = loadedItems
 				.filter(item => item && typeof item.id === 'string' && typeof item.type === 'string' && typeof item.gridRow === 'number' && typeof item.gridCol === 'number' && typeof item.colSpan === 'number' && typeof item.rowSpan === 'number')
-				.map(item => {
-					const processedItem = {
-						...item,
-						// Ensure transparency property exists (default to false for new widgets)
-						transparency: typeof item.transparency === 'boolean' ? item.transparency : false,
-						// Ensure blur property exists (default to true for new widgets)
-						blur: typeof item.blur === 'boolean' ? item.blur : true,
-						// Ensure blurIntensity property exists (default to 5px for new widgets)
-						blurIntensity: typeof item.blurIntensity === 'number' ? item.blurIntensity : 5,
-					};
-					console.log('Processed item:', processedItem);
-					return processedItem;
-				});
+				.map(item => ({
+					...item,
+					// Ensure transparency property exists (default to false for new widgets)
+					transparency: typeof item.transparency === 'boolean' ? item.transparency : false,
+					// Ensure blur property exists (default to true for new widgets)
+					blur: typeof item.blur === 'boolean' ? item.blur : true,
+					// Ensure blurIntensity property exists (default to 5px for new widgets)
+					blurIntensity: typeof item.blurIntensity === 'number' ? item.blurIntensity : 5,
+				}));
 			return validItems;
 		} else {
 			return [];
