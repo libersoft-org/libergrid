@@ -4,7 +4,7 @@
 	import Switch from '../components/Switch.svelte';
 	import Range from '../components/Range.svelte';
 	import { updateWidgetSetting } from '../scripts/dashboard.ts';
-	
+
 	interface Props {
 		show?: boolean;
 		transparency?: boolean;
@@ -14,16 +14,16 @@
 		onClose?: () => void;
 	}
 	let { show = false, transparency = $bindable(false), blur = $bindable(false), blurIntensity = $bindable(5), widgetId, onClose = () => {} }: Props = $props();
-	
+
 	// Reactive functions that update the store instead of calling callbacks
 	function handleTransparencyChange(newTransparency: boolean) {
 		updateWidgetSetting(widgetId, 'transparency', newTransparency);
 	}
-	
+
 	function handleBlurChange(newBlur: boolean) {
 		updateWidgetSetting(widgetId, 'blur', newBlur);
 	}
-	
+
 	function handleBlurIntensityChange() {
 		updateWidgetSetting(widgetId, 'blurIntensity', blurIntensity);
 	}
@@ -40,7 +40,6 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 	}
 
 	.text {

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import Button from '../components/Button.svelte';
+	import Menu from '../components/Menu.svelte';
+	import MenuItem from '../components/MenuItem.svelte';
 	import Window from '../components/Window.svelte';
 	import { gridItems, type IGridItemType } from '../scripts/dashboard.ts';
 	export let show: boolean = false;
@@ -16,21 +17,16 @@
 </script>
 
 <style>
-	.options {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 1rem;
+	.widget-add {
+		display: flex;
+		flex-direction: column;
 	}
 </style>
 
 <Window {show} title="Select component" {onClose} maxWidth="400px">
-	<div class="options">
+	<Menu>
 		{#each gridItems as widget (widget.type)}
-			<Button variant="primary" onClick={() => handleAddComponent(widget.type)}>
-				{#snippet children()}
-					{widget.label}
-				{/snippet}
-			</Button>
+			<MenuItem text={widget.label} onClick={() => handleAddComponent(widget.type)} />
 		{/each}
-	</div>
+	</Menu>
 </Window>
