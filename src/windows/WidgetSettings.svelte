@@ -2,15 +2,18 @@
 	import Window from '../components/Window.svelte';
 	import WindowTitle from '../components/WindowTitle.svelte';
 	import Switch from '../components/Switch.svelte';
+	import Range from '../components/Range.svelte';
 	interface Props {
 		show?: boolean;
 		transparency?: boolean;
 		blur?: boolean;
+		blurIntensity?: number;
 		onClose?: () => void;
 		onTransparencyChange?: (newTransparency: boolean) => void;
 		onBlurChange?: (newBlur: boolean) => void;
+		onBlurIntensityChange?: (newBlurIntensity: number) => void;
 	}
-	let { show = false, transparency = $bindable(false), blur = $bindable(false), onClose = () => {}, onTransparencyChange = () => {}, onBlurChange = () => {} }: Props = $props();
+	let { show = false, transparency = $bindable(false), blur = $bindable(false), blurIntensity = $bindable(5), onClose = () => {}, onTransparencyChange = () => {}, onBlurChange = () => {}, onBlurIntensityChange = () => {} }: Props = $props();
 </script>
 
 <style>
@@ -42,6 +45,13 @@
 		<div class="row">
 			<div class="text">Blur:</div>
 			<Switch bind:checked={blur} onChange={onBlurChange} />
+		</div>
+		<div class="row">
+			<div class="text">Blur intensity:</div>
+			<div style="width: 100px;">
+				<Range min="0" max="30" step="1" bind:value={blurIntensity} onchange={() => onBlurIntensityChange(blurIntensity)} />
+			</div>
+			<div class="text" style="min-width: 30px; text-align: right;">{blurIntensity}px</div>
 		</div>
 	</div>
 </Window>
