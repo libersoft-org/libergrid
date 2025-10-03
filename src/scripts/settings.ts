@@ -5,6 +5,7 @@ interface IUserSettings {
 	backgroundType?: 'image' | 'video' | 'color';
 	dashboardItems?: IGridItem[];
 	grid?: IGrids;
+	sheepEnabled?: boolean;
 }
 const defaultSettings: IUserSettings = {
 	inactivityTimeout: 2000,
@@ -12,6 +13,7 @@ const defaultSettings: IUserSettings = {
 	backgroundType: 'image',
 	dashboardItems: [],
 	grid: { cols: 10, rows: 6 },
+	sheepEnabled: false,
 };
 const settingsStorageKey = 'libergrid-settings';
 
@@ -27,6 +29,7 @@ function getSettings(): IUserSettings {
 			backgroundType: userSettings.backgroundType ?? defaultSettings.backgroundType,
 			dashboardItems: userSettings.dashboardItems ?? defaultSettings.dashboardItems,
 			grid: userSettings.grid ?? defaultSettings.grid,
+			sheepEnabled: userSettings.sheepEnabled ?? defaultSettings.sheepEnabled,
 		};
 	} catch (error) {
 		console.warn('Failed to load settings from localStorage:', error);
@@ -37,6 +40,7 @@ function getSettings(): IUserSettings {
 			backgroundType: defaultSettings.backgroundType,
 			dashboardItems: defaultSettings.dashboardItems,
 			grid: defaultSettings.grid,
+			sheepEnabled: defaultSettings.sheepEnabled,
 		};
 	}
 }

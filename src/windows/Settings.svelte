@@ -4,6 +4,7 @@
 	import Select from '../components/Select.svelte';
 	import Option from '../components/SelectOption.svelte';
 	import WindowTitle from '../components/WindowTitle.svelte';
+	import Switch from '../components/Switch.svelte';
 	import { currentIndex, setBackground, setBackgroundType, backgroundType, backgroundImages, backgroundVideos, backgroundColors } from '../scripts/background.ts';
 	import { getSettingsValue, setSettingsValue } from '../scripts/settings.ts';
 	import { validateGridResize, dashboardItems, gridLimits } from '../scripts/dashboard.ts';
@@ -14,6 +15,7 @@
 	let { show = false, onClose = () => {} }: Props = $props();
 	let inactivityTimeout: number = $state(getSettingsValue('inactivityTimeout') / 1000); // Convert to seconds
 	let grid = $state(getSettingsValue('grid'));
+	let sheepEnabled = $state(getSettingsValue('sheepEnabled'));
 
 	// Derive current background items from background type reactively
 	const currentBackgroundItems = $derived.by(() => {
@@ -120,6 +122,11 @@
 				videoElement.currentTime = 0;
 			}
 		}
+	}
+
+	function toggleSheep(newValue: boolean) {
+		sheepEnabled = newValue;
+		setSettingsValue('sheepEnabled', newValue);
 	}
 </script>
 
@@ -241,6 +248,10 @@
 			<label for="grid-rows">Grid rows:</label>
 			<input id="grid-rows" type="number" min={gridLimits.minRows} max={gridLimits.maxRows} value={grid.rows} onchange={handleGridRowsChange} />
 			<span>rows</span>
+		</div>
+		<div class="settings-field">
+			<label for="sheep-toggle">Sheep:</label>
+			<Switch bind:checked={sheepEnabled} onChange={toggleSheep} />
 		</div>
 		<WindowTitle text="Background type" />
 		<Select value={$backgroundType} onchange={handleBackgroundTypeSelect}>
