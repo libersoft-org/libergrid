@@ -42,7 +42,7 @@
 
 	onDestroy(() => {
 		window.removeEventListener('settingsUpdate', handleSettingsUpdate as EventListener);
-		
+
 		// Clean up sheep instance
 		if (sheepInstance) {
 			try {
