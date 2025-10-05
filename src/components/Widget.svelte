@@ -294,10 +294,6 @@
 		z-index: 1000;
 	}
 
-	.widget.with-border {
-		border: 0.2vh solid rgba(0, 0, 0, 0.5);
-	}
-
 	.resizer {
 		z-index: 10;
 		position: absolute;
@@ -396,7 +392,6 @@
 
 <div
 	class="widget"
-	class:with-border={!backgroundTransparency}
 	class:dragging={isDragging}
 	style={`${blur ? `backdrop-filter: blur(${blurIntensity}px);` : ''}${
 		!backgroundTransparency
