@@ -8,6 +8,8 @@
 		transparency?: boolean;
 		blur?: boolean;
 		blurIntensity?: number;
+		backgroundColor?: string;
+		backgroundTransparencyIntensity?: number;
 		widgetId: string; // Required for reactive updates
 		colSpan?: number;
 		rowSpan?: number;
@@ -17,7 +19,7 @@
 		onRemove?: () => void;
 		children: Snippet;
 	}
-	let { transparency = false, blur = true, blurIntensity = 5, widgetId, colSpan = 1, rowSpan = 1, onResize = () => {}, onMove = () => {}, onToggleBorder = () => {}, onRemove = () => {}, children }: Props = $props();
+	let { transparency = false, blur = true, blurIntensity = 5, backgroundColor = '#000000', backgroundTransparencyIntensity = 70, widgetId, colSpan = 1, rowSpan = 1, onResize = () => {}, onMove = () => {}, onToggleBorder = () => {}, onRemove = () => {}, children }: Props = $props();
 	let showSettings = $state(false);
 	// Get grid dimensions from settings
 	let gridConfig = $state(getSettingsValue('grid'));
@@ -293,7 +295,6 @@
 	}
 
 	.widget.with-border {
-		background: rgba(0, 0, 0, 0.7);
 		border: 0.2vh solid rgba(0, 0, 0, 0.5);
 	}
 
@@ -393,7 +394,7 @@
 	}
 </style>
 
-<div class="widget" class:with-border={!transparency} class:dragging={isDragging} style={blur ? `backdrop-filter: blur(${blurIntensity}px)` : ''} onmousedown={handleDragStart} onmouseenter={handleMouseEnter} onmousemove={handleMouseMove} onmouseleave={handleMouseLeave} role="button" tabindex="0">
+<div class="widget" class:with-border={!transparency} class:dragging={isDragging} style={`${blur ? `backdrop-filter: blur(${blurIntensity}px);` : ''}${!transparency ? `background-color: ${backgroundColor}${Math.round((backgroundTransparencyIntensity / 100) * 255).toString(16).padStart(2, '0')};` : ''}`} onmousedown={handleDragStart} onmouseenter={handleMouseEnter} onmousemove={handleMouseMove} onmouseleave={handleMouseLeave} role="button" tabindex="0">
 	{@render children()}
 	{#if showResizeHandles}
 		<div class="buttons">
@@ -413,4 +414,4 @@
 		<div class="resizer cbr" onmousedown={e => handleResizeStart(e, 'bottom-right')} onkeydown={e => handleResizeKeydown(e, 'bottom-right')} role="button" tabindex="0" aria-label="Resize bottom-right corner"></div>
 	{/if}
 </div>
-<WidgetSettings show={showSettings} bind:transparency bind:blur bind:blurIntensity {widgetId} onClose={handleCloseSettings} />
+<WidgetSettings show={showSettings} bind:transparency bind:blur bind:blurIntensity bind:backgroundColor bind:backgroundTransparencyIntensity {widgetId} onClose={handleCloseSettings} />

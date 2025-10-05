@@ -4,16 +4,17 @@
 	import Switch from '../components/Switch.svelte';
 	import Range from '../components/Range.svelte';
 	import { updateWidgetSetting } from '../scripts/dashboard.ts';
-
 	interface Props {
 		show?: boolean;
 		transparency?: boolean;
 		blur?: boolean;
 		blurIntensity?: number;
+		backgroundColor?: string;
+		backgroundTransparencyIntensity?: number;
 		widgetId: string; // Required for reactive updates
 		onClose?: () => void;
 	}
-	let { show = false, transparency = $bindable(false), blur = $bindable(false), blurIntensity = $bindable(5), widgetId, onClose = () => {} }: Props = $props();
+	let { show = false, transparency = $bindable(false), blur = $bindable(false), blurIntensity = $bindable(5), backgroundColor = $bindable('#000000'), backgroundTransparencyIntensity = $bindable(70), widgetId, onClose = () => {} }: Props = $props();
 
 	// Reactive functions that update the store instead of calling callbacks
 	function handleTransparencyChange(newTransparency: boolean) {
@@ -26,6 +27,16 @@
 
 	function handleBlurIntensityChange() {
 		updateWidgetSetting(widgetId, 'blurIntensity', blurIntensity);
+	}
+
+	function handleBackgroundColorChange(event: Event) {
+		const target = event.target as HTMLInputElement;
+		backgroundColor = target.value;
+		updateWidgetSetting(widgetId, 'backgroundColor', backgroundColor);
+	}
+
+	function handleBackgroundTransparencyIntensityChange() {
+		updateWidgetSetting(widgetId, 'backgroundTransparencyIntensity', backgroundTransparencyIntensity);
 	}
 </script>
 
@@ -44,6 +55,14 @@
 
 	.text {
 		font-size: 0.6vw;
+	}
+
+	.color-input {
+		width: 40px;
+		height: 30px;
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
 	}
 </style>
 
@@ -64,6 +83,17 @@
 				<Range min="0" max="30" step="1" bind:value={blurIntensity} onchange={handleBlurIntensityChange} />
 			</div>
 			<div class="text" style="min-width: 30px; text-align: right;">{blurIntensity}px</div>
+		</div>
+		<div class="row">
+			<div class="text">Background color:</div>
+			<input type="color" class="color-input" bind:value={backgroundColor} onchange={handleBackgroundColorChange} disabled={transparency} />
+		</div>
+		<div class="row">
+			<div class="text">Background transparency intensity:</div>
+			<div style="width: 100px;">
+				<Range min="0" max="100" step="1" bind:value={backgroundTransparencyIntensity} onchange={handleBackgroundTransparencyIntensityChange} />
+			</div>
+			<div class="text" style="min-width: 30px; text-align: right;">{backgroundTransparencyIntensity}%</div>
 		</div>
 	</div>
 </Window>
