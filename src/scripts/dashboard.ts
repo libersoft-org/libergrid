@@ -25,11 +25,11 @@ export interface IGridItem {
 	gridCol: number;
 	colSpan: number;
 	rowSpan: number;
-	transparency: boolean;
+	backgroundColor?: string;
+	backgroundTransparency: boolean;
+	backgroundTransparencyIntensity?: number;
 	blur?: boolean;
 	blurIntensity?: number;
-	backgroundColor?: string;
-	backgroundTransparencyIntensity?: number;
 }
 export const gridItems: IGridItemType[] = [
 	{ type: 'time', label: 'Time' },
@@ -45,7 +45,7 @@ export const dashboardItems = writable<IGridItem[]>(loadDashboardItems());
 export const showFields = writable<boolean>(false);
 
 // Store for widget settings - allows reactive updates without prop drilling
-export const widgetSettings = writable<Record<string, Partial<Pick<IGridItem, 'transparency' | 'blur' | 'blurIntensity' | 'backgroundColor' | 'backgroundTransparencyIntensity'>>>>({});
+export const widgetSettings = writable<Record<string, Partial<Pick<IGridItem, 'blur' | 'blurIntensity' | 'backgroundColor' | 'backgroundTransparency' | 'backgroundTransparencyIntensity'>>>>({});
 
 export function dashboardItemsSet(newItems: IGridItem[]) {
 	dashboardItems.set(newItems);
@@ -77,7 +77,7 @@ export function dashboardUpdateItem(id: string, updates: Partial<IGridItem>) {
 }
 
 // New reactive approach - update widget settings through store
-export function updateWidgetSetting<K extends keyof Pick<IGridItem, 'transparency' | 'blur' | 'blurIntensity' | 'backgroundColor' | 'backgroundTransparencyIntensity'>>(id: string, key: K, value: Pick<IGridItem, 'transparency' | 'blur' | 'blurIntensity' | 'backgroundColor' | 'backgroundTransparencyIntensity'>[K]) {
+export function updateWidgetSetting<K extends keyof Pick<IGridItem, 'blur' | 'blurIntensity' | 'backgroundColor' | 'backgroundTransparency' | 'backgroundTransparencyIntensity'>>(id: string, key: K, value: Pick<IGridItem, 'backgroundTransparency' | 'blur' | 'blurIntensity' | 'backgroundColor' | 'backgroundTransparencyIntensity'>[K]) {
 	// Update the main dashboardItems store
 	dashboardItems.update(items => {
 		const item = items.find(item => item.id === id);
@@ -100,17 +100,17 @@ export function updateWidgetSetting<K extends keyof Pick<IGridItem, 'transparenc
 
 // Get current widget settings (with fallback to main item data)
 export function getWidgetSettings(id: string) {
-	let settings: Partial<Pick<IGridItem, 'transparency' | 'blur' | 'blurIntensity' | 'backgroundColor' | 'backgroundTransparencyIntensity'>> = {};
+	let settings: Partial<Pick<IGridItem, 'blur' | 'blurIntensity' | 'backgroundColor' | 'backgroundTransparency' | 'backgroundTransparencyIntensity'>> = {};
 	// Get current settings from store
 	widgetSettings.subscribe(ws => (settings = ws[id] || {}))();
 	// Get fallback from main dashboard items
 	let item: IGridItem | undefined;
 	dashboardItems.subscribe(items => (item = items.find(i => i.id === id)))();
 	return {
-		transparency: settings.transparency ?? item?.transparency ?? false,
 		blur: settings.blur ?? item?.blur ?? true,
 		blurIntensity: settings.blurIntensity ?? item?.blurIntensity ?? 5,
 		backgroundColor: settings.backgroundColor ?? item?.backgroundColor ?? '#000000',
+		backgroundTransparency: settings.backgroundTransparency ?? item?.backgroundTransparency ?? false,
 		backgroundTransparencyIntensity: settings.backgroundTransparencyIntensity ?? item?.backgroundTransparencyIntensity ?? 70,
 	};
 }
@@ -129,15 +129,10 @@ function loadDashboardItems(): IGridItem[] {
 				.filter(item => item && typeof item.id === 'string' && typeof item.type === 'string' && typeof item.gridRow === 'number' && typeof item.gridCol === 'number' && typeof item.colSpan === 'number' && typeof item.rowSpan === 'number')
 				.map(item => ({
 					...item,
-					// Ensure transparency property exists (default to false for new widgets)
-					transparency: typeof item.transparency === 'boolean' ? item.transparency : false,
-					// Ensure blur property exists (default to true for new widgets)
 					blur: typeof item.blur === 'boolean' ? item.blur : true,
-					// Ensure blurIntensity property exists (default to 5px for new widgets)
 					blurIntensity: typeof item.blurIntensity === 'number' ? item.blurIntensity : 5,
-					// Ensure backgroundColor property exists (default to black for new widgets)
 					backgroundColor: typeof item.backgroundColor === 'string' ? item.backgroundColor : '#000000',
-					// Ensure backgroundTransparencyIntensity property exists (default to 70% for new widgets)
+					backgroundTransparency: typeof item.backgroundTransparency === 'boolean' ? item.backgroundTransparency : false,
 					backgroundTransparencyIntensity: typeof item.backgroundTransparencyIntensity === 'number' ? item.backgroundTransparencyIntensity : 70,
 				}));
 			return validItems;
@@ -200,10 +195,10 @@ export function createNewItem(type: IGridItemType['type'], gridRow: number, grid
 		gridCol,
 		colSpan: 1,
 		rowSpan: 1,
-		transparency: false,
 		blur: true,
 		blurIntensity: 5,
 		backgroundColor: '#000000',
+		backgroundTransparency: false,
 		backgroundTransparencyIntensity: 70,
 	};
 }

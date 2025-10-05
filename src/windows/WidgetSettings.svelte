@@ -6,20 +6,15 @@
 	import { updateWidgetSetting } from '../scripts/dashboard.ts';
 	interface Props {
 		show?: boolean;
-		transparency?: boolean;
 		blur?: boolean;
 		blurIntensity?: number;
 		backgroundColor?: string;
+		backgroundTransparency?: boolean;
 		backgroundTransparencyIntensity?: number;
 		widgetId: string; // Required for reactive updates
 		onClose?: () => void;
 	}
-	let { show = false, transparency = $bindable(false), blur = $bindable(false), blurIntensity = $bindable(5), backgroundColor = $bindable('#000000'), backgroundTransparencyIntensity = $bindable(70), widgetId, onClose = () => {} }: Props = $props();
-
-	// Reactive functions that update the store instead of calling callbacks
-	function handleTransparencyChange(newTransparency: boolean) {
-		updateWidgetSetting(widgetId, 'transparency', newTransparency);
-	}
+	let { show = false, blur = $bindable(false), blurIntensity = $bindable(5), backgroundColor = $bindable('#000000'), backgroundTransparency = $bindable(false), backgroundTransparencyIntensity = $bindable(70), widgetId, onClose = () => {} }: Props = $props();
 
 	function handleBlurChange(newBlur: boolean) {
 		updateWidgetSetting(widgetId, 'blur', newBlur);
@@ -27,6 +22,10 @@
 
 	function handleBlurIntensityChange() {
 		updateWidgetSetting(widgetId, 'blurIntensity', blurIntensity);
+	}
+
+	function handleBackgroundTransparencyChange(newBackgroundTransparency: boolean) {
+		updateWidgetSetting(widgetId, 'backgroundTransparency', newBackgroundTransparency);
 	}
 
 	function handleBackgroundColorChange(event: Event) {
@@ -70,10 +69,6 @@
 	<div class="settings">
 		<WindowTitle text="Widget background" />
 		<div class="row">
-			<div class="text">Transparency:</div>
-			<Switch bind:checked={transparency} onChange={handleTransparencyChange} />
-		</div>
-		<div class="row">
 			<div class="text">Blur:</div>
 			<Switch bind:checked={blur} onChange={handleBlurChange} />
 		</div>
@@ -86,7 +81,11 @@
 		</div>
 		<div class="row">
 			<div class="text">Background color:</div>
-			<input type="color" class="color-input" bind:value={backgroundColor} onchange={handleBackgroundColorChange} disabled={transparency} />
+			<input type="color" class="color-input" bind:value={backgroundColor} onchange={handleBackgroundColorChange} disabled={backgroundTransparency} />
+		</div>
+		<div class="row">
+			<div class="text">Background transparency:</div>
+			<Switch bind:checked={backgroundTransparency} onChange={handleBackgroundTransparencyChange} />
 		</div>
 		<div class="row">
 			<div class="text">Background transparency intensity:</div>
