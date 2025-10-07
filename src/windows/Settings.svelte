@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { get } from 'svelte/store';
 	import Window from '../components/Window.svelte';
+	import WindowTitle from '../components/WindowTitle.svelte';
 	import Select from '../components/Select.svelte';
 	import Option from '../components/SelectOption.svelte';
-	import WindowTitle from '../components/WindowTitle.svelte';
 	import Switch from '../components/Switch.svelte';
 	import Range from '../components/Range.svelte';
 	import { currentIndex, setBackground, setBackgroundType, backgroundType, backgroundImages, backgroundVideos, backgroundColors } from '../scripts/background.ts';

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { autoFont } from '../scripts/font';
-	import { getAPI } from '../scripts/api';
+	import { autoFont } from '../scripts/font.ts';
+	import { getAPI } from '../scripts/api.ts';
 	import { Chart, registerables } from 'chart.js';
 	// Register Chart.js components
 	Chart.register(...registerables);

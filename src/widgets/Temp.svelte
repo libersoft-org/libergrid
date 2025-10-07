@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { autoFont } from '../scripts/font';
-	import { getAPI } from '../scripts/api';
-	const apiURL = 'http://127.0.0.1:80/sensor-internal';
+	import { getAPI } from '../scripts/api.ts';
+	const apiURL = 'http://127.0.0.1/sensor-internal';
 	const refresh = 10000; // 10 seconds
 	interface Props {
 		label?: string;
