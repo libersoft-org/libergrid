@@ -37,6 +37,7 @@ export const gridItems: IGridItemType[] = [
 	{ type: 'temp', label: 'Temperature' },
 	{ type: 'weather', label: 'Weather' },
 	{ type: 'nameday', label: 'Name day' },
+	{ type: 'ip', label: 'IP Address' },
 	{ type: 'video', label: 'Video' },
 	{ type: 'chart', label: 'Chart' },
 	{ type: 'map', label: 'Weather map' },

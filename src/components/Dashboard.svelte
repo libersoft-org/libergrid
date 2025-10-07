@@ -9,6 +9,7 @@
 	import WidgetTemp from '../widgets/Temp.svelte';
 	import WidgetWeather from '../widgets/Weather.svelte';
 	import WidgetNameday from '../widgets/Nameday.svelte';
+	import WidgetIP from '../widgets/IP.svelte';
 	import WidgetVideo from '../widgets/Video.svelte';
 	import WidgetChart from '../widgets/Chart.svelte';
 	import WidgetMap from '../widgets/Map.svelte';
@@ -65,6 +66,8 @@
 				return WidgetWeather;
 			case 'nameday':
 				return WidgetNameday;
+			case 'ip':
+				return WidgetIP;
 			case 'video':
 				return WidgetVideo;
 			case 'chart':
