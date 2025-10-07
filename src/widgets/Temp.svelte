@@ -63,6 +63,18 @@
 		gap: 5px;
 	}
 
+	.row {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 1vw;
+	}
+
+	.row img {
+		width: 15cqw;
+		height: 15cqw;
+	}
+
 	.label {
 		margin-bottom: 5px;
 		opacity: 0.8;
@@ -84,7 +96,16 @@
 	{#if label}
 		<div class="label" bind:this={elLabel}>{label}</div>
 	{/if}
-	<div class="value" bind:this={elTemp}>T: {temp ? temp.toFixed(2) + '°' + (celsius ? 'C' : 'F') : '--'}</div>
-	<div class="value" bind:this={elHumidity}>H: {humidity ? humidity.toFixed(2) + '%' : '--'}</div>
-	<div class="value" bind:this={elPressure}>P: {pressure ? pressure.toFixed(2) + ' hPa' : '--'}</div>
+	<div class="row">
+		<img src="img/temperature.svg" alt="Temperature" />
+		<div class="value" bind:this={elTemp}>{temp ? temp.toFixed(2) + '°' + (celsius ? 'C' : 'F') : '--'}</div>
+	</div>
+	<div class="row">
+		<img src="img/humidity.svg" alt="Humidity" />
+		<div class="value" bind:this={elHumidity}>{humidity ? humidity.toFixed(2) + '%' : '--'}</div>
+	</div>
+	<div class="row">
+		<img src="img/pressure.svg" alt="Pressure" />
+		<div class="value" bind:this={elPressure}>{pressure ? pressure.toFixed(2) + ' hPa' : '--'}</div>
+	</div>
 </div>
