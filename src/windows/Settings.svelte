@@ -18,6 +18,7 @@
 	let grid = $state(getSettingsValue('grid'));
 	let sheepEnabled = $state(getSettingsValue('sheepEnabled'));
 	let sheepCount = $state(getSettingsValue('sheepCount'));
+	let sheepSize = $state(getSettingsValue('sheepSize'));
 
 	// Derive current background items from background type reactively
 	const currentBackgroundItems = $derived.by(() => {
@@ -137,6 +138,15 @@
 		if (count >= 0 && count <= 50) {
 			sheepCount = count;
 			setSettingsValue('sheepCount', count);
+		}
+	}
+
+	function handleSheepSizeChange(event: Event) {
+		const target = event.target as HTMLInputElement;
+		const size = parseFloat(target.value);
+		if (size >= 0.25 && size <= 5) {
+			sheepSize = size;
+			setSettingsValue('sheepSize', size);
 		}
 	}
 </script>
@@ -268,6 +278,11 @@
 			<label for="sheep-count">Sheep count:</label>
 			<Range id="sheep-count" min="1" max="50" step="1" bind:value={sheepCount} onchange={handleSheepCountChange} />
 			<span>{sheepCount}</span>
+		</div>
+		<div class="settings-field">
+			<label for="sheep-size">Sheep size:</label>
+			<Range id="sheep-size" min="0.25" max="5" step="0.1" bind:value={sheepSize} onchange={handleSheepSizeChange} />
+			<span>{sheepSize.toFixed(1)}x</span>
 		</div>
 		<WindowTitle text="Background type" />
 		<Select value={$backgroundType} onchange={handleBackgroundTypeSelect}>

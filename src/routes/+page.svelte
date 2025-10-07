@@ -7,6 +7,7 @@
 	import Sheep from '../components/Sheep.svelte';
 	let sheepEnabled = $state(getSettingsValue('sheepEnabled'));
 	let sheepCount = $state(getSettingsValue('sheepCount'));
+	let sheepSize = $state(getSettingsValue('sheepSize'));
 
 	onMount(() => {
 		// Listen for settings changes
@@ -17,6 +18,9 @@
 			}
 			if (customEvent.detail.key === 'sheepCount') {
 				sheepCount = customEvent.detail.value;
+			}
+			if (customEvent.detail.key === 'sheepSize') {
+				sheepSize = customEvent.detail.value;
 			}
 		};
 
