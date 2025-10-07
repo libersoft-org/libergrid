@@ -2,27 +2,14 @@
 	import { onMount } from 'svelte';
 	import { autoFont } from '../scripts/font';
 	import { getAPI } from '../scripts/api';
-
-	interface IPData {
-		publicIP: string | null;
-		privateIP: string | null;
-	}
-
-	let ipData: IPData = $state({
-		publicIP: null,
-		privateIP: null,
-	});
-
-	// Elements for font management
-	let publicLabelElement: HTMLElement;
-	let publicIPElement: HTMLElement;
-	let privateLabelElement: HTMLElement;
-	let privateIPElement: HTMLElement;
-
-	// Cleanup functions
+	let publicIP = $state<string | null>(null);
+	let privateIP = $state<string | null>(null);
+	let publicLabelElement: HTMLElement | undefined = $state();
+	let publicIPElement: HTMLElement | undefined = $state();
+	let privateLabelElement: HTMLElement | undefined = $state();
+	let privateIPElement: HTMLElement | undefined = $state();
 	let cleanupFunctions: (() => void)[] = [];
 	let refreshTimer: number | undefined;
-
 	const refresh = 60000; // 60 seconds
 
 	async function getPrivateIP(): Promise<string> {
@@ -55,19 +42,17 @@
 
 	async function loadIPData() {
 		try {
-			ipData.privateIP = await getPrivateIP();
+			privateIP = await getPrivateIP();
 		} catch (error) {
 			console.error('Failed to load private IP:', error);
-			ipData.privateIP = 'N/A';
+			privateIP = 'N/A';
 		}
-
 		try {
-			ipData.publicIP = await getPublicIP();
+			publicIP = await getPublicIP();
 		} catch (error) {
 			console.error('Failed to load public IP:', error);
-			ipData.publicIP = 'N/A';
+			publicIP = 'N/A';
 		}
-
 		// Setup font managers after data loads
 		setTimeout(setupFontManagers, 0);
 	}
@@ -76,7 +61,6 @@
 		// Clear existing cleanups
 		cleanupFunctions.forEach(cleanup => cleanup());
 		cleanupFunctions = [];
-
 		// Setup font managers with individual settings
 		const elements = [
 			{ element: publicLabelElement, width: 80, height: 20 },
@@ -84,7 +68,6 @@
 			{ element: privateLabelElement, width: 80, height: 20 },
 			{ element: privateIPElement, width: 80, height: 40 },
 		];
-
 		elements.forEach(({ element, width, height }) => {
 			if (element) {
 				cleanupFunctions.push(autoFont(element, width, height));
@@ -95,7 +78,6 @@
 	onMount(() => {
 		loadIPData();
 		refreshTimer = setInterval(loadIPData, refresh) as unknown as number;
-
 		return () => {
 			if (refreshTimer) clearInterval(refreshTimer);
 			cleanupFunctions.forEach(cleanup => cleanup());
@@ -131,14 +113,14 @@
 	}
 </style>
 
-{#if ipData.publicIP !== null && ipData.privateIP !== null}
+{#if publicIP !== null && privateIP !== null}
 	<div class="ip-item">
 		<div class="label" bind:this={publicLabelElement}>Public IP</div>
-		<div class="value" bind:this={publicIPElement}>{ipData.publicIP}</div>
+		<div class="value" bind:this={publicIPElement}>{publicIP}</div>
 	</div>
 	<div class="divider"></div>
 	<div class="ip-item">
 		<div class="label" bind:this={privateLabelElement}>Private IP</div>
-		<div class="value" bind:this={privateIPElement}>{ipData.privateIP}</div>
+		<div class="value" bind:this={privateIPElement}>{privateIP}</div>
 	</div>
 {/if}
