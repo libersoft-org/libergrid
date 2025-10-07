@@ -84,16 +84,7 @@
 	{#if label}
 		<div class="label" bind:this={elLabel}>{label}</div>
 	{/if}
-	{#if temp === undefined || humidity === undefined || pressure === undefined}
-		<div class="value" bind:this={elTemp}>--</div>
-	{/if}
-	{#if temp !== undefined}
-		<div class="value" bind:this={elTemp}>T: {temp.toFixed(2)}°{celsius ? 'C' : 'F'}</div>
-	{/if}
-	{#if humidity !== undefined}
-		<div class="value" bind:this={elHumidity}>H: {humidity.toFixed(2)}%</div>
-	{/if}
-	{#if pressure !== undefined}
-		<div class="value" bind:this={elPressure}>P: {pressure.toFixed(2)} hPa</div>
-	{/if}
+	<div class="value" bind:this={elTemp}>T: {temp ? temp.toFixed(2) + '°' + (celsius ? 'C' : 'F') : '--'}</div>
+	<div class="value" bind:this={elHumidity}>H: {humidity ? humidity.toFixed(2) + '%' : '--'}</div>
+	<div class="value" bind:this={elPressure}>P: {pressure ? pressure.toFixed(2) + ' hPa' : '--'}</div>
 </div>
