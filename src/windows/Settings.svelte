@@ -281,7 +281,7 @@
 		</div>
 		<div class="settings-field">
 			<label for="sheep-size">Sheep size:</label>
-			<Range id="sheep-size" min="0.25" max="5" step="0.1" bind:value={sheepSize} onchange={handleSheepSizeChange} />
+			<Range id="sheep-size" min="0.5" max="5.0" step="0.1" bind:value={sheepSize} onchange={handleSheepSizeChange} />
 			<span>{sheepSize.toFixed(1)}x</span>
 		</div>
 		<WindowTitle text="Background type" />
