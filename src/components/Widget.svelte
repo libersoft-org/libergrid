@@ -287,6 +287,7 @@
 		min-width: 0;
 		cursor: move;
 		transition: opacity 0.2s ease;
+		border: 0 solid;
 	}
 
 	.widget.dragging {
@@ -398,7 +399,7 @@
 			? `background-color: ${backgroundColor}${Math.round((backgroundTransparencyIntensity / 100) * 255)
 					.toString(16)
 					.padStart(2, '0')};`
-			: ''
+			: 'border: none;'
 	}`}
 	onmousedown={handleDragStart}
 	onmouseenter={handleMouseEnter}
