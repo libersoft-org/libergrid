@@ -6,6 +6,7 @@ interface IUserSettings {
 	dashboardItems?: IGridItem[];
 	grid?: IGrids;
 	sheepEnabled?: boolean;
+	sheepCount?: number;
 }
 const defaultSettings: IUserSettings = {
 	inactivityTimeout: 2000,
@@ -14,6 +15,7 @@ const defaultSettings: IUserSettings = {
 	dashboardItems: [],
 	grid: { cols: 10, rows: 6 },
 	sheepEnabled: false,
+	sheepCount: 1,
 };
 const settingsStorageKey = 'libergrid-settings';
 
@@ -30,6 +32,7 @@ function getSettings(): IUserSettings {
 			dashboardItems: userSettings.dashboardItems ?? defaultSettings.dashboardItems,
 			grid: userSettings.grid ?? defaultSettings.grid,
 			sheepEnabled: userSettings.sheepEnabled ?? defaultSettings.sheepEnabled,
+			sheepCount: userSettings.sheepCount ?? defaultSettings.sheepCount,
 		};
 	} catch (error) {
 		console.warn('Failed to load settings from localStorage:', error);
@@ -41,6 +44,7 @@ function getSettings(): IUserSettings {
 			dashboardItems: defaultSettings.dashboardItems,
 			grid: defaultSettings.grid,
 			sheepEnabled: defaultSettings.sheepEnabled,
+			sheepCount: defaultSettings.sheepCount,
 		};
 	}
 }

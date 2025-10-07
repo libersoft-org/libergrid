@@ -5,6 +5,7 @@
 	import Option from '../components/SelectOption.svelte';
 	import WindowTitle from '../components/WindowTitle.svelte';
 	import Switch from '../components/Switch.svelte';
+	import Range from '../components/Range.svelte';
 	import { currentIndex, setBackground, setBackgroundType, backgroundType, backgroundImages, backgroundVideos, backgroundColors } from '../scripts/background.ts';
 	import { getSettingsValue, setSettingsValue } from '../scripts/settings.ts';
 	import { validateGridResize, dashboardItems, gridLimits } from '../scripts/dashboard.ts';
@@ -16,6 +17,7 @@
 	let inactivityTimeout: number = $state(getSettingsValue('inactivityTimeout') / 1000); // Convert to seconds
 	let grid = $state(getSettingsValue('grid'));
 	let sheepEnabled = $state(getSettingsValue('sheepEnabled'));
+	let sheepCount = $state(getSettingsValue('sheepCount'));
 
 	// Derive current background items from background type reactively
 	const currentBackgroundItems = $derived.by(() => {
@@ -127,6 +129,15 @@
 	function toggleSheep(newValue: boolean) {
 		sheepEnabled = newValue;
 		setSettingsValue('sheepEnabled', newValue);
+	}
+
+	function handleSheepCountChange(event: Event) {
+		const target = event.target as HTMLInputElement;
+		const count = parseInt(target.value, 10);
+		if (count >= 0 && count <= 50) {
+			sheepCount = count;
+			setSettingsValue('sheepCount', count);
+		}
 	}
 </script>
 
@@ -252,6 +263,11 @@
 		<div class="settings-field">
 			<label for="sheep-toggle">Sheep:</label>
 			<Switch bind:checked={sheepEnabled} onChange={toggleSheep} />
+		</div>
+		<div class="settings-field">
+			<label for="sheep-count">Sheep count:</label>
+			<Range id="sheep-count" min="1" max="50" step="1" bind:value={sheepCount} onchange={handleSheepCountChange} />
+			<span>{sheepCount}</span>
 		</div>
 		<WindowTitle text="Background type" />
 		<Select value={$backgroundType} onchange={handleBackgroundTypeSelect}>

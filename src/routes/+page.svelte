@@ -5,8 +5,8 @@
 	import Dashboard from '../components/Dashboard.svelte';
 	import Panel from '../components/Panel.svelte';
 	import Sheep from '../components/Sheep.svelte';
-
 	let sheepEnabled = $state(getSettingsValue('sheepEnabled'));
+	let sheepCount = $state(getSettingsValue('sheepCount'));
 
 	onMount(() => {
 		// Listen for settings changes
@@ -14,6 +14,9 @@
 			const customEvent = event as CustomEvent;
 			if (customEvent.detail.key === 'sheepEnabled') {
 				sheepEnabled = customEvent.detail.value;
+			}
+			if (customEvent.detail.key === 'sheepCount') {
+				sheepCount = customEvent.detail.value;
 			}
 		};
 
@@ -31,6 +34,8 @@
 <Background />
 <Dashboard />
 <Panel />
-{#if sheepEnabled}
-	<Sheep />
+{#if sheepEnabled && sheepCount > 0}
+	{#each Array(sheepCount) as _, i (i)}
+		<Sheep />
+	{/each}
 {/if}
