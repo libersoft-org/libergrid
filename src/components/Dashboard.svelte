@@ -139,11 +139,6 @@
 		grid-auto-columns: 0;
 	}
 
-	/* Add overlay when video is playing */
-	.dashboard.video-background {
-		background: transparent;
-	}
-
 	.dashboard-item {
 		position: relative;
 		/* Grid positioning is now inline in HTML */

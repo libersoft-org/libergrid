@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Clickable from './Clickable.svelte';
 	import Icon from './Icon.svelte';
 	interface Props {
 		img?: string | undefined;
@@ -23,8 +24,10 @@
 	}
 </style>
 
-<div class="widget-button" on:click={onClick} style:background-color={bgColor} style:border-color={borderColor}>
-	{#if img}
-		<Icon {img} {alt} />
-	{/if}
-</div>
+<Clickable {onClick}>
+	<div class="widget-button" style:background-color={bgColor} style:border-color={borderColor}>
+		{#if img}
+			<Icon {img} {alt} />
+		{/if}
+	</div>
+</Clickable>

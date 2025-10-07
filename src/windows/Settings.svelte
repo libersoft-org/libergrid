@@ -206,17 +206,6 @@
 		cursor: pointer;
 	}
 
-	.settings-section {
-		margin-bottom: 20px;
-	}
-
-	.settings-section h3 {
-		margin-bottom: 10px;
-		font-size: 16px;
-		font-weight: bold;
-		color: white;
-	}
-
 	.settings-field {
 		display: flex;
 		align-items: center;

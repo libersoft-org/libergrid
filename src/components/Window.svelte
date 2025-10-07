@@ -57,12 +57,6 @@
 		color: #fff;
 	}
 
-	.window .title-bar .close {
-		position: absolute;
-		top: 10px;
-		right: 10px;
-	}
-
 	.window .body {
 		padding: 1vw;
 	}

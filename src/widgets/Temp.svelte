@@ -63,6 +63,12 @@
 		gap: 5px;
 	}
 
+	.label {
+		margin-bottom: 5px;
+		opacity: 0.8;
+		-webkit-text-stroke: 0.02em black;
+	}
+
 	.row {
 		display: flex;
 		align-items: center;
@@ -75,20 +81,9 @@
 		height: 15cqw;
 	}
 
-	.label {
-		margin-bottom: 5px;
-		opacity: 0.8;
-		-webkit-text-stroke: 0.02em black;
-	}
-
-	.value {
+	.row .value {
 		font-weight: bold;
 		-webkit-text-stroke: 0.02em black;
-	}
-
-	.secondary {
-		opacity: 0.9;
-		-webkit-text-stroke: 0.01em black;
 	}
 </style>
 

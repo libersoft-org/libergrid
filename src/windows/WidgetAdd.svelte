@@ -16,13 +16,6 @@
 	}
 </script>
 
-<style>
-	.widget-add {
-		display: flex;
-		flex-direction: column;
-	}
-</style>
-
 <Window {show} title="Select component" {onClose} maxWidth="400px">
 	<Menu>
 		{#each gridItems as widget (widget.type)}
