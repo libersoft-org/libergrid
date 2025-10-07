@@ -15,11 +15,10 @@
 		rowSpan?: number;
 		onResize?: (newColSpan: number, newRowSpan: number, newGridRow?: number, newGridCol?: number) => void;
 		onMove?: (newGridRow: number, newGridCol: number) => void;
-		onToggleBorder?: () => void;
 		onRemove?: () => void;
 		children: Snippet;
 	}
-	let { blur = true, blurIntensity = 5, backgroundColor = '#000000', backgroundTransparency = false, backgroundTransparencyIntensity = 70, widgetId, colSpan = 1, rowSpan = 1, onResize = () => {}, onMove = () => {}, onToggleBorder = () => {}, onRemove = () => {}, children }: Props = $props();
+	let { blur = true, blurIntensity = 5, backgroundColor = '#000000', backgroundTransparency = false, backgroundTransparencyIntensity = 70, widgetId, colSpan = 1, rowSpan = 1, onResize = () => {}, onMove = () => {}, onRemove = () => {}, children }: Props = $props();
 	let showSettings = $state(false);
 	// Get grid dimensions from settings
 	let gridConfig = $state(getSettingsValue('grid'));
@@ -79,9 +78,7 @@
 		if (isResizing) return;
 		// Check if we're not clicking on resize handle or widget buttons
 		const target = event.target as HTMLElement;
-		if (target.classList.contains('resizer') || target.classList.contains('widget-button') || target.closest('.widget-button')) {
-			return; // Don't allow drag on resize handles or widget buttons
-		}
+		if (target.classList.contains('resizer') || target.classList.contains('widget-button') || target.closest('.widget-button')) return; // Don't allow drag on resize handles or widget buttons
 		event.stopPropagation();
 		isDragging = true;
 		let clientX: number, clientY: number;
@@ -412,7 +409,6 @@
 	{#if showResizeHandles}
 		<div class="buttons">
 			<WidgetButton img="img/settings.svg" bgColor="#0f0" borderColor="#080" onClick={handleSettings} />
-			<!--<WidgetButton img="img/power.svg" onClick={handleToggleBorder} />-->
 			<WidgetButton img="img/cross.svg" bgColor="#f00" borderColor="#800" onClick={handleRemove} />
 		</div>
 	{/if}
