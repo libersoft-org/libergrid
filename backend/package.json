@@ -1,11 +1,9 @@
 {
-  "dependencies": {
-    "bme280-sensor": "^0.1.7",
-    "cors": "^2.8.5",
-    "express": "^4.18.2",
-    "i2c-bus": "^5.2.3"
-  },
-  "scripts": {
-    "start": "node api-server.js"
-  }
+	"type": "module",
+	"dependencies": {
+		"bme280-sensor": "^0.1.7",
+		"cors": "^2.8.5",
+		"express": "^4.18.2",
+		"i2c-bus": "^5.2.3"
+	}
 }

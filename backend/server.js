@@ -6,8 +6,6 @@ import { apiRoutes } from './api.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
-const host = '127.0.0.1';
-const port = 80;
 app.use(cors());
 app.use(express.static(path.join(__dirname, '../frontend/build')));
 
@@ -21,4 +19,4 @@ app.get('*', (req, res) => {
 	res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
 });
 
-app.listen(port, host, () => console.log('Web server running on http://' + host + ':' + port));
+app.listen(80, '0.0.0.0', () => console.log('Web server is running...'));
