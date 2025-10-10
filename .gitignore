@@ -1,8 +1,8 @@
-.svelte-kit/
-node_modules/
-build/
-*.crt
-*.key
+**/node_modules/
+**/build/
+**/*.crt
+**/*.key
+frontend/.svelte-kit/
 .secret_git
 bun.lockb
 bun.lockb.txt
