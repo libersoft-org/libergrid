@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { autoFont } from '../scripts/font';
 	import { getAPI } from '../scripts/api.ts';
-	const apiURL = 'http://127.0.0.1/sensor-internal';
+	const apiURL = 'http://127.0.0.1/api/sensor-internal';
 	const refresh = 10000; // 10 seconds
 	interface Props {
 		label?: string;

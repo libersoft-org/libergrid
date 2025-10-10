@@ -19,4 +19,4 @@ app.get('*', (req, res) => {
 	res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
 });
 
-app.listen(80, '0.0.0.0', () => console.log('Web server is running...'));
+app.listen(80, '127.0.0.1', () => console.log('Web server is running...'));
