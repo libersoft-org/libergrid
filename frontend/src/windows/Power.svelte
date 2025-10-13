@@ -26,16 +26,11 @@
 			alert('Failed to restart the system');
 		}
 	}
-
-	function handleExit() {
-		window.close();
-	}
 </script>
 
 <Window {show} title="Power settings" {onClose} maxWidth="50vw">
 	<Menu>
 		<MenuItem text="Shut down" onClick={handleShutdown} />
 		<MenuItem text="Restart" onClick={handleRestart} />
-		<MenuItem text="Exit" onClick={handleExit} />
 	</Menu>
 </Window>
