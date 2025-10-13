@@ -41,6 +41,7 @@ export const gridItems: IGridItemType[] = [
 	{ type: 'video', label: 'Video' },
 	{ type: 'chart', label: 'Chart' },
 	{ type: 'map', label: 'Weather map' },
+	{ type: 'moon', label: 'Moon phase' },
 ];
 export const dashboardItems = writable<IGridItem[]>(loadDashboardItems());
 export const showFields = writable<boolean>(false);

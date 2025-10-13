@@ -13,6 +13,7 @@
 	import WidgetVideo from '../widgets/Video.svelte';
 	import WidgetChart from '../widgets/Chart.svelte';
 	import WidgetMap from '../widgets/Map.svelte';
+	import WidgetMoon from '../widgets/Moon.svelte';
 	import WindowWidgetAdd from '../windows/WidgetAdd.svelte';
 	let showWindowWidgetAdd: boolean = $state(false);
 	let selectedGridPosition: IGridPosition | null = $state(null);
@@ -74,6 +75,8 @@
 				return WidgetChart;
 			case 'map':
 				return WidgetMap;
+			case 'moon':
+				return WidgetMoon;
 			default:
 				return null;
 		}
