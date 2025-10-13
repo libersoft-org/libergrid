@@ -284,12 +284,12 @@
 			{#each currentBackgroundItems as background, index}
 				{@const isCurrentSelected = $currentIndex === index}
 				<div class="background-item" class:active={isCurrentSelected} role="button" tabindex="0" aria-label="Select background" onclick={() => handleBackgroundSelect(index)} onkeydown={e => handleKeydown(e, index)}>
-					{#if $backgroundType === 'video' && 'url' in background}
-						<video class="background-thumbnail video-thumbnail" src={background.url} muted loop onmouseenter={e => handleVideoHover(e, true)} onmouseleave={e => handleVideoHover(e, false)}> Your browser does not support video. </video>
+					{#if $backgroundType === 'video'}
+						<video class="background-thumbnail video-thumbnail" src={background} muted loop onmouseenter={e => handleVideoHover(e, true)} onmouseleave={e => handleVideoHover(e, false)}> Your browser does not support video. </video>
 					{:else if $backgroundType === 'color'}
-						<div class="background-thumbnail" style="background-color: {'color' in background ? background.color : '#222'}; display: flex; align-items: center; justify-content: center; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.7);">{'color' in background ? background.color : ''}</div>
+						<div class="background-thumbnail" style="background-color: #{background}; display: flex; align-items: center; justify-content: center; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.7);">#{background}</div>
 					{:else}
-						<div class="background-thumbnail" style="background-image: url('{'url' in background ? background.url : ''}')"></div>
+						<div class="background-thumbnail" style="background-image: url('{background}')"></div>
 					{/if}
 				</div>
 			{/each}

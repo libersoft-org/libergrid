@@ -22,10 +22,10 @@
 	}
 </style>
 
-{#if $backgroundType === 'video' && $currentBackground && 'url' in $currentBackground}
-	<video class="background video" src={$currentBackground.url} autoplay loop muted playsinline>Your browser does not support video.</video>
-{:else if $backgroundType === 'color' && $currentBackground && 'color' in $currentBackground}
-	<div class="background color" style:background-color={$currentBackground.color}></div>
-{:else if $backgroundType === 'image' && $currentBackground && 'url' in $currentBackground}
-	<div class="background image" style:background-image="url('{$currentBackground.url}')"></div>
+{#if $backgroundType === 'video' && $currentBackground}
+	<video class="background video" src={$currentBackground} autoplay loop muted playsinline>Your browser does not support video.</video>
+{:else if $backgroundType === 'color' && $currentBackground}
+	<div class="background color" style:background-color="#{$currentBackground}"></div>
+{:else if $backgroundType === 'image' && $currentBackground}
+	<div class="background image" style:background-image="url('{$currentBackground}')"></div>
 {/if}
