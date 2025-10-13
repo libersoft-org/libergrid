@@ -38,19 +38,14 @@
 		};
 	}
 	let moonPhase = getMoonPhase8(new Date());
-	let currentDay = new Date().getDate();
 	let intervalId: number;
 
 	onMount(() => {
-		// Check every second if it's a new day
+		// Check every minute for phase changes
 		intervalId = setInterval(() => {
-			const now = new Date();
-			const day = now.getDate();
-			if (day !== currentDay) {
-				currentDay = day;
-				moonPhase = getMoonPhase8(now);
-			}
-		}, 1000);
+			const newPhase = getMoonPhase8(new Date());
+			if (newPhase.phase !== moonPhase.phase) moonPhase = newPhase;
+		}, 60000);
 	});
 
 	onDestroy(() => {
@@ -67,12 +62,15 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		overflow: hidden;
+		border-radius: 1vw;
 	}
 
 	.moon-container img {
-		width: 100%;
-		height: 100%;
+		max-width: 100%;
+		max-height: 100%;
 		object-fit: contain;
+		border-radius: 1vw;
 	}
 </style>
 
