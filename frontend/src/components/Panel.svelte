@@ -21,6 +21,10 @@
 	function closeWindowPower() {
 		showWindowPower = false;
 	}
+
+	function refreshPage() {
+		window.location.reload();
+	}
 </script>
 
 <style>
@@ -60,6 +64,7 @@
 {#if $showFields}
 	<div class="panel">
 		<Icon img="img/settings.svg" alt="Settings" padding="10px" onClick={openWindowSettings} />
+		<Icon img="img/refresh.svg" alt="Refresh" padding="10px" onClick={refreshPage} />
 		<Icon img="img/power.svg" alt="Power" padding="10px" onClick={openWindowPower} />
 	</div>
 {/if}

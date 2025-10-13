@@ -13,15 +13,9 @@
 		// Listen for settings changes
 		const handleSettingsUpdate = (event: Event) => {
 			const customEvent = event as CustomEvent;
-			if (customEvent.detail.key === 'sheepEnabled') {
-				sheepEnabled = customEvent.detail.value;
-			}
-			if (customEvent.detail.key === 'sheepCount') {
-				sheepCount = customEvent.detail.value;
-			}
-			if (customEvent.detail.key === 'sheepSize') {
-				sheepSize = customEvent.detail.value;
-			}
+			if (customEvent.detail.key === 'sheepEnabled') sheepEnabled = customEvent.detail.value;
+			if (customEvent.detail.key === 'sheepCount') sheepCount = customEvent.detail.value;
+			if (customEvent.detail.key === 'sheepSize') sheepSize = customEvent.detail.value;
 		};
 
 		window.addEventListener('settingsUpdate', handleSettingsUpdate);
