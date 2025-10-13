@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { autoFont } from '../scripts/font';
 	import { getAPI } from '../scripts/api';
+	import Spinner from '../components/Spinner.svelte';
 	let publicIP = $state<string | null>(null);
 	let privateIP = $state<string | null>(null);
 	let publicLabelElement: HTMLElement | undefined = $state();
@@ -14,7 +15,7 @@
 
 	async function getPrivateIP(): Promise<string> {
 		try {
-			const data = await getAPI('http://127.0.0.1/ip-private');
+			const data = await getAPI('http://127.0.0.1/api/ip-private');
 			return data?.ip || 'N/A';
 		} catch (error) {
 			console.error('Failed to load private IP from API:', error);
@@ -24,19 +25,11 @@
 
 	async function getPublicIP(): Promise<string> {
 		try {
-			const data = await getAPI('http://127.0.0.1/ip-public');
+			const data = await getAPI('http://127.0.0.1/api/ip-public');
 			return data?.ip || 'N/A';
 		} catch (error) {
 			console.error('Failed to load public IP from API:', error);
-			// Fallback to external service
-			try {
-				const response = await fetch('https://api.ipify.org?format=json');
-				const fallbackData = await response.json();
-				return fallbackData.ip || 'N/A';
-			} catch (fallbackError) {
-				console.error('Failed to load public IP from fallback:', fallbackError);
-				return 'N/A';
-			}
+			return 'N/A';
 		}
 	}
 
@@ -91,6 +84,7 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
+		gap: 1vw;
 		width: 100%;
 		height: 50%;
 	}
@@ -113,14 +107,20 @@
 	}
 </style>
 
-{#if publicIP !== null && privateIP !== null}
-	<div class="ip-item">
-		<div class="label" bind:this={publicLabelElement}>Public IP</div>
+<div class="ip-item">
+	<div class="label" bind:this={publicLabelElement}>Public IP</div>
+	{#if publicIP === null}
+		<Spinner color="#888" />
+	{:else}
 		<div class="value" bind:this={publicIPElement}>{publicIP}</div>
-	</div>
-	<div class="divider"></div>
-	<div class="ip-item">
-		<div class="label" bind:this={privateLabelElement}>Private IP</div>
+	{/if}
+</div>
+<div class="divider"></div>
+<div class="ip-item">
+	<div class="label" bind:this={privateLabelElement}>Private IP</div>
+	{#if privateIP === null}
+		<Spinner color="#888" />
+	{:else}
 		<div class="value" bind:this={privateIPElement}>{privateIP}</div>
-	</div>
-{/if}
+	{/if}
+</div>

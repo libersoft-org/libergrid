@@ -1,7 +1,11 @@
 import BME280 from 'bme280-sensor';
 import { exec } from 'child_process';
+import os from 'os';
+import https from 'https';
 export const apiRoutes = {
 	'sensor-internal': handleSensorReading,
+	'ip-private': handlePrivateIP,
+	'ip-public': handlePublicIP,
 	poweroff: handlePoweroff,
 	restart: handleRestart,
 	health: handleHealth,
@@ -88,4 +92,83 @@ function handleHealth(req, res) {
 		sensor_initialized: sensorInitialized,
 		uptime: process.uptime(),
 	});
+}
+
+function handlePrivateIP(req, res) {
+	try {
+		const networkInterfaces = os.networkInterfaces();
+		let privateIP = null;
+		// Look for first non-internal IPv4 address
+		for (const interfaceName in networkInterfaces) {
+			const interfaces = networkInterfaces[interfaceName];
+			if (interfaces) {
+				for (const iface of interfaces) {
+					// Skip internal (loopback) addresses and IPv6
+					if (iface.family === 'IPv4' && !iface.internal) {
+						privateIP = iface.address;
+						break;
+					}
+				}
+			}
+			if (privateIP) break;
+		}
+		if (privateIP) {
+			res.json({ ip: privateIP });
+		} else {
+			res.status(404).json({
+				error: 'No private IP found',
+				message: 'Could not find a valid private IP address',
+			});
+		}
+	} catch (err) {
+		console.error('Error getting private IP:', err);
+		res.status(500).json({
+			error: 'Error retrieving private IP',
+			message: err.message,
+		});
+	}
+}
+
+function handlePublicIP(req, res) {
+	// Use external service to get public IP
+	const options = {
+		hostname: 'api.ipify.org',
+		path: '/?format=json',
+		method: 'GET',
+		timeout: 5000,
+	};
+
+	const request = https.request(options, response => {
+		let data = '';
+		response.on('data', chunk => {
+			data += chunk;
+		});
+		response.on('end', () => {
+			try {
+				const jsonData = JSON.parse(data);
+				res.json({ ip: jsonData.ip });
+			} catch (err) {
+				console.error('Error parsing public IP response:', err);
+				res.status(500).json({
+					error: 'Error parsing public IP',
+					message: err.message,
+				});
+			}
+		});
+	});
+	request.on('error', err => {
+		console.error('Error getting public IP:', err);
+		res.status(500).json({
+			error: 'Error retrieving public IP',
+			message: err.message,
+		});
+	});
+	request.on('timeout', () => {
+		request.destroy();
+		res.status(504).json({
+			error: 'Timeout',
+			message: 'Request to get public IP timed out',
+		});
+	});
+	request.end();
 }

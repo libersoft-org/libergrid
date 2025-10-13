@@ -8,7 +8,9 @@
 		"editor.insertSpaces": false
 	},
 	"[html]": {
-		"editor.defaultFormatter": "esbenp.prettier-vscode"
+		"editor.defaultFormatter": "esbenp.prettier-vscode",
+		"editor.tabSize": 1,
+		"editor.insertSpaces": false
 	},
 	"editor.formatOnSave": true
 }
