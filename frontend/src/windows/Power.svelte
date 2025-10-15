@@ -11,7 +11,7 @@
 
 	async function handleShutdown() {
 		try {
-			await getAPI('http://127.0.0.1/poweroff');
+			await getAPI('http://127.0.0.1/api/poweroff');
 		} catch (error) {
 			console.error('Failed to shutdown:', error);
 			alert('Failed to shutdown the system');
@@ -20,7 +20,7 @@
 
 	async function handleRestart() {
 		try {
-			await getAPI('http://127.0.0.1/restart');
+			await getAPI('http://127.0.0.1/api/restart');
 		} catch (error) {
 			console.error('Failed to restart:', error);
 			alert('Failed to restart the system');
