@@ -1,53 +1,28 @@
 # LiberGrid - installation
 
-## 1. Download the latest version of this software
+## 1. Download the latest version of this software and install required system tools
 
-These are the installation instructions of this software for the different Linux distributions.
+These are the installation instructions of this software for [Debian Linux](https://www.debian.org/).
 
 Log in as "root" on your server and run the following commands to download the necessary dependencies and the latest version of this software from GitHub:
-
-### Debian / Ubuntu Linux
 
 ```sh
 apt update
 apt -y upgrade
-apt -y install git openssl
+apt -y install git openssl g++
+curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
 curl -fsSL https://bun.sh/install | bash
 source /root/.bashrc
 git clone https://github.com/libersoft-org/libergrid.git
-cd libergrid
-```
-
-### CentOS / RHEL / Fedora Linux
-
-```sh
-dnf -y update
-dnf -y install git openssl
-curl -fsSL https://bun.sh/install | bash
-source /root/.bashrc
-git clone https://github.com/libersoft-org/libergrid.git
-cd libergrid
+cd libergrid/frontend/
+./build.sh
+cd ../backend/
+./start.sh
 ```
 
 ## 2. Use this software
 
-If you'd like to build this software from source code:
-
-Run build script with the parameter of your base URL path where your web server will serve this software. This is important if you are not serving it from the root of your domain.
-
-For web root (for example: https://YOUR_SERVER/) just run:
-
-```sh
-./build.sh
-```
-
-For other web path (for example https://YOUR_SERVER/client/) run:
-
-```sh
-./build.sh "/client"
-```
-
-... and then move the content of your "**build**" folder to your web server.
+Open your web browser and navigate to: http://127.0.0.1/
 
 If you'd like to **run this software in developer mode**, you need HTTPS certificate keys.
 
