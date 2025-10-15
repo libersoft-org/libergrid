@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Window from '../components/Window.svelte';
 	import WindowTitle from '../components/WindowTitle.svelte';
+	import Input from '../components/Input.svelte';
 	import Switch from '../components/Switch.svelte';
 	import Range from '../components/Range.svelte';
 	import { updateWidgetSetting } from '../scripts/dashboard.ts';
@@ -81,7 +82,7 @@
 		</div>
 		<div class="row">
 			<div class="text">Background color:</div>
-			<input type="color" class="color-input" bind:value={backgroundColor} onchange={handleBackgroundColorChange} disabled={backgroundTransparency} />
+			<Input type="color" class="color-input" bind:value={backgroundColor} onChange={handleBackgroundColorChange} disabled={backgroundTransparency} />
 		</div>
 		<div class="row">
 			<div class="text">Background transparency:</div>

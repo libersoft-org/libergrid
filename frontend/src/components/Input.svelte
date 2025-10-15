@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Icon from '@/core/components/Icon/Icon.svelte';
+	import Icon from './Icon.svelte';
 	interface Props {
 		type?: 'text' | 'number' | 'email' | 'password' | 'search' | 'tel' | 'url' | 'color';
 		placeholder?: string;
@@ -67,16 +67,16 @@
 <style>
 	input {
 		box-sizing: border-box;
-		padding: 10px;
-		border-radius: 10px;
+		padding: 0.5vw;
+		border-radius: 0.5vw;
 		font-family: inherit;
-		font-size: inherit;
+		font-size: 1vw;
 		background-color: #fff;
 		color: #000;
 	}
 
 	.no-button {
-		border: 1px solid #000;
+		border: 0.1vw solid #000;
 	}
 
 	.button {
@@ -90,7 +90,7 @@
 	}
 
 	input:disabled {
-		border: 1px solid #ccc;
+		border: 0.1vw solid #ccc;
 		background-color: #f5f5f5;
 		color: #ccc;
 	}
@@ -103,20 +103,20 @@
 		display: flex;
 		box-sizing: border-box;
 		align-items: center;
-		border: 1px solid #000;
-		border-radius: 10px;
+		border: 0.1vw solid #000;
+		border-radius: 0.5vw;
 		background-color: #fff;
 	}
 
 	.input-button-wrapper:focus-within {
-		outline: 2px solid #000;
+		outline: 0.2vw solid #000;
 	}
 </style>
 
 {#if icon}
 	<div class="input-button-wrapper" style:max-width={maxWidth && maxWidth} style:min-width={minWidth && minWidth}>
 		<input class="button" class:expand {type} {placeholder} bind:this={inputRef} bind:value onkeydown={e => handleKeydown(e)} oninput={handleInput} onfocus={handleFocus} onblur={handleBlur} onclick={handleClick} />
-		<Icon img={icon.img} alt={icon.alt} colorVariable={icon.colorVariable ? icon.colorVariable : ''} size="20px" padding="10px" onClick={icon.onClick} />
+		<Icon img={icon.img} alt={icon.alt} size="1vw" padding="1vw" onClick={icon.onClick} />
 	</div>
 {:else}
 	<input class="no-button" data-testid={testId} value={displayValue !== undefined ? displayValue : value} disabled={!enabled} onchange={handleChange} oninput={handleInput} class:expand style:max-width={maxWidth && maxWidth} style:min-width={minWidth && minWidth} {type} {placeholder} {min} {max} {step} bind:this={inputRef} onkeydown={e => handleKeydown(e)} onfocus={handleFocus} onblur={handleBlur} onclick={handleClick} />

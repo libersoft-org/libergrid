@@ -2,6 +2,7 @@
 	import { get } from 'svelte/store';
 	import Window from '../components/Window.svelte';
 	import WindowTitle from '../components/WindowTitle.svelte';
+	import Input from '../components/Input.svelte';
 	import Select from '../components/Select.svelte';
 	import Option from '../components/SelectOption.svelte';
 	import Switch from '../components/Switch.svelte';
@@ -246,17 +247,17 @@
 		<WindowTitle text="Interface settings" />
 		<div class="settings-field">
 			<label for="inactivity-timeout">Auto-hide timeout:</label>
-			<input id="inactivity-timeout" type="number" min="1" max="15" bind:value={inactivityTimeout} onchange={handleInactivityTimeoutChange} />
+			<Input id="inactivity-timeout" type="number" min="1" max="15" bind:value={inactivityTimeout} onChange={handleInactivityTimeoutChange} />
 			<span>seconds</span>
 		</div>
 		<div class="settings-field">
 			<label for="grid-cols">Grid columns:</label>
-			<input id="grid-cols" type="number" min={gridLimits.minCols} max={gridLimits.maxCols} value={grid.cols} onchange={handleGridColsChange} />
+			<Input id="grid-cols" type="number" min={gridLimits.minCols} max={gridLimits.maxCols} value={grid.cols} onChange={handleGridColsChange} />
 			<span>columns</span>
 		</div>
 		<div class="settings-field">
 			<label for="grid-rows">Grid rows:</label>
-			<input id="grid-rows" type="number" min={gridLimits.minRows} max={gridLimits.maxRows} value={grid.rows} onchange={handleGridRowsChange} />
+			<Input id="grid-rows" type="number" min={gridLimits.minRows} max={gridLimits.maxRows} value={grid.rows} onChange={handleGridRowsChange} />
 			<span>rows</span>
 		</div>
 		<div class="settings-field">
