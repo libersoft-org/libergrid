@@ -24,7 +24,7 @@
 		};
 		inputRef?: HTMLInputElement;
 		'data-testid'?: string;
-		onChange?: (value: string | number) => void;
+		onChange?: (e: Event) => void;
 	}
 	let { type = 'text', placeholder = '', value = $bindable(), enabled = true, displayValue, expand = true, minWidth, maxWidth, onKeydown, onFocus, onBlur, onClick, min, max, step, icon, inputRef = $bindable(), 'data-testid': testId, onChange }: Props = $props();
 
@@ -47,6 +47,7 @@
 	function handleChange(e: Event) {
 		const target = e.target as HTMLInputElement;
 		setValue(target.value);
+		if (onChange) onChange(e);
 	}
 
 	function handleInput(e: Event) {
@@ -56,7 +57,6 @@
 
 	function setValue(newValue: string | number) {
 		value = type === 'number' ? Number(newValue) : newValue;
-		onChange?.(value);
 	}
 
 	export function focus() {
@@ -99,6 +99,17 @@
 		width: 100%;
 	}
 
+	input[type='number'] {
+		padding-right: 0.5vw;
+	}
+
+	input[type='number']::-webkit-inner-spin-button,
+	input[type='number']::-webkit-outer-spin-button {
+		opacity: 1;
+		transform: scale(2);
+		cursor: pointer;
+	}
+
 	.input-button-wrapper {
 		display: flex;
 		box-sizing: border-box;
@@ -115,7 +126,7 @@
 
 {#if icon}
 	<div class="input-button-wrapper" style:max-width={maxWidth && maxWidth} style:min-width={minWidth && minWidth}>
-		<input class="button" class:expand {type} {placeholder} bind:this={inputRef} bind:value onkeydown={e => handleKeydown(e)} oninput={handleInput} onfocus={handleFocus} onblur={handleBlur} onclick={handleClick} />
+		<input class="button" class:expand {type} {placeholder} bind:this={inputRef} value={displayValue !== undefined ? displayValue : value} onkeydown={e => handleKeydown(e)} onchange={handleChange} oninput={handleInput} onfocus={handleFocus} onblur={handleBlur} onclick={handleClick} {min} {max} {step} />
 		<Icon img={icon.img} alt={icon.alt} size="1vw" padding="1vw" onClick={icon.onClick} />
 	</div>
 {:else}
