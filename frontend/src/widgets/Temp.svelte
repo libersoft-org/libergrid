@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { autoFont } from '../scripts/font';
-	import { getAPI } from '../scripts/api.ts';
-	const apiURL = 'http://127.0.0.1/api/sensor-internal';
+	import { getAPILocal } from '../scripts/api.ts';
+	const apiName = 'sensor-internal';
 	const refresh = 10000; // 10 seconds
 	interface Props {
 		label?: string;
@@ -30,7 +30,7 @@
 
 	async function loadSensorData() {
 		try {
-			const data = await getAPI(apiURL);
+			const data = await getAPILocal(apiName);
 			if (data.temperature_C !== undefined) {
 				temp = celsius ? data.temperature_C : (data.temperature_C * 9) / 5 + 32;
 				humidity = data.humidity;

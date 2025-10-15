@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { autoFont } from '../scripts/font';
-	import { getAPI } from '../scripts/api';
+	import { getAPILocal } from '../scripts/api.ts';
 	import Spinner from '../components/Spinner.svelte';
 	let publicIP = $state<string | null>(null);
 	let privateIP = $state<string | null>(null);
@@ -15,7 +15,7 @@
 
 	async function getPrivateIP(): Promise<string> {
 		try {
-			const data = await getAPI('http://127.0.0.1/api/ip-private');
+			const data = await getAPILocal('ip-private');
 			return data?.ip || 'N/A';
 		} catch (error) {
 			console.error('Failed to load private IP from API:', error);
@@ -25,7 +25,7 @@
 
 	async function getPublicIP(): Promise<string> {
 		try {
-			const data = await getAPI('http://127.0.0.1/api/ip-public');
+			const data = await getAPILocal('ip-public');
 			return data?.ip || 'N/A';
 		} catch (error) {
 			console.error('Failed to load public IP from API:', error);

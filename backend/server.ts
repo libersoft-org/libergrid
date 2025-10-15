@@ -15,7 +15,7 @@ Object.entries(apiRoutes).forEach(([routePath, handler]) => {
 });
 app.get('*', (req, res) => {
 	const indexPath = path.join(__dirname, '../frontend/build/index.html');
-	if (!existsSync(indexPath)) return res.status(404).send('Not Found');
+	if (!existsSync(indexPath)) return res.status(404).send('404 Not Found');
 	res.sendFile(indexPath);
 });
 app.listen(80, '127.0.0.1', () => console.log('Web server is running...'));

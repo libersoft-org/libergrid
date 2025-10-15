@@ -9,3 +9,7 @@ export async function getAPI(url: string): Promise<any> {
 		throw error;
 	}
 }
+
+export async function getAPILocal(apiName: string): Promise<any> {
+	return getAPI('http://127.0.0.1/api/' + apiName);
+}
